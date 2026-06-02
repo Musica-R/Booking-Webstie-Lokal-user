@@ -1,0 +1,513 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --blue: #2563eb;
+    --blue-hover: #1d4ed8;
+    --border: #e2e8f0;
+    --border-focus: #2563eb;
+    --text: #111827;
+    --text-muted: #6b7280;
+    --bg: #ffffff;
+    --input-bg: #ffffff;
+    --tab-active-bg: #ffffff;
+    --tab-bg: #f1f5f9;
+    --radius: 10px;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    background: #f8fafc;
+    color: var(--text);
+    min-height: 100vh;
+}
+
+/* ── Top nav ── */
+.login-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 32px;
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+}
+
+.nav-back {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    color: var(--text-muted);
+}
+
+.nav-back:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.nav-back svg {
+    width: 17px;
+    height: 17px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.nav-logo {
+    display: flex;
+    align-items: baseline;
+}
+
+.nav-logo-text {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.03em;
+}
+
+.nav-logo-dot {
+    font-size: 24px;
+    font-weight: 700;
+    color: #f5a623;
+}
+
+/* ── Page layout ── */
+.login-page {
+    min-height: calc(100vh - 65px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 48px 24px 64px;
+    background: #fff;
+}
+
+/* ── Form card ── */
+.login-card {
+    width: 100%;
+    max-width: 440px;
+}
+
+.login-heading {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: center;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+}
+
+.login-sub {
+    font-size: 14.5px;
+    font-weight: 300;
+    color: var(--text-muted);
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+/* ── Tab switcher ── */
+.login-tabs {
+    display: flex;
+    background: var(--tab-bg);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 28px;
+}
+
+.login-tab {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background 0.22s, color 0.22s, box-shadow 0.22s;
+}
+
+.login-tab.active {
+    background: var(--tab-active-bg);
+    color: var(--blue);
+    font-weight: 500;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.10);
+}
+
+/* ── Form fields ── */
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.form-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.form-forgot {
+    font-size: 13.5px;
+    font-weight: 400;
+    color: var(--blue);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.form-forgot:hover {
+    color: var(--blue-hover);
+    text-decoration: underline;
+}
+
+/* Phone input row */
+.phone-input-row {
+    display: flex;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color 0.22s;
+    background: var(--input-bg);
+}
+
+.phone-input-row:focus-within {
+    border-color: var(--border-focus);
+}
+
+.phone-prefix {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 14px;
+    border-right: 1.5px solid var(--border);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    background: #f8fafc;
+    flex-shrink: 0;
+}
+
+.phone-prefix .flag {
+    font-size: 18px;
+}
+
+.phone-number-input {
+    flex: 1;
+    padding: 13px 16px;
+    border: none;
+    outline: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14.5px;
+    font-weight: 300;
+    color: var(--text);
+    background: transparent;
+}
+
+/* Standard input */
+.form-input {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14.5px;
+    font-weight: 300;
+    color: var(--text);
+    background: var(--input-bg);
+    outline: none;
+    transition: border-color 0.22s;
+}
+
+.form-input::placeholder {
+    color: #9ca3af;
+}
+
+.form-input:focus {
+    border-color: var(--border-focus);
+}
+
+/* Password wrapper */
+.password-wrap {
+    position: relative;
+}
+
+.password-wrap .form-input {
+    padding-right: 48px;
+}
+
+.eye-btn {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    transition: color 0.2s;
+}
+
+.eye-btn:hover {
+    color: var(--text-muted);
+}
+
+.eye-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* ── Primary button ── */
+.btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: var(--blue);
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15.5px;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.22s, transform 0.18s;
+    margin-top: 6px;
+}
+
+.btn-primary:hover {
+    background: var(--blue-hover);
+    transform: translateY(-1px);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+/* ── Divider ── */
+.or-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 24px 0;
+}
+
+.or-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+}
+
+.or-text {
+    font-size: 13px;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+/* ── Social buttons ── */
+.social-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 28px;
+}
+
+.btn-social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 12px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    background: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14.5px;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.btn-social:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+.btn-social svg {
+    width: 19px;
+    height: 19px;
+    flex-shrink: 0;
+}
+
+/* ── Sign up link ── */
+.signup-link {
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.signup-link a {
+    color: var(--blue);
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.signup-link a:hover {
+    color: var(--blue-hover);
+    text-decoration: underline;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+    .login-nav {
+        padding: 16px 20px;
+    }
+
+    .login-page {
+        padding: 32px 16px 48px;
+    }
+
+    .login-heading {
+        font-size: 22px;
+    }
+}
+
+/* ── OTP sent message ── */
+.otp-sent-msg {
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--text-muted);
+    text-align: center;
+    margin-bottom: 28px;
+    line-height: 1.6;
+}
+
+.otp-sent-msg strong {
+    color: var(--text);
+    font-weight: 600;
+}
+
+.otp-edit-btn {
+    background: none;
+    border: none;
+    color: var(--blue);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 4px;
+    transition: color 0.2s;
+}
+
+.otp-edit-btn:hover {
+    color: var(--blue-hover);
+    text-decoration: underline;
+}
+
+/* ── OTP boxes ── */
+.otp-boxes {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.otp-box {
+    width: 52px;
+    height: 56px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    text-align: center;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--input-bg);
+    outline: none;
+    transition: border-color 0.22s, box-shadow 0.22s, background 0.22s;
+    caret-color: var(--blue);
+}
+
+.otp-box:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.otp-box.filled {
+    border-color: var(--blue);
+    background: rgba(37, 99, 235, 0.04);
+}
+
+/* ── Resend timer ── */
+.otp-resend {
+    text-align: center;
+    font-size: 13.5px;
+    font-weight: 300;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+
+.otp-resend strong {
+    font-weight: 700;
+    color: var(--text);
+}
+
+.otp-resend-btn {
+    background: none;
+    border: none;
+    color: var(--blue);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.2s;
+}
+
+.otp-resend-btn:hover {
+    color: var(--blue-hover);
+    text-decoration: underline;
+}
+
+/* ── Responsive OTP ── */
+@media (max-width: 400px) {
+    .otp-box {
+        width: 42px;
+        height: 48px;
+        font-size: 18px;
+        border-radius: 8px;
+    }
+
+    .otp-boxes {
+        gap: 7px;
+    }
+}

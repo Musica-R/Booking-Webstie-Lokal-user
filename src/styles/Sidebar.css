@@ -1,0 +1,126 @@
+.sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 14px;
+    padding: 20px 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    position: sticky;
+    top: 76px;
+}
+
+.sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 8px 16px;
+    border-bottom: 1px solid #F3F4F6;
+    margin-bottom: 8px;
+}
+
+.sidebar-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.sidebar-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: #111827;
+}
+
+.sidebar-email {
+    font-size: 11.5px;
+    color: #9CA3AF;
+    margin-top: 1px;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 9px 12px;
+    border: none;
+    background: transparent;
+    border-radius: 9px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #374151;
+    font-family: inherit;
+    transition: background 0.15s, color 0.15s;
+    text-align: left;
+}
+
+.sidebar-item:hover {
+    background: #F9FAFB;
+    color: #111827;
+}
+
+.sidebar-item.active {
+    background: #EFF6FF;
+    color: #2563EB;
+    font-weight: 600;
+}
+
+.sidebar-item.active .sidebar-icon {
+    color: #2563EB;
+}
+
+.sidebar-icon {
+    display: flex;
+    align-items: center;
+    color: #9CA3AF;
+    flex-shrink: 0;
+}
+
+.sidebar-item.active .sidebar-icon,
+.sidebar-item:hover .sidebar-icon {
+    color: inherit;
+}
+
+.sidebar-label {
+    flex: 1;
+}
+
+.sidebar-badge {
+    background: #EF4444;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+}
+
+.sidebar-divider {
+    height: 1px;
+    background: #F3F4F6;
+    margin: 6px 0;
+}
+
+.sidebar-logout {
+    color: #EF4444 !important;
+}
+
+.sidebar-logout .sidebar-icon {
+    color: #EF4444 !important;
+}
+
+.sidebar-logout:hover {
+    background: #FEF2F2 !important;
+}

@@ -1,0 +1,305 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap');
+
+/* ── Section wrapper ── */
+.app-banner {
+    font-family: 'DM Sans', sans-serif;
+    background: #f5f6fa;
+    padding: 80px 80px;
+}
+
+/* ── Banner Card ── */
+.app-banner__card {
+    background: linear-gradient(120deg, #0d1b3e 0%, #0e2254 45%, #1a3a6e 100%);
+    border-radius: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 56px 64px;
+    overflow: hidden;
+    position: relative;
+    gap: 32px;
+}
+
+/* Subtle radial glow */
+.app-banner__card::before {
+    content: '';
+    position: absolute;
+    top: -80px;
+    right: 200px;
+    width: 420px;
+    height: 420px;
+    background: radial-gradient(circle, rgba(59, 91, 219, 0.25) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+/* ── Left Column ── */
+.app-banner__left {
+    flex: 0 0 48%;
+    max-width: 48%;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+    z-index: 2;
+}
+
+.app-banner__title {
+    font-size: clamp(26px, 3vw, 38px);
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.15;
+    letter-spacing: -0.8px;
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.app-banner__title-highlight {
+    color: #f5a623;
+    display: block;
+}
+
+.app-banner__desc {
+    font-size: 14.5px;
+    color: rgba(255, 255, 255, 0.65);
+    line-height: 1.7;
+    max-width: 380px;
+    margin-bottom: 28px;
+    font-weight: 400;
+    text-align: left;
+}
+
+/* Feature list */
+.app-banner__features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    text-align: left;
+}
+
+.app-banner__feature {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.82);
+    font-weight: 500;
+}
+
+.app-banner__feature svg {
+    flex-shrink: 0;
+    color: #f5a623;
+}
+
+/* Store buttons */
+.app-banner__store-btns {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.app-banner__store-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.10);
+    border: 1.5px solid rgba(255, 255, 255, 0.18);
+    border-radius: 12px;
+    padding: 12px 22px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    backdrop-filter: blur(6px);
+}
+
+.app-banner__store-btn:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.35);
+    transform: translateY(-2px);
+}
+
+.app-banner__store-btn svg {
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.app-banner__store-label {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.app-banner__store-sub {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: 1;
+}
+
+.app-banner__store-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.3;
+}
+
+/* ── Right Column — Phone Mockup ── */
+.app-banner__right {
+    flex: 0 0 44%;
+    max-width: 44%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    position: relative;
+    z-index: 2;
+    height: 340px;
+}
+
+/* Phone frame */
+.app-banner__phone {
+    width: 190px;
+    background: #f0f2f7;
+    border-radius: 36px;
+    padding: 14px 12px;
+    box-shadow:
+        0 32px 72px rgba(0, 0, 0, 0.5),
+        0 0 0 2px rgba(255, 255, 255, 0.12);
+    position: relative;
+    z-index: 2;
+    transform: rotate(3deg) translateY(-10px);
+}
+
+/* Notch */
+.app-banner__phone-notch {
+    width: 56px;
+    height: 10px;
+    background: #c8ccd8;
+    border-radius: 10px;
+    margin: 0 auto 12px;
+}
+
+/* App content inside phone */
+.app-banner__phone-screen {
+    background: #fff;
+    border-radius: 24px;
+    padding: 14px 12px;
+    min-height: 240px;
+}
+
+.app-banner__phone-location {
+    font-size: 9px;
+    color: #9ca3af;
+    margin-bottom: 2px;
+    font-weight: 500;
+}
+
+.app-banner__phone-city {
+    font-size: 12px;
+    font-weight: 700;
+    color: #0d1117;
+    margin-bottom: 12px;
+}
+
+.app-banner__phone-offer {
+    background: #3b5bdb;
+    border-radius: 12px;
+    padding: 12px 12px;
+    margin-bottom: 14px;
+}
+
+.app-banner__phone-offer-label {
+    font-size: 8.5px;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+}
+
+.app-banner__phone-offer-text {
+    font-size: 14px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.25;
+}
+
+/* Skeleton lines */
+.app-banner__phone-skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.app-banner__phone-line {
+    height: 8px;
+    background: #e9ebf0;
+    border-radius: 6px;
+}
+
+.app-banner__phone-line--short {
+    width: 55%;
+}
+
+.app-banner__phone-line--medium {
+    width: 75%;
+}
+
+.app-banner__phone-line--long {
+    width: 90%;
+}
+
+/* Second phone (behind, blurred) */
+.app-banner__phone-shadow {
+    position: absolute;
+    width: 170px;
+    height: 300px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
+    border-radius: 34px;
+    right: 30px;
+    bottom: -10px;
+    transform: rotate(-6deg);
+    z-index: 1;
+    backdrop-filter: blur(2px);
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+    .app-banner {
+        padding: 0 32px 64px;
+    }
+
+    .app-banner__card {
+        padding: 44px 40px;
+    }
+}
+
+@media (max-width: 720px) {
+    .app-banner__card {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 40px 28px 48px;
+    }
+
+    .app-banner__left,
+    .app-banner__right {
+        flex: none;
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .app-banner__right {
+        height: 280px;
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .app-banner {
+        padding: 0 16px 56px;
+    }
+}

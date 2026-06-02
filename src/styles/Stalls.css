@@ -1,0 +1,293 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap');
+
+/* ── Section ── */
+.stalls {
+    font-family: 'DM Sans', sans-serif;
+    background: #f5f6fa;
+    padding: 72px 80px 80px;
+}
+
+/* ── Top Row ── */
+.stalls__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 36px;
+    gap: 24px;
+    text-align: left;
+}
+
+.stalls__heading {
+    font-size: clamp(26px, 3vw, 38px);
+    font-weight: 800;
+    color: #0d1117;
+    letter-spacing: -0.8px;
+    margin-bottom: 10px;
+    line-height: 1.15;
+}
+
+.stalls__sub {
+    font-size: 14.5px;
+    color: #6b7280;
+    line-height: 1.65;
+    max-width: 420px;
+    font-weight: 400;
+}
+
+/* ── Horizontal Scroll Track ── */
+.stalls__track-wrap {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    margin: 0 -8px;
+    padding: 8px 8px 16px;
+}
+
+.stalls__track-wrap::-webkit-scrollbar {
+    display: none;
+}
+
+.stalls__track {
+    display: flex;
+    gap: 20px;
+    width: max-content;
+}
+
+/* ── Card ── */
+.stalls__card {
+    background: #fff;
+    border-radius: 18px;
+    width: 300px;
+    flex-shrink: 0;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+    transition: transform 0.22s, box-shadow 0.22s;
+    border: 1.5px solid #f0f1f4;
+}
+
+.stalls__card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+}
+
+/* ── Image area ── */
+.stalls__card-img-wrap {
+    position: relative;
+    height: 180px;
+    overflow: hidden;
+}
+
+.stalls__card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+}
+
+.stalls__card:hover .stalls__card-img {
+    transform: scale(1.05);
+}
+
+/* Category badge (top-left) */
+.stalls__badge-category {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(4px);
+    color: #fff;
+    font-size: 11.5px;
+    font-weight: 600;
+    border-radius: 100px;
+    padding: 4px 10px;
+}
+
+/* Status badge (top-right) */
+.stalls__badge-status {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 11.5px;
+    font-weight: 700;
+    border-radius: 100px;
+    padding: 4px 10px;
+}
+
+.stalls__badge-status--open {
+    background: #22c55e;
+    color: #fff;
+}
+
+.stalls__badge-status--closed {
+    background: #ef4444;
+    color: #fff;
+}
+
+/* ── Card Body ── */
+.stalls__card-body {
+    padding: 16px 16px 0;
+}
+
+/* Name + Rating row */
+.stalls__card-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.stalls__card-name {
+    font-size: 15.5px;
+    font-weight: 700;
+    color: #0d1117;
+    letter-spacing: -0.2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+}
+
+.stalls__card-rating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #0d1117;
+    flex-shrink: 0;
+}
+
+.stalls__card-rating .star {
+    color: #f59e0b;
+}
+
+/* Distance + Phone row */
+.stalls__card-meta {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 12px;
+}
+
+.stalls__meta-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.stalls__meta-item svg {
+    flex-shrink: 0;
+    color: #9ca3af;
+}
+
+/* Mini Map */
+.stalls__map {
+    width: 100%;
+    height: 90px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #e8edf5;
+    position: relative;
+    margin-bottom: 14px;
+}
+
+.stalls__map iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    pointer-events: none;
+    filter: saturate(0.7) brightness(1.05);
+}
+
+/* Map pin overlay */
+.stalls__map-pin {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.stalls__map-pin-dot {
+    width: 32px;
+    height: 32px;
+    background: #3b5bdb;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 6px rgba(59, 91, 219, 0.2);
+}
+
+.stalls__map-pin-dot svg {
+    color: #fff;
+}
+
+/* Action Buttons */
+.stalls__card-actions {
+    display: flex;
+    gap: 10px;
+    padding: 0 0 16px;
+}
+
+.stalls__btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border-radius: 10px;
+    padding: 10px 0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s;
+    border: 1.5px solid;
+}
+
+.stalls__btn--navigate {
+    background: #fff;
+    color: #0d1117;
+    border-color: #e2e8f0;
+}
+
+.stalls__btn--navigate:hover {
+    background: #f9fafb;
+    border-color: #c7d2fe;
+    color: #3b5bdb;
+}
+
+.stalls__btn--call {
+    background: #eef2ff;
+    color: #3b5bdb;
+    border-color: #c7d2fe;
+}
+
+.stalls__btn--call:hover {
+    background: #3b5bdb;
+    color: #fff;
+    border-color: #3b5bdb;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+    .stalls {
+        padding: 56px 32px 64px;
+    }
+}
+
+@media (max-width: 480px) {
+    .stalls {
+        padding: 48px 16px 56px;
+    }
+
+    .stalls__card {
+        width: 260px;
+    }
+}

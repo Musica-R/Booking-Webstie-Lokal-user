@@ -1,0 +1,259 @@
+/* ── BecomeVendor.css ─────────────────────────────────────────────────────── */
+
+:root {
+    --vnd-primary: #2563eb;
+    --vnd-border: #e5e7eb;
+    --vnd-bg: #f9fafb;
+    --vnd-white: #ffffff;
+    --vnd-text: #111827;
+    --vnd-label: #111827;
+    --vnd-sub: #6b7280;
+    --vnd-placeholder: #9ca3af;
+    --vnd-banner-bg: #fffbeb;
+    --vnd-banner-border: #fde68a;
+    --vnd-upload-border: #fca5a5;
+    --vnd-radius: 10px;
+    --vnd-input-radius: 8px;
+}
+
+/* ── Overlay ── */
+.vnd-overlay {
+    /* position: fixed; */
+    inset: 0;
+    /* background: rgba(0, 0, 0, 0.45); */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 16px;
+}
+
+/* ── Modal ── */
+.vnd-modal {
+    /* background: var(--vnd-white); */
+    border-radius: 16px;
+    width: 90%;
+    padding: 22px 20px 28px;
+}
+
+.vnd-modal::-webkit-scrollbar {
+    width: 4px;
+}
+
+.vnd-modal::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.vnd-modal::-webkit-scrollbar-thumb {
+    background: #e5e7eb;
+    border-radius: 4px;
+}
+
+/* ── Header ── */
+.vnd-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.vnd-header-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 10px;
+    background: #eff6ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.vnd-header-text {
+    flex: 1;
+}
+
+.vnd-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--vnd-text);
+    line-height: 1.2;
+    margin: 0 0 3px;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.vnd-subtitle {
+    font-size: 13px;
+    color: var(--vnd-sub);
+    margin: 0;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.vnd-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1.5px solid var(--vnd-border);
+    background: var(--vnd-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s;
+    padding: 0;
+}
+
+.vnd-close:hover {
+    background: var(--vnd-bg);
+}
+
+/* ── Banner ── */
+.vnd-banner {
+    background: var(--vnd-banner-bg);
+    border: 1px solid var(--vnd-banner-border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #92400e;
+    font-weight: 500;
+    margin-bottom: 20px;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ── Form ── */
+.vnd-form {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: auto auto;
+    text-align: left;
+}
+
+/* ── Row (2 columns) ── */
+.vnd-row {
+    display: grid;
+    /* grid-template-columns: 1fr 1fr; */
+    gap: 12px;
+}
+
+/* ── Field ── */
+.vnd-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.vnd-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--vnd-label);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ── Input ── */
+.vnd-input {
+    width: 100%;
+    border: 1.5px solid var(--vnd-border);
+    border-radius: var(--vnd-input-radius);
+    padding: 10px 13px;
+    font-size: 14px;
+    color: var(--vnd-text);
+    background: var(--vnd-white);
+    outline: none;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+.vnd-input::placeholder {
+    color: var(--vnd-placeholder);
+}
+
+.vnd-input:focus {
+    border-color: var(--vnd-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+/* ── Upload Zone ── */
+.vnd-upload {
+    border: 1.5px dashed var(--vnd-upload-border);
+    border-radius: var(--vnd-input-radius);
+    padding: 28px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    background: var(--vnd-white);
+    transition: background 0.18s, border-color 0.18s;
+    min-height: 110px;
+}
+
+.vnd-upload:hover,
+.vnd-upload--active {
+    background: #fff5f5;
+    border-color: #f87171;
+}
+
+.vnd-upload-text {
+    font-size: 13px;
+    color: var(--vnd-sub);
+    text-align: center;
+    margin: 0;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.vnd-upload-text--file {
+    color: var(--vnd-primary);
+    font-weight: 600;
+}
+
+.vnd-upload-hint {
+    font-size: 12px;
+    color: var(--vnd-placeholder);
+    margin: 0;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ── Submit ── */
+.vnd-submit {
+    /* width: 100%; */
+    background: var(--vnd-primary);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    margin-top: 6px;
+    transition: background 0.18s, transform 0.1s;
+    display: flex;
+    justify-self: flex-end;
+}
+
+.vnd-submit:hover {
+    background: #1d4ed8;
+}
+
+.vnd-submit:active {
+    transform: scale(0.99);
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+    .vnd-modal {
+        padding: 18px 14px 24px;
+    }
+
+    .vnd-title {
+        font-size: 18px;
+    }
+
+    .vnd-row {
+        grid-template-columns: 1fr;
+    }
+}

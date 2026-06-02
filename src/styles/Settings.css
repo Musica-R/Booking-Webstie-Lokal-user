@@ -1,0 +1,141 @@
+.settings-page {
+    overflow: hidden;
+}
+
+.settings-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.settings-header h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.settings-sub {
+    font-size: 12.5px;
+    color: #9CA3AF;
+    margin-top: 3px;
+}
+
+.settings-section {
+    padding: 8px 0;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    gap: 20px;
+    transition: background 0.15s;
+}
+
+.settings-row:hover {
+    background: #FAFAFA;
+}
+
+.settings-row-info {
+    flex: 1;
+}
+
+.settings-row-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.settings-row-desc {
+    font-size: 12.5px;
+    color: #9CA3AF;
+    margin-top: 2px;
+}
+
+/* Toggle */
+.toggle {
+    width: 44px;
+    height: 24px;
+    border-radius: 100px;
+    background: #E5E7EB;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+    padding: 0;
+}
+
+.toggle.on {
+    background: #2563EB;
+}
+
+.toggle-knob {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s;
+    display: block;
+}
+
+.toggle.on .toggle-knob {
+    transform: translateX(20px);
+}
+
+/* Account Section */
+.settings-account-section {
+    padding: 8px 0;
+}
+
+.account-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #6B7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 12px 24px 4px;
+}
+
+.account-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 16px 24px;
+    background: transparent;
+    border: none;
+    border-top: 1px solid #F3F4F6;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: #111827;
+    font-family: inherit;
+    transition: background 0.15s;
+    text-align: left;
+}
+
+.account-row:hover {
+    background: #F9FAFB;
+}
+
+.account-row svg {
+    color: #D1D5DB;
+}
+
+.danger-row {
+    color: #EF4444 !important;
+}
+
+.danger-row:hover {
+    background: #FEF2F2 !important;
+}
+
+.danger-row svg {
+    color: #FCA5A5 !important;
+}

@@ -1,9 +1,11 @@
 // Profile.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/Profilee.css';
 
 // ===== NAVBAR =====
 function Navbar() {
+  const API_URL = process.env.REACT_APP_API_URL;
+  const user = JSON.parse(localStorage.getItem("user"));
   return (
     <nav className="navbar">
       <div className="navbar-inner">
@@ -26,7 +28,11 @@ function Navbar() {
             </svg>
           </button>
           <div className="account-pill">
-            <img src="https://i.pravatar.cc/32?img=8" alt="Arjun" className="avatar-sm" />
+            <img
+              src={user?.profileImage || "https://i.pravatar.cc/32?img=8"}
+              alt={user?.name || "User"}
+              className="avatar-sm"
+            />
             <span>My Account</span>
           </div>
         </div>
@@ -46,13 +52,18 @@ const navItems = [
 ];
 
 function Sidebar({ activePage, setActivePage }) {
+  const user = JSON.parse(localStorage.getItem("user"));
   return (
     <aside className="sidebar">
       <div className="sidebar-user">
-        <img src="https://i.pravatar.cc/48?img=8" alt="Arjun" className="sidebar-avatar" />
+        <img
+          src={user?.profileImage || "https://i.pravatar.cc/80?img=8"}
+          alt={user?.name || "User"}
+          className="profile-avatar"
+        />
         <div>
-          <p className="sidebar-name">Arjun Reddy</p>
-          <p className="sidebar-email">arjun.reddy@gmail.com</p>
+          <p className="sidebar-name">{user?.name}</p>
+          <p className="sidebar-email">{user?.email}</p>
         </div>
       </div>
       <nav className="sidebar-nav">
@@ -81,24 +92,329 @@ function Sidebar({ activePage, setActivePage }) {
   );
 }
 
+// ===== ADDRESS MODAL =====
+const ADDRESS_TYPES = ["Home", "Office", "Other"];
+
+const emptyAddressForm = {
+  address_type: "Home",
+  flat: "",
+  area: "",
+  city: "",
+  state: "",
+  pincode: "",
+};
+
+function AddressModal({ isOpen, onClose, onSave, editData }) {
+  const [form, setForm] = useState(emptyAddressForm);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (editData) {
+      setForm({
+        address_type: editData.address_type || "Home",
+        flat: editData.flat || "",
+        area: editData.area || "",
+        city: editData.city || "",
+        state: editData.state || "",
+        pincode: editData.pincode || "",
+      });
+    } else {
+      setForm(emptyAddressForm);
+    }
+  }, [editData, isOpen]);
+
+  if (!isOpen) return null;
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async () => {
+    const { flat, area, city, state, pincode } = form;
+    if (!flat || !area || !city || !state || !pincode) {
+      alert("Please fill in all fields.");
+      return;
+    }
+    setLoading(true);
+    await onSave(form, editData?._id || editData?.id);
+    setLoading(false);
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h3>{editData ? "Edit Address" : "Add New Address"}</h3>
+          <button className="modal-close" onClick={onClose}>
+            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="modal-body">
+          <div className="modal-field">
+            <label className="field-label">Address Type</label>
+            <div className="address-type-pills">
+              {ADDRESS_TYPES.map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  className={`type-pill${form.address_type === type ? " active" : ""}`}
+                  onClick={() => setForm({ ...form, address_type: type })}
+                >
+                  {type === "Home" && "🏠"}
+                  {type === "Office" && "🏢"}
+                  {type === "Other" && "📍"}
+                  {" "}{type}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="modal-field">
+            <label className="field-label">Flat / Door No.</label>
+            <input
+              className="field-input"
+              name="flat"
+              placeholder="e.g. Flat 12A, Block B"
+              value={form.flat}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="modal-field">
+            <label className="field-label">Area / Street</label>
+            <input
+              className="field-input"
+              name="area"
+              placeholder="e.g. Anna Nagar"
+              value={form.area}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="modal-field-row">
+            <div className="modal-field">
+              <label className="field-label">City</label>
+              <input
+                className="field-input"
+                name="city"
+                placeholder="e.g. Chennai"
+                value={form.city}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="modal-field">
+              <label className="field-label">State</label>
+              <input
+                className="field-input"
+                name="state"
+                placeholder="e.g. Tamil Nadu"
+                value={form.state}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          <div className="modal-field">
+            <label className="field-label">Pincode</label>
+            <input
+              className="field-input"
+              name="pincode"
+              placeholder="e.g. 600040"
+              maxLength={6}
+              value={form.pincode}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+
+        <div className="modal-footer">
+          <button className="btn btn-ghost" onClick={onClose} disabled={loading}>
+            Cancel
+          </button>
+          <button className="btn btn-primary" onClick={handleSubmit} disabled={loading}>
+            {loading ? "Saving..." : editData ? "Update Address" : "Save Address"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ===== MY PROFILE PAGE =====
 function MyProfile() {
+  const API_URL = process.env.REACT_APP_API_URL;
+
   const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState({ fullName: 'Arjun Reddy', email: 'arjun.reddy@gmail.com', phone: '+91 98765 43210', location: 'Bengaluru, KA' });
+  const [userData, setUserData] = useState(
+    JSON.parse(localStorage.getItem("user")) || {}
+  );
+  const [form, setForm] = useState({
+    fullName: userData?.name || "",
+    email: userData?.email || "",
+    phone: userData?.phone || "",
+    location: userData?.location || "",
+  });
+
+  const [addresses, setAddresses] = useState([]);
+  const [addressLoading, setAddressLoading] = useState(false);
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [editingAddress, setEditingAddress] = useState(null);
+
   const stats = [
-    { label: 'Total Bookings', value: '12', icon: '📅', color: '#EFF6FF' },
-    { label: 'Completed', value: '9', icon: '✅', color: '#F0FDF4' },
-    { label: 'Saved', value: '5', icon: '❤️', color: '#FFF1F2' },
-    { label: 'Wallet Balance', value: '₹450', icon: '💳', color: '#FFFBEB' },
+    { label: "Total Bookings", value: "12", icon: "📅", color: "#EFF6FF" },
+    { label: "Completed", value: "9", icon: "✅", color: "#F0FDF4" },
+    { label: "Saved", value: "5", icon: "❤️", color: "#FFF1F2" },
+    { label: "Wallet Balance", value: "₹450", icon: "💳", color: "#FFFBEB" },
   ];
-  const addresses = [
-    { type: 'Home', address: 'Flat 402, Prestige Sunrise, HSR Layout Sector 2, Bengaluru, 560102', isDefault: true },
-    { type: 'Office', address: 'WeWork Galaxy, 43 Residency Rd, Shanthala Nagar, Bengaluru, 560025', isDefault: false },
-  ];
+
+  useEffect(() => {
+    fetchAddresses();
+  }, []);
+
+  const fetchAddresses = async () => {
+    const storedUser = JSON.parse(localStorage.getItem("user")) || {};
+    const userId = storedUser._id || storedUser.id;
+    if (!userId) return;
+    setAddressLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/address/user-address/${userId}`);
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setAddresses(data.addresses || []);
+      }
+    } catch (error) {
+      console.error("Failed to fetch addresses:", error);
+    } finally {
+      setAddressLoading(false);
+    }
+  };
+
+  const handleSaveAddress = async (formData, addressId) => {
+    const storedUser = JSON.parse(localStorage.getItem("user")) || {};
+    const userId = storedUser._id || storedUser.id;
+
+    try {
+      let response, data;
+
+      if (addressId) {
+        response = await fetch(
+          `${API_URL}/address/update-address/${addressId}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData),
+          }
+        );
+        data = await response.json();
+        if (response.ok && data.success) {
+          await fetchAddresses();
+          alert("Address updated successfully!");
+        } else {
+          alert(data.message || "Failed to update address.");
+        }
+      } else {
+        response = await fetch(`${API_URL}/address/add-address`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: userId, ...formData }),
+        });
+        data = await response.json();
+        if (response.ok && data.success) {
+          await fetchAddresses();
+          alert("Address added successfully!");
+        } else {
+          alert(data.message || "Failed to add address.");
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Server error. Please try again.");
+    }
+
+    setShowAddressModal(false);
+    setEditingAddress(null);
+  };
+
+  const handleDeleteAddress = async (addressId) => {
+    if (!window.confirm("Are you sure you want to delete this address?")) return;
+    try {
+      const response = await fetch(
+        `${API_URL}/address/delete-address/${addressId}`,
+        { method: "DELETE" }
+      );
+      const data = await response.json();
+      if (response.ok && data.success) {
+        await fetchAddresses();
+        alert("Address deleted.");
+      } else {
+        alert(data.message || "Failed to delete address.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Server error. Please try again.");
+    }
+  };
+
+  const openAddModal = () => {
+    setEditingAddress(null);
+    setShowAddressModal(true);
+  };
+
+  const openEditModal = (addr) => {
+    setEditingAddress(addr);
+    setShowAddressModal(true);
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      const storedUser = JSON.parse(localStorage.getItem("user")) || {};
+      const response = await fetch(
+        `${API_URL}/users/update/${storedUser._id || storedUser.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: form.fullName,
+            email: form.email,
+            phone: form.phone,
+            location: form.location,
+          }),
+        }
+      );
+      const data = await response.json();
+      if (response.ok && data.success) {
+        const updatedUser = {
+          ...storedUser,
+          name: form.fullName,
+          email: form.email,
+          phone: form.phone,
+          location: form.location,
+        };
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+        setUserData(updatedUser);
+        alert("Profile Updated Successfully");
+        setEditing(false);
+      } else {
+        alert(data.message || "Update Failed");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Server Error");
+    }
+  };
+
+  const formatAddress = (addr) =>
+    [addr.flat, addr.area, addr.city, addr.state, addr.pincode]
+      .filter(Boolean)
+      .join(", ");
+
   return (
     <div className="profile-page">
       <div className="stats-row">
-        {stats.map(s => (
+        {stats.map((s) => (
           <div className="stat-card" key={s.label} style={{ background: s.color }}>
             <span className="stat-icon">{s.icon}</span>
             <p className="stat-value">{s.value}</p>
@@ -106,168 +422,846 @@ function MyProfile() {
           </div>
         ))}
       </div>
+
       <div className="card profile-card">
         <div className="profile-banner" />
         <div className="profile-info-header">
-          <div><img src="https://i.pravatar.cc/80?img=8" alt="Arjun" className="profile-avatar" /></div>
+          <div>
+            <img
+              src={userData?.profileImage || "https://i.pravatar.cc/80?img=8"}
+              alt={userData?.name || "User"}
+              className="profile-avatar"
+            />
+          </div>
           <div className="profile-meta">
             <div className="profile-name-row">
-              <h2 className="profile-name">Arjun Reddy</h2>
+              <h2 className="profile-name">{userData?.name}</h2>
               <span className="verified-badge">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="#22C55E"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="#22C55E">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
                 Verified
               </span>
             </div>
             <p className="member-since">Member since March 2024</p>
           </div>
-          <button className="btn btn-outline edit-btn" onClick={() => setEditing(!editing)}>
-            ✏️ {editing ? 'Save Profile' : 'Edit Profile'}
+          <button
+            type="button"
+            className="btn btn-outline edit-btn"
+            onClick={() => {
+              if (editing) {
+                handleSaveProfile();
+              } else {
+                setEditing(true);
+              }
+            }}
+          >
+            ✏️ {editing ? "Save Profile" : "Edit Profile"}
           </button>
         </div>
+
         <div className="profile-fields">
-          {[{ label: 'Full Name', key: 'fullName', icon: '👤' }, { label: 'Email', key: 'email', icon: '✉️' }, { label: 'Phone Number', key: 'phone', icon: '📞' }, { label: 'Location', key: 'location', icon: '📍' }].map(f => (
+          {[
+            { label: "Full Name", key: "fullName", icon: "👤" },
+            { label: "Email", key: "email", icon: "✉️" },
+            { label: "Phone Number", key: "phone", icon: "📞" },
+            { label: "Location", key: "location", icon: "📍" },
+          ].map((f) => (
             <div className="profile-field" key={f.key}>
-              <label className="field-label"><span>{f.icon}</span> {f.label}</label>
-              {editing
-                ? <input className="field-input" value={form[f.key]} onChange={e => setForm({ ...form, [f.key]: e.target.value })} />
-                : <div className="field-value">{form[f.key]}</div>
-              }
+              <label className="field-label">
+                <span>{f.icon}</span> {f.label}
+              </label>
+              {editing ? (
+                <input
+                  className="field-input"
+                  value={form[f.key]}
+                  onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
+                />
+              ) : (
+                <div className="field-value">{form[f.key]}</div>
+              )}
             </div>
           ))}
         </div>
       </div>
+
       <div className="card addresses-card">
         <div className="addresses-header">
           <h3>Saved Addresses</h3>
-          <button className="btn btn-outline add-address-btn">+ Add New</button>
+          <button className="btn btn-outline add-address-btn" onClick={openAddModal}>
+            + Add New
+          </button>
         </div>
-        <div className="addresses-grid">
-          {addresses.map(addr => (
-            <div className="address-item" key={addr.type}>
-              <div className="address-type-row">
-                <span>📍</span>
-                <span className="address-type">{addr.type}</span>
-                {addr.isDefault && <span className="default-badge">Default</span>}
-              </div>
-              <p className="address-text">{addr.address}</p>
-              <div className="address-actions">
-                <button className="link-btn">Edit</button>
-                <button className="link-btn danger-link">Delete</button>
-              </div>
-            </div>
-          ))}
-        </div>
+
+        {addressLoading ? (
+          <p className="address-loading">Loading addresses...</p>
+        ) : addresses.length === 0 ? (
+          <p className="address-empty">No saved addresses yet. Add one!</p>
+        ) : (
+          <div className="addresses-grid">
+            {addresses.filter(Boolean).map((addr, idx) => {
+              const id = addr._id || addr.id || `addr-${idx}`;
+              return (
+                <div className="address-item" key={id}>
+                  <div className="address-type-row">
+                    <span>📍</span>
+                    <span className="address-type">{addr.address_type}</span>
+                    {addr.isDefault && (
+                      <span className="default-badge">Default</span>
+                    )}
+                  </div>
+                  <p className="address-text">{formatAddress(addr)}</p>
+                  <div className="address-actions">
+                    <button className="link-btn" onClick={() => openEditModal(addr)}>
+                      Edit
+                    </button>
+                    <button
+                      className="link-btn danger-link"
+                      onClick={() => handleDeleteAddress(id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
+
+      <AddressModal
+        isOpen={showAddressModal}
+        onClose={() => {
+          setShowAddressModal(false);
+          setEditingAddress(null);
+        }}
+        onSave={handleSaveAddress}
+        editData={editingAddress}
+      />
     </div>
   );
 }
 
 // ===== MY BOOKINGS PAGE =====
-const allBookings = [
-  { id: 'LK-2826-04821', status: 'Upcoming', service: 'Electrician', provider: 'Ramesh Kumar', date: '15 May 2026 at 12:30 PM', location: 'Flat 402, Prestige Sunrise, HSR Layout', amount: '₹298', image: 'https://i.pravatar.cc/48?img=12' },
-  { id: 'LK-2826-04799', status: 'Completed', service: 'Plumber', provider: 'Suresh Plumbing', date: '08 May 2026 at 10:00 AM', location: 'WeWork Galaxy, Residency Rd', amount: '₹549', image: 'https://i.pravatar.cc/48?img=15' },
-  { id: 'LK-2826-04722', status: 'Completed', service: 'Yoga Trainer', provider: 'Priya Sharma', date: '02 May 2026 at 06:00 AM', location: 'Flat 402, Prestige Sunrise, HSR Layout', amount: '₹1,200', image: 'https://i.pravatar.cc/48?img=5' },
-  { id: 'LK-2826-04781', status: 'Cancelled', service: 'AC Repair', provider: 'Ramesh Kumar', date: '28 Apr 2026 at 04:00 PM', location: 'Flat 402, Prestige Sunrise, HSR Layout', amount: '₹699', image: 'https://i.pravatar.cc/48?img=12' },
-];
 const statusCfg = {
-  Upcoming: { color: '#2563EB', bg: '#EFF6FF', dot: '#2563EB' },
-  Completed: { color: '#16A34A', bg: '#F0FDF4', dot: '#22C55E' },
-  Cancelled: { color: '#DC2626', bg: '#FEF2F2', dot: '#EF4444' },
+  pending: { label: 'Upcoming', color: '#2563EB', bg: '#EFF6FF', dot: '#2563EB' },
+  completed: { label: 'Completed', color: '#16A34A', bg: '#F0FDF4', dot: '#22C55E' },
+
+  cancelled_by_user: {
+    label: 'Cancelled By You',
+    color: '#DC2626',
+    bg: '#FEF2F2',
+    dot: '#EF4444'
+  },
+
+  cancelled_by_vendor: {
+    label: 'Cancelled By vendor',
+    color: '#DC2626',
+    bg: '#FEF2F2',
+    dot: '#EF4444'
+  },
 };
+
 function MyBookings() {
+  const API_URL = process.env.REACT_APP_API_URL;
+
   const [activeTab, setActiveTab] = useState('All');
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [expandedId, setExpandedId] = useState(null);
+  const [ratingBooking, setRatingBooking] = useState(null);
+
   const tabs = ['All', 'Upcoming', 'Completed', 'Cancelled'];
-  const filtered = activeTab === 'All' ? allBookings : allBookings.filter(b => b.status === activeTab);
-  const count = t => t === 'All' ? allBookings.length : allBookings.filter(b => b.status === t).length;
+
+  useEffect(() => {
+    const fetchBookings = async () => {
+      const storedUser = JSON.parse(localStorage.getItem('user')) || {};
+      const userId = storedUser._id || storedUser.id;
+      if (!userId) {
+        setError('User not found. Please log in again.');
+        setLoading(false);
+        return;
+      }
+      try {
+        const response = await fetch(`${API_URL}/booking/booking-list/${userId}`);
+        const data = await response.json();
+        if (response.ok && data.success) {
+          setBookings(data.data || []);
+        } else {
+          setError(data.message || 'Failed to load bookings.');
+        }
+      } catch (err) {
+        console.error('Failed to fetch bookings:', err);
+        setError('Server error. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBookings();
+  }, []);
+
+
+  function RatingModal({ isOpen, onClose, booking }) {
+    const API_URL = process.env.REACT_APP_API_URL;
+    const [rating, setRating] = useState(0);
+    const [hovered, setHovered] = useState(0);
+    const [review, setReview] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+      if (isOpen) { setRating(0); setHovered(0); setReview(''); }
+    }, [isOpen]);
+
+    if (!isOpen || !booking) return null;
+
+    const handleSubmit = async () => {
+      if (rating === 0) { alert('Please select a rating.'); return; }
+      setLoading(true);
+      try {
+        const storedUser = JSON.parse(localStorage.getItem('user')) || {};
+        const userId = storedUser._id || storedUser.id;
+        const res = await fetch(`${API_URL}/users/add-review`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            booking_id: booking.booking_id,
+            vendor_id: booking.vendor_details?.vendor_id,
+            user_id: userId,
+            rating,
+            review,
+          }),
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          alert('Thank you for your review!');
+          onClose();
+        } else {
+          alert(data.message || 'Failed to submit review.');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Server error. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+
+
+    return (
+      <div className="modal-overlay" onClick={onClose}>
+        <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h3>Rate Service</h3>
+            <button className="modal-close" onClick={onClose}>
+              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <div className="modal-body">
+            <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 16 }}>
+              How was your experience with{' '}
+              <strong>{booking.vendor_details?.vendor_name || 'this vendor'}</strong>?
+            </p>
+
+            {/* Star rating */}
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginBottom: 20 }}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => setRating(star)}
+                  onMouseEnter={() => setHovered(star)}
+                  onMouseLeave={() => setHovered(0)}
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer', padding: 4,
+                    fontSize: 32,
+                    color: star <= (hovered || rating) ? '#F59E0B' : '#D1D5DB',
+                    transition: 'color 0.15s',
+                  }}
+                >
+                  ★
+                </button>
+              ))}
+            </div>
+
+            {rating > 0 && (
+              <p style={{ textAlign: 'center', fontSize: 13, color: '#6B7280', marginBottom: 12 }}>
+                {['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'][rating]}
+              </p>
+            )}
+
+            <div className="modal-field">
+              <label className="field-label">Review (optional)</label>
+              <textarea
+                className="field-input"
+                rows={3}
+                placeholder="Share your experience..."
+                value={review}
+                onChange={(e) => setReview(e.target.value)}
+                style={{ resize: 'vertical', minHeight: 80 }}
+              />
+            </div>
+          </div>
+
+          <div className="modal-footer">
+            <button className="btn btn-ghost" onClick={onClose} disabled={loading}>Cancel</button>
+            <button className="btn btn-primary" onClick={handleSubmit} disabled={loading}>
+              {loading ? 'Submitting...' : 'Submit Review'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  const handlePayBalance = async (booking) => {
+    try {
+      const storedUser = JSON.parse(localStorage.getItem("user")) || {};
+
+      const res = await fetch(`${API_URL}/payment/balance/order`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: booking.balance_amount }),
+      });
+
+      const data = await res.json();
+      if (!data.success) {
+        alert("Order creation failed. Please try again.");
+        return;
+      }
+
+      const order = data.order;
+
+      const options = {
+        key: process.env.REACT_APP_RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: "INR",
+        name: "Lokal Services",
+        description: "Balance Payment",
+        order_id: order.id,
+
+        handler: async function (response) {
+          try {
+            const verifyRes = await fetch(`${API_URL}/payment/balance/verify`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                booking_id: booking.booking_id,
+                amount: booking.balance_amount,
+              }),
+            });
+
+            const verifyData = await verifyRes.json();
+
+            if (verifyData.success) {
+              alert("Payment Successful!");
+              setBookings((prev) =>
+                prev.map((b) =>
+                  b.booking_id === booking.booking_id
+                    ? { ...b, balance_payment_status: "paid", payment_status: "paid" }
+                    : b
+                )
+              );
+            } else {
+              alert(verifyData.message || "Payment verification failed.");
+            }
+          } catch (err) {
+            console.error("Verify error:", err);
+            alert("Verification failed. Contact support with your payment ID: " + response.razorpay_payment_id);
+          }
+        },
+
+        prefill: {
+          name: storedUser?.name || "",
+          email: storedUser?.email || "",
+          contact: storedUser?.phone || "",
+        },
+
+        theme: { color: "#2563eb" },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.on("payment.failed", function (response) {
+        alert("Payment failed: " + response.error.description);
+      });
+      rzp.open();
+    } catch (err) {
+      console.error("handlePayBalance error:", err);
+      alert("Something went wrong. Please try again.");
+    }
+  };
+
+  const getTabLabel = (status) => {
+    const cfg = statusCfg[status?.toLowerCase()];
+    return cfg?.label || 'Upcoming';
+  };
+
+  const filtered =
+    activeTab === 'All'
+      ? bookings
+      : bookings.filter((b) => getTabLabel(b.booking_status) === activeTab);
+
+  const count = (tab) =>
+    tab === 'All'
+      ? bookings.length
+      : bookings.filter((b) => getTabLabel(b.booking_status) === tab).length;
+
+  const formatDate = (dateStr, timeStr) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const options = { day: 'numeric', month: 'short', year: 'numeric' };
+    return `${date.toLocaleDateString('en-IN', options)}${timeStr ? ` at ${timeStr}` : ''}`;
+  };
+
+  const formatAddress = (addr) => {
+    if (!addr) return '';
+    return [addr.flat, addr.area, addr.city, addr.state, addr.pincode]
+      .filter(Boolean)
+      .join(', ');
+  };
+
+  // Helper: true when there is an unpaid balance amount
+  const hasOutstandingBalance = (b) =>
+    parseFloat(b.balance_amount) > 0 && b.balance_payment_status !== 'paid';
+
+  // Helper: true when balance existed and has been paid
+  const isBalancePaid = (b) =>
+    parseFloat(b.balance_amount) > 0 && b.balance_payment_status === 'paid';
+
+  if (loading) {
+    return (
+      <div className="bookings-page card">
+        <div className="bookings-header">
+          <h2>My Bookings</h2>
+          <p className="bookings-sub">View and manage all your service bookings</p>
+        </div>
+        <p style={{ padding: '2rem 0', color: '#6B7280', textAlign: 'center' }}>Loading bookings...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bookings-page card">
+        <div className="bookings-header">
+          <h2>My Bookings</h2>
+          <p className="bookings-sub">View and manage all your service bookings</p>
+        </div>
+        <p style={{ padding: '2rem 0', color: '#DC2626', textAlign: 'center' }}>{error}</p>
+      </div>
+    );
+  }
+  const handleCancelBooking = async (bookingId) => {
+    if (!window.confirm("Are you sure you want to cancel this booking?")) {
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        `${API_URL}/vendors/booking-status/${bookingId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            booking_status: "cancelled_by_user",
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (data.success) {
+        setBookings((prev) =>
+          prev.map((b) =>
+            b.booking_id === bookingId
+              ? { ...b, booking_status: "cancelled_by_user" }
+              : b
+          )
+        );
+
+        alert("Booking cancelled successfully");
+      } else {
+        alert(data.message || "Failed to cancel booking");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong");
+    }
+  };
+
   return (
     <div className="bookings-page card">
       <div className="bookings-header">
         <h2>My Bookings</h2>
         <p className="bookings-sub">View and manage all your service bookings</p>
       </div>
+
       <div className="bookings-tabs">
-        {tabs.map(t => (
-          <button key={t} className={`tab-btn${activeTab === t ? ' active' : ''}`} onClick={() => setActiveTab(t)}>
+        {tabs.map((t) => (
+          <button
+            key={t}
+            className={`tab-btn${activeTab === t ? ' active' : ''}`}
+            onClick={() => setActiveTab(t)}
+          >
             {t} ({count(t)})
           </button>
         ))}
       </div>
-      <div className="bookings-list">
-        {filtered.map(b => {
-          const cfg = statusCfg[b.status];
-          return (
-            <div className="booking-item" key={b.id}>
-              <div className="booking-top">
-                <span className="booking-id">{b.id} ·</span>
-                <span className="booking-status" style={{ color: cfg.color, background: cfg.bg }}>
-                  <span className="status-dot" style={{ background: cfg.dot }} />
-                  {b.status}
-                </span>
-                <span className="booking-amount">{b.amount}</span>
-              </div>
-              <div className="booking-body">
-                <img src={b.image} alt={b.provider} className="booking-avatar" />
-                <div className="booking-details">
-                  <p className="booking-service">{b.service} <span className="provider-name">with {b.provider}</span></p>
-                  <div className="booking-meta">
-                    <span>📅 {b.date}</span>
-                    <span>📍 {b.location}</span>
+
+      {filtered.length === 0 ? (
+        <p style={{ padding: '2rem 0', color: '#6B7280', textAlign: 'center' }}>No bookings found.</p>
+      ) : (
+        <div className="bookings-list">
+          {filtered.map((b) => {
+            const statusKey = b.booking_status?.toLowerCase();
+            const cfg = statusCfg[statusKey] || statusCfg.pending;
+            const vendor = b.vendor_details || {};
+            const payment = b.payment || {};
+            const items = b.items || [];
+            const isExpanded = expandedId === b.booking_id;
+
+            return (
+              <div className="booking-item" key={b.booking_id}>
+
+                {/* ── Top row: booking number · status · balance · amount ── */}
+                <div className="booking-top">
+                  <span className="booking-id">{b.booking_number} ·</span>
+
+                  <span className="booking-status" style={{ color: cfg.color, background: cfg.bg }}>
+                    <span className="status-dot" style={{ background: cfg.dot }} />
+                    {cfg.label}
+                  </span>
+
+                  {/* Show Pay Balance button only when balance > 0 AND not yet paid */}
+                  {hasOutstandingBalance(b) && (
+                    <button
+                      className="pay-balance-btn"
+                      onClick={() => handlePayBalance(b)}
+                    >
+                      <svg
+                        width="13" height="13"
+                        fill="none" stroke="currentColor" strokeWidth="2"
+                        viewBox="0 0 24 24"
+                        style={{ flexShrink: 0 }}
+                        aria-hidden="true"
+                      >
+                        <rect x="2" y="5" width="20" height="14" rx="2" />
+                        <path d="M2 10h20" />
+                      </svg>
+                      Pay Balance ₹{parseFloat(b.balance_amount).toFixed(2)}
+                    </button>
+                  )}
+
+                  {/* Show "Balance Paid" confirmation badge when balance existed and was settled */}
+                  {isBalancePaid(b) && (
+                    <span className="balance-paid-badge">
+                      <svg
+                        width="11" height="11"
+                        fill="none" stroke="currentColor" strokeWidth="2.5"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path d="M20 6L9 17l-5-5" />
+                      </svg>
+                      Balance Paid
+                    </span>
+                  )}
+
+                  <span className="booking-amount">₹{parseFloat(b.total_amount).toFixed(2)}</span>
+
+                  <span
+                    className="breakdown-pay-badge"
+                    style={{
+                      background: b.payment_status === 'paid' ? '#F0FDF4' : '#FEF2F2',
+                      color: b.payment_status === 'paid' ? '#16A34A' : '#DC2626',
+                      border: `1px solid ${b.payment_status === 'paid' ? '#BBF7D0' : '#FECACA'}`,
+                    }}
+                  >
+                    {b.payment_status === 'paid' ? '✓ Paid' : b.payment_status}
+                  </span>
+                </div>
+
+                {/* ── Vendor + date + address ── */}
+                <div className="booking-body">
+                  <img
+                    src={vendor.vendor_profile || 'https://i.pravatar.cc/48?img=12'}
+                    alt={vendor.vendor_name || 'Vendor'}
+                    className="booking-avatar"
+                    onError={(e) => { e.target.src = 'https://i.pravatar.cc/48?img=12'; }}
+                  />
+                  <div className="booking-details">
+                    <p className="booking-service">
+                      {vendor.category_name || 'Service'}{' '}
+                      <span className="provider-name">with {vendor.vendor_name}</span>
+                    </p>
+                    <div className="booking-meta">
+                      <span>📅 {formatDate(b.booking_date, b.booking_time)}</span>
+                      <span>📍 {formatAddress(b.address)}</span>
+                    </div>
                   </div>
                 </div>
+
+                {/* ── Services & Payment breakdown (toggle) ── */}
+                <div className="booking-breakdown">
+                  <button
+                    className="breakdown-toggle"
+                    onClick={() => setExpandedId(isExpanded ? null : b.booking_id)}
+                  >
+                    <span>
+                      <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ marginRight: 5, verticalAlign: 'middle' }}>
+                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                      Services &amp; Payment
+                    </span>
+                    <svg
+                      width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2"
+                      viewBox="0 0 24 24"
+                      style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
+                    >
+                      <path d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  {isExpanded && (
+                    <div className="breakdown-panel">
+                      {/* Services list */}
+                      <div className="breakdown-section">
+                        <p className="breakdown-section-title">Services Booked</p>
+                        {items.length === 0 ? (
+                          <p className="breakdown-empty">No service items found.</p>
+                        ) : (
+                          <div className="breakdown-items">
+                            {items.map((item, idx) => (
+                              <div className="breakdown-row" key={item.item_id || idx}>
+                                <div className="breakdown-row-left">
+                                  <span className="breakdown-check">✓</span>
+                                  <span className="breakdown-item-name">
+                                    Sub-service - {item.sub_service_name}
+                                  </span>
+                                  {item.quantity > 1 && (
+                                    <span className="breakdown-qty">× {item.quantity}</span>
+                                  )}
+                                </div>
+                                <span className="breakdown-item-price">
+                                  ₹{parseFloat(item.price).toFixed(2)}
+                                </span>
+                              </div>
+                            ))}
+                            <div className="breakdown-total-row">
+                              <span>Total</span>
+                              <span>₹{parseFloat(b.total_amount).toFixed(2)}</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Payment details */}
+                      <div className="breakdown-section">
+                        <p className="breakdown-section-title">Payment Details</p>
+                        <div className="breakdown-payment">
+                          <div className="breakdown-payment-row">
+                            <span className="breakdown-pay-label">Status</span>
+                            <span
+                              className="breakdown-pay-badge"
+                              style={{
+                                background: b.payment_status === 'paid' ? '#F0FDF4' : '#FEF2F2',
+                                color: b.payment_status === 'paid' ? '#16A34A' : '#DC2626',
+                                border: `1px solid ${b.payment_status === 'paid' ? '#BBF7D0' : '#FECACA'}`,
+                              }}
+                            >
+                              {b.payment_status === 'paid' ? '✓ Paid' : b.payment_status}
+                            </span>
+                          </div>
+
+                          {/* Balance amount row — only shown when relevant */}
+                          {parseFloat(b.balance_amount) > 0 && (
+                            <div className="breakdown-payment-row">
+                              <span className="breakdown-pay-label">Balance Due</span>
+                              <span
+                                className="breakdown-pay-badge"
+                                style={{
+                                  background: b.balance_payment_status === 'paid' ? '#F0FDF4' : '#FFF7ED',
+                                  color: b.balance_payment_status === 'paid' ? '#16A34A' : '#92400E',
+                                  border: `1px solid ${b.balance_payment_status === 'paid' ? '#BBF7D0' : '#FCD34D'}`,
+                                }}
+                              >
+                                {b.balance_payment_status === 'paid'
+                                  ? `✓ ₹${parseFloat(b.balance_amount).toFixed(2)} Paid`
+                                  : `₹${parseFloat(b.balance_amount).toFixed(2)} Pending`}
+                              </span>
+                            </div>
+                          )}
+
+                          {payment.razorpay_payment_id && (
+                            <div className="breakdown-payment-row">
+                              <span className="breakdown-pay-label">Transaction ID</span>
+                              <span className="breakdown-pay-value breakdown-pay-mono">
+                                {payment.razorpay_payment_id}
+                              </span>
+                            </div>
+                          )}
+                          {payment.paid_amount && (
+                            <div className="breakdown-payment-row">
+                              <span className="breakdown-pay-label">Amount Paid</span>
+                              <span className="breakdown-pay-value" style={{ color: '#16A34A', fontWeight: 600 }}>
+                                ₹{parseFloat(payment.paid_amount).toFixed(2)}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* ── Action buttons ── */}
+                <div className="booking-actions">
+                  {(statusKey === 'pending' || statusKey === 'confirmed') && (
+                    <>
+                      <button
+                        className="btn btn-ghost action-sm"
+                        onClick={() => handleCancelBooking(b.booking_id)}
+                      >
+                        Cancel
+                      </button>
+                      <button className="btn btn-ghost action-sm">Reschedule</button>
+                      <button className="btn btn-primary action-sm">Track Pro →</button>
+                    </>
+                  )}
+                  {statusKey === 'completed' && (
+                    <>
+                      {/* <button className="btn btn-ghost action-sm">⬇ Invoice</button> */}
+                      {statusKey === 'completed' && (
+                        <>
+                          {/* <button className="btn btn-ghost action-sm">⬇ Invoice</button> */}
+                          <button
+                            className="btn btn-ghost action-sm"
+                            onClick={() => setRatingBooking(b)}   // ← add this onClick
+                          >
+                            ☆ Rate Service
+                          </button>
+                          <button className="btn btn-primary action-sm">↻ Book Again</button>
+                        </>
+                      )}
+
+                      {/* <button className="btn btn-primary action-sm">↻ Book Again</button> */}
+                    </>
+                  )}
+                  {(
+                    statusKey === 'cancelled_by_user' ||
+                    statusKey === 'cancelled_by_vendor'
+                  ) && (
+                      <button className="btn btn-primary action-sm">
+                        ↻ Book Again
+                      </button>
+                    )}
+                </div>
+
               </div>
-              <div className="booking-actions">
-                {b.status === 'Upcoming' && <>
-                  <button className="btn btn-ghost action-sm">Cancel</button>
-                  <button className="btn btn-ghost action-sm">Reschedule</button>
-                  <button className="btn btn-primary action-sm">Track Pro →</button>
-                </>}
-                {b.status === 'Completed' && <>
-                  <button className="btn btn-ghost action-sm">⬇ Invoice</button>
-                  <button className="btn btn-ghost action-sm">☆ Rate Service</button>
-                  <button className="btn btn-primary action-sm">↻ Book Again</button>
-                </>}
-                {b.status === 'Cancelled' && <button className="btn btn-primary action-sm">↻ Book Again</button>}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
+      <RatingModal
+        isOpen={!!ratingBooking}
+        onClose={() => setRatingBooking(null)}
+        booking={ratingBooking}
+      />
     </div>
   );
 }
 
 // ===== SAVED VENDORS PAGE =====
-const vendors = [
-  { id: 1, name: 'Ramesh Kumar', role: 'Electrician', area: 'Indiranagar, BLR', rating: 4.9, reviews: 342, image: 'https://i.pravatar.cc/56?img=12' },
-  { id: 2, name: 'Suresh Plumbing', role: 'Plumber', area: 'Koramangala, BLR', rating: 4.8, reviews: 215, image: 'https://i.pravatar.cc/56?img=15' },
-  { id: 3, name: 'Priya Sharma', role: 'Yoga Trainer', area: 'HSR Layout, BLR', rating: 5, reviews: 128, image: 'https://i.pravatar.cc/56?img=5' },
-];
-function SavedVendors() {
+
+
+function SavedVendors({ userId = 1 }) {
+
+    const API_URL = process.env.REACT_APP_API_URL;
+
+  const [vendors, setVendors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`${API_URL}/fav/user/${userId}`);
+        const json = await res.json();
+        if (json.success) {
+          setVendors(json.data);
+        } else {
+          setError("Failed to load saved vendors.");
+        }
+      } catch (err) {
+        setError("Network error. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFavorites();
+  }, [userId]);
+
+  if (loading) {
+    return (
+      <div className="saved-vendors-page card">
+        <div className="sv-header">
+          <h2>Saved Vendors</h2>
+          <p className="sv-sub">Quick access to your favourite professionals</p>
+        </div>
+        <p className="sv-loading">Loading...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="saved-vendors-page card">
+        <div className="sv-header">
+          <h2>Saved Vendors</h2>
+          <p className="sv-sub">Quick access to your favourite professionals</p>
+        </div>
+        <p className="sv-error">{error}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="saved-vendors-page card">
       <div className="sv-header">
         <h2>Saved Vendors</h2>
         <p className="sv-sub">Quick access to your favourite professionals</p>
       </div>
-      <div className="sv-grid">
-        {vendors.map(v => (
-          <div className="vendor-card" key={v.id}>
-            <div className="vendor-card-inner">
-              <img src={v.image} alt={v.name} className="vendor-avatar" />
+
+      {vendors.length === 0 ? (
+        <p className="sv-empty">No saved vendors yet. Start exploring!</p>
+      ) : (
+        <div className="sv-grid">
+          {vendors.map((v) => (
+            <div className="vendor-card" key={v.id}>
+              <img src={v.profile_url} alt={v.full_name} className="vendor-avatar" />
               <div className="vendor-info">
-                <p className="vendor-name">{v.name}</p>
-                <p className="vendor-role">{v.role} · {v.area}</p>
+                <p className="vendor-name">{v.full_name}</p>
+                <p className="vendor-role">{v.category_name}</p>
                 <div className="vendor-rating">
                   <span className="star">★</span>
-                  <span className="rating-val">{v.rating}</span>
-                  <span className="rating-count">({v.reviews})</span>
+                  <span className="rating-val">{parseFloat(v.rating).toFixed(1)}</span>
                 </div>
               </div>
-              <button className="btn btn-primary book-btn">Book</button>
+              <button className="book-btn">Book</button>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -288,11 +1282,17 @@ function Notifications() {
           <h2>Notifications</h2>
           <p className="notif-sub">Stay updated on your bookings and offers</p>
         </div>
-        <button className="mark-all-btn" onClick={() => setNotifs(n => n.map(x => ({ ...x, read: true })))}>Mark all as read</button>
+        <button className="mark-all-btn" onClick={() => setNotifs(n => n.map(x => ({ ...x, read: true })))}>
+          Mark all as read
+        </button>
       </div>
       <div className="notif-list">
         {notifs.map(n => (
-          <div key={n.id} className={`notif-item${n.read ? '' : ' unread'}`} onClick={() => setNotifs(prev => prev.map(x => x.id === n.id ? { ...x, read: true } : x))}>
+          <div
+            key={n.id}
+            className={`notif-item${n.read ? '' : ' unread'}`}
+            onClick={() => setNotifs(prev => prev.map(x => x.id === n.id ? { ...x, read: true } : x))}
+          >
             <div className={`notif-icon-wrap${n.read ? ' read' : ''}`}>
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
                 <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -314,18 +1314,54 @@ function Notifications() {
 }
 
 // ===== WALLET PAGE =====
-const txns = [
-  { id: 1, label: 'Payment for Electrician', date: '15 May 2026', amount: -298, type: 'debit' },
-  { id: 2, label: 'Cashback received', date: '12 May 2026', amount: 50, type: 'credit' },
-  { id: 3, label: 'Wallet top-up', date: '08 May 2026', amount: 500, type: 'credit' },
-  { id: 4, label: 'Payment for Plumber', date: '02 May 2026', amount: -549, type: 'debit' },
-];
 function Wallet() {
+  const API_URL = process.env.REACT_APP_API_URL;
+  const [txns, setTxns] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      const storedUser = JSON.parse(localStorage.getItem("user")) || {};
+      const userId = storedUser._id || storedUser.id;
+      if (!userId) {
+        setError("User not found. Please log in again.");
+        setLoading(false);
+        return;
+      }
+      try {
+        const res = await fetch(`${API_URL}/payment/user-pay-history/${userId}`);
+        const data = await res.json();
+        if (res.ok && data.success) {
+          setTxns(data.data || []);
+        } else {
+          setError(data.message || "Failed to load transactions.");
+        }
+      } catch (err) {
+        console.error("Failed to fetch payment history:", err);
+        setError("Server error. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchHistory();
+  }, []);
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  };
+
+  const totalPaid = txns
+    .filter(tx => tx.payment_status === 'paid')
+    .reduce((sum, tx) => sum + parseFloat(tx.amount || 0), 0);
+
   return (
     <div className="wallet-page">
       <div className="balance-card">
-        <p className="balance-label">Wallet Balance</p>
-        <p className="balance-amount">₹450<span>.00</span></p>
+        <p className="balance-label">Total Paid</p>
+        <p className="balance-amount">₹{totalPaid.toFixed(2)}</p>
         <div className="wallet-actions">
           <button className="wallet-add-btn">+ Add Money</button>
           <button className="wallet-withdraw-btn">Withdraw</button>
@@ -333,23 +1369,55 @@ function Wallet() {
       </div>
       <div className="card transactions-card">
         <div className="tx-header"><h3>Recent Transactions</h3></div>
-        <div className="tx-list">
-          {txns.map(tx => (
-            <div className="tx-item" key={tx.id}>
-              <div className={`tx-icon ${tx.type}`}>
-                {tx.type === 'credit'
-                  ? <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 19V5m-7 7l7-7 7 7" /></svg>
-                  : <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 5v14m7-7l-7 7-7-7" /></svg>
-                }
+
+        {loading ? (
+          <p style={{ padding: '2rem 0', color: '#6B7280', textAlign: 'center' }}>
+            Loading transactions...
+          </p>
+        ) : error ? (
+          <p style={{ padding: '2rem 0', color: '#DC2626', textAlign: 'center' }}>
+            {error}
+          </p>
+        ) : txns.length === 0 ? (
+          <p style={{ padding: '2rem 0', color: '#6B7280', textAlign: 'center' }}>
+            No transactions found.
+          </p>
+        ) : (
+          <div className="tx-list">
+            {txns.map(tx => (
+              <div className="tx-item" key={tx.payment_id}>
+                <div className={`tx-icon ${tx.payment_type === 'advance' ? 'debit' : 'credit'}`}>
+                  {tx.payment_type === 'advance'
+                    ? <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 5v14m7-7l-7 7-7-7" /></svg>
+                    : <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 19V5m-7 7l7-7 7 7" /></svg>
+                  }
+                </div>
+                <div className="tx-info">
+                  <p className="tx-label">
+                    {tx.payment_type === 'advance' ? 'Advance' : 'Balance'} payment to {tx.vendor_name}
+                  </p>
+                  <p className="tx-date">{tx.services}</p>
+                  <p className="tx-date">{formatDate(tx.created_at)}</p>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <p className="tx-amount debit">-₹{parseFloat(tx.amount).toFixed(2)}</p>
+                  <span
+                    className="breakdown-pay-badge"
+                    style={{
+                      background: tx.payment_status === 'paid' ? '#F0FDF4' : '#FEF2F2',
+                      color: tx.payment_status === 'paid' ? '#16A34A' : '#DC2626',
+                      border: `1px solid ${tx.payment_status === 'paid' ? '#BBF7D0' : '#FECACA'}`,
+                      fontSize: 11,
+                    }}
+                  >
+                    {tx.payment_status === 'paid' ? '✓ Paid' : tx.payment_status}
+                  </span>
+
+                </div>
               </div>
-              <div className="tx-info">
-                <p className="tx-label">{tx.label}</p>
-                <p className="tx-date">{tx.date}</p>
-              </div>
-              <p className={`tx-amount ${tx.type}`}>{tx.type === 'credit' ? '+' : '-'}₹{Math.abs(tx.amount)}</p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -364,7 +1432,12 @@ function Toggle({ checked, onChange }) {
   );
 }
 function Settings() {
-  const [prefs, setPrefs] = useState({ pushNotifications: true, emailUpdates: true, smsAlerts: false, locationServices: true });
+  const [prefs, setPrefs] = useState({
+    pushNotifications: true,
+    emailUpdates: true,
+    smsAlerts: false,
+    locationServices: true,
+  });
   const toggleItems = [
     { key: 'pushNotifications', label: 'Push Notifications', desc: 'Receive booking updates and offers' },
     { key: 'emailUpdates', label: 'Email Updates', desc: 'Weekly digest of new services in your area' },
@@ -424,17 +1497,27 @@ function Footer() {
           </div>
         </div>
         <div className="footer-links">
-          <a href="#">About Us</a><a href="#">Careers</a><a href="#">Blog</a>
-          <a href="#">Contact Support</a><a href="#" className="footer-vendor-link">Become a Vendor</a>
+          <a href="#">About Us</a>
+          <a href="#">Careers</a>
+          <a href="#">Blog</a>
+          <a href="#">Contact Support</a>
+          <a href="#" className="footer-vendor-link">Become a Vendor</a>
         </div>
         <div className="footer-links">
-          <a href="#">Privacy Policy</a><a href="#">Terms &amp; Conditions</a>
-          <a href="#">Cancellation Policy</a><a href="#">Trust &amp; Safety</a>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms &amp; Conditions</a>
+          <a href="#">Cancellation Policy</a>
+          <a href="#">Trust &amp; Safety</a>
         </div>
         <div className="footer-newsletter">
           <p>Subscribe to our newsletter for the latest offers and updates.</p>
           <div className="newsletter-form">
-            <input type="email" placeholder="Enter your email address" value={email} onChange={e => setEmail(e.target.value)} />
+            <input
+              type="email"
+              placeholder="Enter your email address"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+            />
             <button className="subscribe-btn">Subscribe →</button>
           </div>
         </div>
@@ -449,16 +1532,23 @@ function Footer() {
 
 // ===== PAGE MAP =====
 const pages = { MyProfile, MyBookings, SavedVendors, Notifications, Wallet, Settings };
+const user = JSON.parse(localStorage.getItem("user"));
+
 const greetings = {
-  MyProfile: 'Welcome back, Arjun 🗒️', MyBookings: 'Welcome back, Arjun 👋',
-  SavedVendors: 'Welcome back, Arjun 🗒️', Notifications: 'Welcome back, Arjun 🗒️',
-  Wallet: 'Welcome back, Arjun 🗒️', Settings: 'Welcome back, Arjun 🗒️',
+  MyProfile: `Welcome back, ${user?.name} 🗒️`,
+  MyBookings: `Welcome back, ${user?.name} 👋`,
+  SavedVendors: `Welcome back, ${user?.name} 🗒️`,
+  Notifications: `Welcome back, ${user?.name} 🗒️`,
+  Wallet: `Welcome back, ${user?.name} 🗒️`,
+  Settings: `Welcome back, ${user?.name} 🗒️`,
 };
 
 // ===== APP ROOT =====
 export default function Profile() {
   const [activePage, setActivePage] = useState('MyProfile');
   const PageComponent = pages[activePage];
+
+  
 
   return (
     <div className="app">
@@ -474,6 +1564,7 @@ export default function Profile() {
           </div>
         </div>
       </main>
+
     </div>
   );
 }

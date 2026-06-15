@@ -2,25 +2,29 @@
 
 :root {
     --vnd-primary: #2563eb;
+    --vnd-primary-bg: #eff6ff;
+    --vnd-primary-border: #bfdbfe;
     --vnd-border: #e5e7eb;
+    --vnd-border-hover: #d1d5db;
     --vnd-bg: #f9fafb;
+    --vnd-bg-section: #ffffff;
     --vnd-white: #ffffff;
     --vnd-text: #111827;
-    --vnd-label: #111827;
-    --vnd-sub: #6b7280;
+    --vnd-label: #374151;
+    --vnd-hint: #6b7280;
     --vnd-placeholder: #9ca3af;
     --vnd-banner-bg: #fffbeb;
     --vnd-banner-border: #fde68a;
-    --vnd-upload-border: #fca5a5;
-    --vnd-radius: 10px;
-    --vnd-input-radius: 8px;
+    --vnd-radius-card: 12px;
+    --vnd-radius-input: 8px;
+    --vnd-success: #16a34a;
+    --vnd-success-bg: #f0fdf4;
+    --vnd-success-border: #bbf7d0;
 }
 
 /* ── Overlay ── */
 .vnd-overlay {
-    /* position: fixed; */
     inset: 0;
-    /* background: rgba(0, 0, 0, 0.45); */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -30,60 +34,49 @@
 
 /* ── Modal ── */
 .vnd-modal {
-    /* background: var(--vnd-white); */
     border-radius: 16px;
-    width: 90%;
-    padding: 22px 20px 28px;
+    width: 100%;
+    max-width: 1300px;
+    padding: 24px 22px 32px;
 }
 
-.vnd-modal::-webkit-scrollbar {
-    width: 4px;
-}
-
-.vnd-modal::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.vnd-modal::-webkit-scrollbar-thumb {
-    background: #e5e7eb;
-    border-radius: 4px;
-}
+.vnd-modal::-webkit-scrollbar { width: 4px; }
+.vnd-modal::-webkit-scrollbar-track { background: transparent; }
+.vnd-modal::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
 
 /* ── Header ── */
 .vnd-header {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 12px;
     margin-bottom: 14px;
 }
 
 .vnd-header-icon {
-    width: 46px;
-    height: 46px;
+    width: 44px;
+    height: 44px;
     border-radius: 10px;
-    background: #eff6ff;
+    background: var(--vnd-primary-bg);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
 }
 
-.vnd-header-text {
-    flex: 1;
-}
+.vnd-header-text { flex: 1; }
 
 .vnd-title {
     font-size: 20px;
-    font-weight: 800;
+    font-weight: 700;
     color: var(--vnd-text);
     line-height: 1.2;
-    margin: 0 0 3px;
+    margin: 0 0 2px;
     font-family: 'Segoe UI', system-ui, sans-serif;
 }
 
 .vnd-subtitle {
     font-size: 13px;
-    color: var(--vnd-sub);
+    color: var(--vnd-hint);
     margin: 0;
     font-family: 'Segoe UI', system-ui, sans-serif;
 }
@@ -92,7 +85,7 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    border: 1.5px solid var(--vnd-border);
+    border: 1px solid var(--vnd-border);
     background: var(--vnd-white);
     display: flex;
     align-items: center;
@@ -102,10 +95,7 @@
     transition: background 0.15s;
     padding: 0;
 }
-
-.vnd-close:hover {
-    background: var(--vnd-bg);
-}
+.vnd-close:hover { background: var(--vnd-bg); }
 
 /* ── Banner ── */
 .vnd-banner {
@@ -126,15 +116,60 @@
 /* ── Form ── */
 .vnd-form {
     display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* ── Section Card ── */
+.vnd-section {
+    border: 1px solid var(--vnd-border);
+    border-radius: var(--vnd-radius-card);
+    background: var(--vnd-bg-section);
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
     gap: 14px;
-    grid-template-columns: auto auto;
-    text-align: left;
+}
+
+/* ── Section Header ── */
+.vnd-section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--vnd-border);
+}
+
+.vnd-section-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: var(--vnd-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.vnd-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--vnd-label);
+    font-family: 'Segoe UI', system-ui, sans-serif;
 }
 
 /* ── Row (2 columns) ── */
 .vnd-row {
     display: grid;
-    /* grid-template-columns: 1fr 1fr; */
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.vnd-row-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 12px;
 }
 
@@ -146,60 +181,245 @@
 }
 
 .vnd-label {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--vnd-label);
     font-family: 'Segoe UI', system-ui, sans-serif;
 }
 
+.vnd-label-hint {
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #008080;
+    background-color: #e6f7f7;
+    border: 1px solid #b3e6e6;
+    border-radius: 12px;
+    line-height: 1.4;
+}
+
+.vnd-req { color: #ef4444; margin-left: 2px; }
+
 /* ── Input ── */
 .vnd-input {
     width: 100%;
-    border: 1.5px solid var(--vnd-border);
-    border-radius: var(--vnd-input-radius);
-    padding: 10px 13px;
+    border: 1px solid var(--vnd-border);
+    border-radius: var(--vnd-radius-input);
+    padding: 9px 12px;
     font-size: 14px;
     color: var(--vnd-text);
     background: var(--vnd-white);
     outline: none;
     font-family: 'Segoe UI', system-ui, sans-serif;
-    transition: border-color 0.18s, box-shadow 0.18s;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    box-sizing: border-box;
+    appearance: none;
+    -webkit-appearance: none;
 }
 
-.vnd-input::placeholder {
-    color: var(--vnd-placeholder);
-}
+.vnd-input::placeholder { color: var(--vnd-placeholder); }
+
+.vnd-input:hover { border-color: var(--vnd-border-hover); }
 
 .vnd-input:focus {
     border-color: var(--vnd-primary);
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
 }
 
+.vnd-textarea {
+    resize: vertical;
+    min-height: 76px;
+    line-height: 1.5;
+}
+
+/* ── Select Wrapper ── */
+.vnd-select-wrap { position: relative; }
+
+.vnd-select { cursor: pointer; padding-right: 34px; }
+
+.vnd-select-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--vnd-hint);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+}
+
+/* ── Availability Tabs ── */
+.vnd-avail-tabs {
+    display: flex;
+    gap: 8px;
+}
+
+.vnd-avail-tab {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid var(--vnd-border);
+    border-radius: var(--vnd-radius-input);
+    background: var(--vnd-white);
+    font-size: 13px;
+    color: var(--vnd-hint);
+    cursor: pointer;
+    text-align: center;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+    user-select: none;
+}
+
+.vnd-avail-tab:hover { border-color: var(--vnd-border-hover); }
+
+.vnd-avail-tab--active {
+    border-color: var(--vnd-primary);
+    background: var(--vnd-primary-bg);
+    color: var(--vnd-primary);
+    font-weight: 600;
+}
+
+/* ── Working Hours row ── */
+.vnd-hours-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.vnd-hours-sep {
+    font-size: 13px;
+    color: var(--vnd-hint);
+    padding-bottom: 9px;
+    flex-shrink: 0;
+}
+
+/* ── Sub-services ── */
+.vnd-subs-loading {
+    font-size: 13px;
+    color: var(--vnd-hint);
+    padding: 8px 0;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.vnd-subs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+}
+
+.vnd-sub-card {
+    border: 1px solid var(--vnd-border);
+    border-radius: var(--vnd-radius-input);
+    padding: 10px 12px;
+    cursor: pointer;
+    background: var(--vnd-white);
+    transition: border-color 0.15s, background 0.15s;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    user-select: none;
+}
+
+.vnd-sub-card:hover { border-color: var(--vnd-border-hover); background: var(--vnd-bg); }
+
+.vnd-sub-card--checked {
+    border-color: var(--vnd-primary-border);
+    background: var(--vnd-primary-bg);
+}
+
+.vnd-sub-top {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+/* ── Checkbox ── */
+.vnd-checkbox {
+    width: 17px;
+    height: 17px;
+    border-radius: 4px;
+    border: 1px solid var(--vnd-border);
+    background: var(--vnd-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.vnd-checkbox--on {
+    background: var(--vnd-primary);
+    border-color: var(--vnd-primary);
+}
+
+.vnd-sub-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--vnd-text);
+    line-height: 1.3;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ── Price Input ── */
+.vnd-price-wrap {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--vnd-white);
+    border: 1px solid var(--vnd-primary-border);
+    border-radius: 6px;
+    padding: 5px 9px;
+}
+
+.vnd-price-icon { color: var(--vnd-primary); display: flex; align-items: center; flex-shrink: 0; }
+
+.vnd-price-input {
+    border: none;
+    outline: none;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--vnd-text);
+    width: 100%;
+    background: transparent;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.vnd-price-input::placeholder { color: var(--vnd-placeholder); font-weight: 400; }
+.vnd-price-input::-webkit-outer-spin-button,
+.vnd-price-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.vnd-price-input[type=number] { -moz-appearance: textfield; }
+
 /* ── Upload Zone ── */
 .vnd-upload {
-    border: 1.5px dashed var(--vnd-upload-border);
-    border-radius: var(--vnd-input-radius);
-    padding: 28px 16px;
+    border: 1px dashed var(--vnd-border);
+    border-radius: var(--vnd-radius-input);
+    padding: 22px 16px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 5px;
     cursor: pointer;
-    background: var(--vnd-white);
-    transition: background 0.18s, border-color 0.18s;
-    min-height: 110px;
+    background: var(--vnd-bg);
+    transition: background 0.15s, border-color 0.15s;
+    min-height: 96px;
 }
 
 .vnd-upload:hover,
-.vnd-upload--active {
-    background: #fff5f5;
-    border-color: #f87171;
+.vnd-upload--active { background: #f0f9ff; border-color: #93c5fd; }
+
+.vnd-upload-chosen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
 }
+
+.vnd-upload-check { font-size: 20px; color: var(--vnd-success); }
 
 .vnd-upload-text {
     font-size: 13px;
-    color: var(--vnd-sub);
+    color: var(--vnd-hint);
     text-align: center;
     margin: 0;
     font-family: 'Segoe UI', system-ui, sans-serif;
@@ -208,10 +428,11 @@
 .vnd-upload-text--file {
     color: var(--vnd-primary);
     font-weight: 600;
+    word-break: break-all;
 }
 
 .vnd-upload-hint {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--vnd-placeholder);
     margin: 0;
     font-family: 'Segoe UI', system-ui, sans-serif;
@@ -219,41 +440,141 @@
 
 /* ── Submit ── */
 .vnd-submit {
-    /* width: 100%; */
+    width: 100%;
     background: var(--vnd-primary);
     color: #fff;
     border: none;
-    border-radius: 10px;
-    padding: 15px;
-    font-size: 16px;
-    font-weight: 700;
+    border-radius: var(--vnd-radius-input);
+    padding: 13px;
+    font-size: 15px;
+    font-weight: 600;
     cursor: pointer;
     font-family: 'Segoe UI', system-ui, sans-serif;
-    margin-top: 6px;
-    transition: background 0.18s, transform 0.1s;
+    margin-top: 4px;
+    transition: background 0.15s, transform 0.1s, opacity 0.15s;
     display: flex;
-    justify-self: flex-end;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
-.vnd-submit:hover {
-    background: #1d4ed8;
-}
-
-.vnd-submit:active {
-    transform: scale(0.99);
-}
+.vnd-submit:hover:not(:disabled) { background: #1d4ed8; }
+.vnd-submit:active:not(:disabled) { transform: scale(0.99); }
+.vnd-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 
 /* ── Responsive ── */
-@media (max-width: 480px) {
+/* ─────────────────────────────────────────────
+   Responsive: ≤ 1024px (Tablet / Small Laptop)
+───────────────────────────────────────────── */
+@media (max-width: 1024px) {
     .vnd-modal {
-        padding: 18px 14px 24px;
+        max-width: 95%;
+        padding: 20px;
+    }
+
+    .vnd-form {
+        grid-template-columns: 1fr;
+    }
+
+    .vnd-row,
+    .vnd-row-3 {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .vnd-subs-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }
+}
+
+
+/* ─────────────────────────────────────────────
+   Responsive: ≤ 720px (Tablet Portrait / Large Mobile)
+───────────────────────────────────────────── */
+@media (max-width: 720px) {
+    .vnd-header {
+        flex-wrap: wrap;
+        gap: 10px;
     }
 
     .vnd-title {
         font-size: 18px;
     }
 
-    .vnd-row {
+    .vnd-subtitle {
+        font-size: 12px;
+    }
+
+    .vnd-row,
+    .vnd-row-3 {
         grid-template-columns: 1fr;
+    }
+
+    .vnd-avail-tabs {
+        flex-direction: column;
+    }
+
+    .vnd-hours-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .vnd-hours-sep {
+        text-align: center;
+        padding: 6px 0;
+    }
+
+    .vnd-section {
+        padding: 14px;
+    }
+
+    .vnd-upload {
+        padding: 18px 12px;
+    }
+}
+
+
+/* ─────────────────────────────────────────────
+   Responsive: ≤ 420px (Small Mobile)
+───────────────────────────────────────────── */
+@media (max-width: 420px) {
+    .vnd-modal {
+        padding: 14px;
+        border-radius: 12px;
+    }
+
+    .vnd-header-icon {
+        width: 38px;
+        height: 38px;
+    }
+
+    .vnd-title {
+        font-size: 16px;
+    }
+
+    .vnd-banner {
+        font-size: 12px;
+        flex-wrap: wrap;
+    }
+
+    .vnd-input {
+        font-size: 13px;
+        padding: 8px 10px;
+    }
+
+    .vnd-submit {
+        font-size: 14px;
+        padding: 12px;
+    }
+
+    .vnd-subs-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .vnd-price-wrap {
+        flex-direction: row;
+        padding: 6px 8px;
+    }
+    .vnd-overlay {
+        padding: 0px;
     }
 }

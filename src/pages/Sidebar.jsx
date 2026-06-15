@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/Sidebar.css';
 
 const navItems = [
@@ -34,23 +34,146 @@ const navItems = [
     },
 ];
 
-export default function Sidebar({ activePage, setActivePage }) {
-    return (
-        <aside className="sidebar">
-            <div className="sidebar-user">
-                <img src="https://i.pravatar.cc/48?img=8" alt="Arjun" className="sidebar-avatar" />
-                <div>
-                    <p className="sidebar-name">Arjun Reddy</p>
-                    <p className="sidebar-email">arjun.reddy@gmail.com</p>
-                </div>
-            </div>
+// Items shown directly on the mobile bottom bar (first 4)
+const MOBILE_PRIMARY_KEYS = ['MyProfile', 'MyBookings', 'SavedVendors', 'Wallet'];
 
-            <nav className="sidebar-nav">
-                {navItems.map(item => (
+// Icon used for the "More" button on mobile
+const MoreIcon = (
+    <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" />
+    </svg>
+);
+
+export default function Sidebar({ activePage, setActivePage }) {
+
+    const [user, setUser] = useState({
+        name: '',
+        email: ''
+    });
+    const [drawerOpen, setDrawerOpen] = useState(false);
+
+    useEffect(() => {
+        const loadUser = () => {
+            const storedUser = localStorage.getItem("user");
+            if (storedUser) {
+                const userData = JSON.parse(storedUser);
+                setUser({
+                    name: userData.name || '',
+                    email: userData.email || ''
+                });
+            }
+        };
+
+        loadUser();
+        window.addEventListener('userLogin', loadUser);
+        return () => window.removeEventListener('userLogin', loadUser);
+    }, []);
+
+    const handleLogout = () => {
+        localStorage.removeItem("user");
+        window.location.href = "/login";
+    };
+
+    const primaryItems = navItems.filter(item => MOBILE_PRIMARY_KEYS.includes(item.key));
+    const moreItems = navItems.filter(item => !MOBILE_PRIMARY_KEYS.includes(item.key));
+    const isMoreActive = moreItems.some(item => item.key === activePage);
+
+    const handleMobileNavClick = (key) => {
+        setActivePage(key);
+        setDrawerOpen(false);
+    };
+
+    return (
+        <>
+            <aside className="sidebar">
+                <div className="sidebar-user">
+                    <img
+                        src="https://i.pravatar.cc/48?img=8"
+                        alt={user.name}
+                        className="sidebar-avatar"
+                    />
+
+                    <p className="sidebar-name">{user.name}</p>
+                    <p className="sidebar-email">{user.email}</p>
+                </div>
+
+                <nav className="sidebar-nav">
+                    {navItems.map(item => (
+                        <button
+                            key={item.key}
+                            className={`sidebar-item${activePage === item.key ? ' active' : ''}`}
+                            onClick={() => setActivePage(item.key)}
+                        >
+                            <span className="sidebar-icon">{item.icon}</span>
+                            <span className="sidebar-label">{item.label}</span>
+                            {item.badge && <span className="sidebar-badge">{item.badge}</span>}
+                        </button>
+                    ))}
+
+                    <div className="sidebar-divider" />
+
+                    <button
+                        className="sidebar-item sidebar-logout"
+                        onClick={handleLogout}
+                    >
+                        <span className="sidebar-icon">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
+                            </svg>
+                        </span>
+                        <span className="sidebar-label">Log Out</span>
+                    </button>
+                </nav>
+            </aside>
+
+            {/* ===== Mobile bottom nav ===== */}
+            <nav className="mobile-bottom-nav">
+                {primaryItems.map(item => (
                     <button
                         key={item.key}
-                        className={`sidebar-item${activePage === item.key ? ' active' : ''}`}
-                        onClick={() => setActivePage(item.key)}
+                        className={`mobile-nav-item${activePage === item.key ? ' active' : ''}`}
+                        onClick={() => handleMobileNavClick(item.key)}
+                    >
+                        {item.icon}
+                        <span className="mobile-nav-label">{item.label}</span>
+                        {item.badge && <span className="mobile-nav-badge">{item.badge}</span>}
+                    </button>
+                ))}
+
+                <button
+                    className={`mobile-nav-item${isMoreActive ? ' active' : ''}`}
+                    onClick={() => setDrawerOpen(true)}
+                >
+                    {MoreIcon}
+                    <span className="mobile-nav-label">More</span>
+                </button>
+            </nav>
+
+            {/* ===== Slide-up drawer for remaining items ===== */}
+            <div
+                className={`mobile-drawer-overlay${drawerOpen ? ' open' : ''}`}
+                onClick={() => setDrawerOpen(false)}
+            />
+            <div className={`mobile-drawer${drawerOpen ? ' open' : ''}`}>
+                <div className="mobile-drawer-handle" />
+
+                <div className="mobile-drawer-user">
+                    <img
+                        src="https://i.pravatar.cc/48?img=8"
+                        alt={user.name}
+                        className="sidebar-avatar"
+                    />
+                    <div>
+                        <p className="sidebar-name">{user.name}</p>
+                        <p className="sidebar-email">{user.email}</p>
+                    </div>
+                </div>
+
+                {moreItems.map(item => (
+                    <button
+                        key={item.key}
+                        className="mobile-drawer-item"
+                        onClick={() => handleMobileNavClick(item.key)}
                     >
                         <span className="sidebar-icon">{item.icon}</span>
                         <span className="sidebar-label">{item.label}</span>
@@ -58,9 +181,9 @@ export default function Sidebar({ activePage, setActivePage }) {
                     </button>
                 ))}
 
-                <div className="sidebar-divider" />
+                <div className="mobile-drawer-divider" />
 
-                <button className="sidebar-item sidebar-logout">
+                <button className="mobile-drawer-item logout" onClick={handleLogout}>
                     <span className="sidebar-icon">
                         <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
                             <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
@@ -68,7 +191,7 @@ export default function Sidebar({ activePage, setActivePage }) {
                     </span>
                     <span className="sidebar-label">Log Out</span>
                 </button>
-            </nav>
-        </aside>
+            </div>
+        </>
     );
 }

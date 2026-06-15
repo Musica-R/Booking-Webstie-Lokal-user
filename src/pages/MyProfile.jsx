@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/MyProfile.css';
 
 const stats = [
@@ -10,12 +10,37 @@ const stats = [
 
 export default function MyProfile() {
     const [editing, setEditing] = useState(false);
+    const [user, setUser] = useState(null);
+
     const [form, setForm] = useState({
-        fullName: 'Arjun Reddy',
-        email: 'arjun.reddy@gmail.com',
-        phone: '+91 98765 43210',
-        location: 'Bengaluru, KA',
+        fullName: '',
+        email: '',
+        phone: '',
+        location: '',
     });
+
+    useEffect(() => {
+        const loadUser = () => {
+            const storedUser = localStorage.getItem("user");
+
+            if (storedUser) {
+                const user = JSON.parse(storedUser);
+
+                setUser(user); // 👈 ADD THIS
+
+                setForm({
+                    fullName: user.name || '',
+                    email: user.email || '',
+                    phone: user.phone || '',
+                    location: user.location || '',
+                });
+            }
+        };
+
+        loadUser();
+        window.addEventListener('userLogin', loadUser);
+        return () => window.removeEventListener('userLogin', loadUser);
+    }, []);
 
     const addresses = [
         { type: 'Home', address: 'Flat 402, Prestige Sunrise, HSR Layout Sector 2, Bengaluru, 560102', isDefault: true },
@@ -40,11 +65,15 @@ export default function MyProfile() {
                 <div className="profile-banner" />
                 <div className="profile-info-header">
                     <div className="profile-avatar-wrap">
-                        <img src="https://i.pravatar.cc/80?img=8" alt="Arjun" className="profile-avatar" />
+                        <img
+                            src={user?.profileImage || "https://i.pravatar.cc/80?img=8"}
+                            alt={form.fullName}
+                            className="profile-avatar"
+                        />
                     </div>
                     <div className="profile-meta">
                         <div className="profile-name-row">
-                            <h2 className="profile-name">Arjun Reddy</h2>
+                            <h2 className="profile-name">{form.fullName}</h2>
                             <span className="verified-badge">
                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="#22C55E"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                 Verified

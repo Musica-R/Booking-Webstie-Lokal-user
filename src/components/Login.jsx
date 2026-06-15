@@ -1,9 +1,10 @@
 // Login.jsx
 import { useState, useRef, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import "../styles/Login.css";
 
-/* ── Icons (same as before) ── */
+
+/* ── Icons ── */
 const BackIcon = () => (
     <svg viewBox="0 0 24 24" aria-hidden="true">
         <polyline points="15 18 9 12 15 6" />
@@ -104,7 +105,6 @@ function useCountdown(initial) {
     }, [seconds, running]);
 
     const reset = () => { setSeconds(initial); setRunning(true); };
-
     const fmt = `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
     return { seconds, fmt, done: !running, reset };
 }
@@ -114,6 +114,7 @@ function OtpVerifyForm({ phone, onEdit, onLoginSuccess }) {
     const [otp, setOtp] = useState(["", "", "", "", "", ""]);
     const { fmt, done, reset } = useCountdown(24);
     const navigate = useNavigate();
+    const location = useLocation();
     const masked = `+91 XXXXX X${phone.slice(-4)}`;
 
     const handleResend = () => {
@@ -122,21 +123,23 @@ function OtpVerifyForm({ phone, onEdit, onLoginSuccess }) {
     };
 
     const handleVerify = () => {
-        const otpValue = otp.join('');
+        const otpValue = otp.join("");
         if (otpValue.length === 6) {
-            // Store user data in localStorage/sessionStorage
             const userData = {
                 isLoggedIn: true,
-                name: "John Doe", // This would come from your backend
+                name: "John Doe",
                 phone: phone,
                 email: "john.doe@example.com",
-                avatar: null
+                avatar: null,
             };
-            localStorage.setItem('user', JSON.stringify(userData));
+            localStorage.setItem("user", JSON.stringify(userData));
             onLoginSuccess(userData);
-            navigate('/account');
+
+            // Redirect back to where user came from, or /account as fallback
+            const redirectTo = location.state?.redirectTo || "/account";
+            navigate(redirectTo, { replace: true });
         } else {
-            alert('Please enter complete OTP');
+            alert("Please enter complete OTP");
         }
     };
 
@@ -158,9 +161,7 @@ function OtpVerifyForm({ phone, onEdit, onLoginSuccess }) {
                         Resend OTP
                     </button>
                 ) : (
-                    <>
-                        Resend OTP in <strong>{fmt}</strong>
-                    </>
+                    <>Resend OTP in <strong>{fmt}</strong></>
                 )}
             </p>
 
@@ -181,7 +182,13 @@ function PhoneOTPForm({ onLoginSuccess }) {
     };
 
     if (otpSent) {
-        return <OtpVerifyForm phone={phone} onEdit={() => setOtpSent(false)} onLoginSuccess={onLoginSuccess} />;
+        return (
+            <OtpVerifyForm
+                phone={phone}
+                onEdit={() => setOtpSent(false)}
+                onLoginSuccess={onLoginSuccess}
+            />
+        );
     }
 
     return (
@@ -214,25 +221,46 @@ function PhoneOTPForm({ onLoginSuccess }) {
 /* ── Email & Password tab ── */
 function EmailPasswordForm({ onLoginSuccess }) {
     const [showPass, setShowPass] = useState(false);
-    const [email, setEmail] = useState("");
+    const [email,    setEmail]    = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
+    const location = useLocation();
 
-    const handleSignIn = () => {
-        if (email && password) {
-            // Store user data
-            const userData = {
-                isLoggedIn: true,
-                name: email.split('@')[0], // Use email username as name
-                email: email,
-                phone: null,
-                avatar: null
-            };
-            localStorage.setItem('user', JSON.stringify(userData));
-            onLoginSuccess(userData);
-            navigate('/account');
-        } else {
-            alert('Please enter email and password');
+    const API_URL = process.env.REACT_APP_API_URL;
+
+    const handleSignIn = async () => {
+        try {
+            const response = await fetch(`${API_URL}/users/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                const userData = {
+                    isLoggedIn:   true,
+                    id:           data.user.id,
+                    name:         data.user.name,
+                    email:        data.user.email,
+                    phone:        data.user.phone,
+                    location:     data.user.location,
+                    profileImage: data.user.profileImage,
+                };
+
+                localStorage.setItem("user", JSON.stringify(userData));
+                onLoginSuccess(userData);
+
+                // Redirect back to where user came from, or /account as fallback
+                const redirectTo = location.state?.redirectTo || "/account";
+                navigate(redirectTo, { replace: true });
+            } else {
+                alert(data.message || "Invalid email or password");
+            }
+        } catch (error) {
+            console.error("Login Error:", error);
+            alert("Server error. Please try again.");
         }
     };
 
@@ -254,7 +282,7 @@ function EmailPasswordForm({ onLoginSuccess }) {
             <div className="form-group">
                 <div className="form-label-row">
                     <label className="form-label" htmlFor="password">Password</label>
-                    <a href="#" className="form-forgot">Forgot Password?</a>
+                   <Link to="/forgot-password" className="form-forgot">Forgot Password?</Link>
                 </div>
                 <div className="password-wrap">
                     <input
@@ -286,11 +314,10 @@ function EmailPasswordForm({ onLoginSuccess }) {
 
 /* ── Main Login Page ── */
 export default function LoginPage() {
-    const [tab, setTab] = useState("phone");
+    const [tab, setTab] = useState("email");
 
     const handleLoginSuccess = (userData) => {
-        // This will trigger navbar update through the event
-        window.dispatchEvent(new CustomEvent('userLogin', { detail: userData }));
+        window.dispatchEvent(new CustomEvent("userLogin", { detail: userData }));
     };
 
     return (
@@ -333,7 +360,10 @@ export default function LoginPage() {
                     </div>
 
                     {/* Tab content */}
-                    {tab === "phone" ? <PhoneOTPForm onLoginSuccess={handleLoginSuccess} /> : <EmailPasswordForm onLoginSuccess={handleLoginSuccess} />}
+                    {tab === "phone"
+                        ? <PhoneOTPForm onLoginSuccess={handleLoginSuccess} />
+                        : <EmailPasswordForm onLoginSuccess={handleLoginSuccess} />
+                    }
 
                     {/* Or divider */}
                     <div className="or-divider" aria-hidden="true">
@@ -354,7 +384,7 @@ export default function LoginPage() {
 
                     {/* Sign up */}
                     <p className="signup-link">
-                        New to NearKart? <a href="#">Sign Up</a>
+                        New to NearKart? <Link to="/signup">Sign Up</Link>
                     </p>
                 </div>
             </main>

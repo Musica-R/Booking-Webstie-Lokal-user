@@ -68,3 +68,14 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+
+
+success@razorpay -- for success msg in test mode
+failure@razorpay -- for the failure msg in test mode
+
+
+Card Number: 4111 1111 1111 1111
+Expiry: any future date (e.g. 12/30)
+CVV: 123
+Name: anything

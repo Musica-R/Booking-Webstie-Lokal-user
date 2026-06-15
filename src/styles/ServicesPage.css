@@ -57,6 +57,53 @@
     font-weight: 600;
 }
 
+.sp-card__category {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #eef6ff;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid #bfdbfe;
+  margin-left: 6px;
+}
+
+/* Auth hint banner in filters bar */
+.sp-auth-hint {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #6b7280;
+    margin-left: auto;
+}
+.sp-auth-hint__link {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #2563eb;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+/* Guest state book button */
+.sp-card__book--guest {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: #f3f4f6 !important;
+    color: #6b7280 !important;
+    border: 1px dashed #d1d5db !important;
+    font-size: 12px;
+}
+.sp-card__book--guest:hover {
+    background: #e5e7eb !important;
+    color: #374151 !important;
+}
+
 .sp-hero__content {
     display: flex;
     align-items: center;
@@ -337,7 +384,7 @@
     color: var(--sp-white);
     border: none;
     border-radius: 8px;
-    padding: 10px 0;
+    padding: 10px 10px;
     font-size: 14px;
     font-weight: 700;
     cursor: pointer;
@@ -411,6 +458,43 @@
     font-size: 14px;
     color: var(--sp-sub);
     padding: 0 4px;
+}
+
+/* ── Favourite heart button ───────────────────────────────── */
+.sp-card__fav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 50%;
+    transition: background 0.15s;
+    flex-shrink: 0;
+}
+
+.sp-card__fav:hover:not(.sp-card__fav--disabled) {
+    background: #fee2e2;
+}
+
+.sp-card__fav:hover:not(.sp-card__fav--disabled) svg {
+    transform: scale(1.2);
+    stroke: #ef4444;
+}
+
+.sp-card__fav--active svg {
+    transform: scale(1.1);
+}
+
+.sp-card__fav--disabled {
+    cursor: default;
+    opacity: 0.4;
+}
+
+.sp-card__fav:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 /* ══════════════════════════════════════════════════════

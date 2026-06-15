@@ -95,29 +95,29 @@ const icons = {
   ),
 };
 
-// ── Services Data — id matches URL param ──────────────────────────────────────
+// ── Services Data — id matches the API category id ────────────────────────────
 export const SERVICES = [
-  { id: 1, name: "Electrician", desc: "Wiring, repair & installation", iconKey: "electrician", color: "blue" },
-  { id: 2, name: "Plumber", desc: "Pipes, leaks & fittings", iconKey: "plumber", color: "yellow" },
-  { id: 3, name: "AC Repair", desc: "Service, gas & repair", iconKey: "ac", color: "teal" },
-  { id: 4, name: "Painting", desc: "Interior & exterior", iconKey: "painting", color: "rose" },
-  { id: 5, name: "Cleaning", desc: "Deep home cleaning", iconKey: "cleaning", color: "purple" },
-  { id: 6, name: "Car Wash", desc: "Doorstep car care", iconKey: "carwash", color: "yellow" },
-  { id: 7, name: "RO Service", desc: "Water purifier repair", iconKey: "ro", color: "sky" },
-  { id: 8, name: "CCTV Install", desc: "Security camera setup", iconKey: "cctv", color: "orange" },
-  { id: 9, name: "Pest Control", desc: "Termite & bug removal", iconKey: "pest", color: "red" },
-  { id: 10, name: "Appliance Repair", desc: "Washing machine, fridge", iconKey: "appliance", color: "lime" },
-  { id: 11, name: "Carpenter", desc: "Furniture & woodwork", iconKey: "carpenter", color: "slate" },
-  { id: 12, name: "Tank Cleaning", desc: "Water tank hygiene", iconKey: "tank", color: "amber" },
+  { id: 1,  name: "Electrician",     desc: "Wiring, repair & installation", iconKey: "electrician", color: "blue"   },
+  { id: 2,  name: "Plumber",         desc: "Pipes, leaks & fittings",        iconKey: "plumber",     color: "yellow" },
+  { id: 3,  name: "AC Repair",       desc: "Service, gas & repair",          iconKey: "ac",          color: "teal"   },
+  { id: 4,  name: "Painting",        desc: "Interior & exterior",            iconKey: "painting",    color: "rose"   },
+  { id: 5,  name: "Cleaning",        desc: "Deep home cleaning",             iconKey: "cleaning",    color: "purple" },
+  { id: 6,  name: "Car Wash",        desc: "Doorstep car care",              iconKey: "carwash",     color: "yellow" },
+  { id: 7,  name: "RO Service",      desc: "Water purifier repair",          iconKey: "ro",          color: "sky"    },
+  { id: 8,  name: "CCTV Install",    desc: "Security camera setup",          iconKey: "cctv",        color: "orange" },
+  { id: 9,  name: "Pest Control",    desc: "Termite & bug removal",          iconKey: "pest",        color: "red"    },
+  { id: 10, name: "Appliance Repair",desc: "Washing machine, fridge",        iconKey: "appliance",   color: "lime"   },
+  { id: 11, name: "Carpenter",       desc: "Furniture & woodwork",           iconKey: "carpenter",   color: "slate"  },
+  { id: 12, name: "Tank Cleaning",   desc: "Water tank hygiene",             iconKey: "tank",        color: "amber"  },
 ];
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function EssentialServices() {
   const navigate = useNavigate();
 
+  // Navigate to vendor list for the chosen category
   const handleServiceClick = (svc) => {
-    // Navigate to /booking/:id  — e.g. /booking/1
-    navigate(`/booking/${svc.id}`);
+    navigate(`/category/${svc.id}`);
   };
 
   return (

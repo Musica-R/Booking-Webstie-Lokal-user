@@ -1,0 +1,92 @@
+/* Signup.css — extends the same design tokens as Login.css */
+/* Import the base login styles so all shared classes are available */
+@import './Login.css';
+
+/* ── Location field ── */
+.location-wrap {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+}
+
+.location-input {
+    flex: 1;
+    min-width: 0;
+}
+
+.detect-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    background: #f8fafc;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--blue);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+    flex-shrink: 0;
+}
+
+.detect-btn:hover:not(:disabled) {
+    background: #eff6ff;
+    border-color: var(--blue);
+}
+
+.detect-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.detect-btn.detecting {
+    color: var(--text-muted);
+}
+
+.detect-btn svg {
+    width: 15px;
+    height: 15px;
+    stroke: currentColor;
+    flex-shrink: 0;
+}
+
+/* ── Validation error states ── */
+.input-error {
+    border-color: #ef4444 !important;
+}
+
+.input-error:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
+    border-color: #ef4444 !important;
+}
+
+.input-error-border {
+    border-color: #ef4444 !important;
+}
+
+.field-error {
+    font-size: 12.5px;
+    color: #ef4444;
+    margin-top: 5px;
+    font-weight: 400;
+}
+
+/* ── Password strength bar (optional visual) ── */
+/* Keep consistent form spacing for signup (5 fields vs 2) */
+.login-card .form-group {
+    margin-bottom: 16px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+    .detect-btn span {
+        display: none;
+    }
+
+    .detect-btn {
+        padding: 0 12px;
+    }
+}

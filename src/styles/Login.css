@@ -360,6 +360,12 @@ body {
     border-color: #cbd5e1;
 }
 
+.form-error {
+  color: #e02424;
+  font-size: 0.875rem;
+  margin: -0.25rem 0 0.75rem;
+}
+
 .btn-social svg {
     width: 19px;
     height: 19px;

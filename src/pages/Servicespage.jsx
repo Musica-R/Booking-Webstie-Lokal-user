@@ -213,10 +213,16 @@ function ProfessionalCard({ vendor, onBook, isLoggedIn }) {
             {/* Body */}
             <div className="sp-card__body">
                 <div className="sp-card__name-row">
+                    
                     <h3 className="sp-card__name">{vendor.full_name ?? "Unknown"}</h3>
 
                     {/* Heart button — right of name, before shield */}
-                    <button
+                  
+
+                    <ShieldIcon />
+                </div>
+                <div className="sp-card__meta">
+                      <button
                         className={`sp-card__fav ${faved ? "sp-card__fav--active" : ""} ${!isLoggedIn ? "sp-card__fav--disabled" : ""}`}
                         onClick={handleFav}
                         aria-label={faved ? "Remove from favourites" : "Add to favourites"}
@@ -225,22 +231,18 @@ function ProfessionalCard({ vendor, onBook, isLoggedIn }) {
                     >
                         <HeartIcon filled={faved} />
                     </button>
-
-                    <ShieldIcon />
-                </div>
-                <div className="sp-card__meta">
                     <span className="sp-card__exp">{vendor.experience ?? "N/A"} exp</span>
                     <span className="sp-card__dot">•</span>
                     <LocationIcon />
                     <span className="sp-card__dist">{vendor.city ?? "—"}</span>
-                    <span className="sp-card__category">{vendor.category ?? "—"}</span>
+                    <span className="sp-card__category">{vendor.category_name ?? "—"}</span>
                 </div>
 
                 {/* Actions */}
                 <div className="sp-card__actions">
-                    <a className="sp-card__call" href={`tel:${vendor.phone ?? ""}`}>
+                    {/* <a className="sp-card__call" href={`tel:${vendor.phone ?? ""}`}>
                         <PhoneIcon /> Call
-                    </a>
+                    </a> */}
                     <button
                         className={`sp-card__book ${!isLoggedIn ? "sp-card__book--guest" : ""}`}
                         onClick={() => onBook(vendor)}

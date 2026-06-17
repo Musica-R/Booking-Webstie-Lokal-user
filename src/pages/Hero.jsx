@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "../styles/Hero.css";
+import { useNavigate } from "react-router-dom";
 
 // ── SVG Icons ─────────────────────────────────────────────────────────────────
 const SearchIcon = () => (
@@ -70,6 +71,8 @@ export default function Hero() {
         alert(`Searching for "${service}" in ${location}`);
     };
 
+    const navigate = useNavigate();
+
     return (
         <section className="hero">
             <div className="hero__inner">
@@ -125,14 +128,14 @@ export default function Hero() {
                     </form>
 
                     {/* CTA Buttons */}
-                    <div className="hero__actions">
-                        <button className="hero__btn hero__btn--services">
+                    <div className="hero__actions"  >
+                        <button className="hero__btn hero__btn--services" onClick={() => navigate("/services")}>
                             Services <ChevronDown />
                         </button>
-                        <button className="hero__btn hero__btn--activities">
+                        <button className="hero__btn hero__btn--activities" onClick={() => navigate("/activity")}>
                             Activities <ChevronDown />
                         </button>
-                        <button className="hero__btn hero__btn--vendor">
+                        <button className="hero__btn hero__btn--vendor" onClick={() => navigate("/become-vendor")}>
                             <StoreIcon /> Become a Vendor
                         </button>
                     </div>

@@ -1,11 +1,16 @@
 // Profile.jsx
 import React, { useState, useEffect } from 'react';
 import '../styles/Profilee.css';
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+import autoTable from "jspdf-autotable";
+import { useNavigate } from "react-router-dom";
 
 // ===== NAVBAR =====
 function Navbar() {
   const API_URL = process.env.REACT_APP_API_URL;
   const user = JSON.parse(localStorage.getItem("user"));
+
   return (
     <nav className="navbar">
       <div className="navbar-inner">
@@ -52,7 +57,18 @@ const navItems = [
 ];
 
 function Sidebar({ activePage, setActivePage }) {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const navigate = useNavigate();
+
+  const [user, setUser] = useState(() => {
+    return JSON.parse(localStorage.getItem("user"));
+  });
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    setUser(null);
+    navigate("/");
+  };
+
   return (
     <aside className="sidebar">
       <div className="sidebar-user">
@@ -66,11 +82,12 @@ function Sidebar({ activePage, setActivePage }) {
           <p className="sidebar-email">{user?.email}</p>
         </div>
       </div>
+
       <nav className="sidebar-nav">
-        {navItems.map(item => (
+        {navItems.map((item) => (
           <button
             key={item.key}
-            className={`sidebar-item${activePage === item.key ? ' active' : ''}`}
+            className={`sidebar-item ${activePage === item.key ? "active" : ""}`}
             onClick={() => setActivePage(item.key)}
           >
             <span className="sidebar-icon">{item.icon}</span>
@@ -78,8 +95,13 @@ function Sidebar({ activePage, setActivePage }) {
             {item.badge && <span className="sidebar-badge">{item.badge}</span>}
           </button>
         ))}
+
         <div className="sidebar-divider" />
-        <button className="sidebar-item sidebar-logout">
+
+        <button
+          className="sidebar-item sidebar-logout"
+          onClick={handleLogout}
+        >
           <span className="sidebar-icon">
             <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
               <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
@@ -564,6 +586,100 @@ const statusCfg = {
 
 function MyBookings() {
   const API_URL = process.env.REACT_APP_API_URL;
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const downloadInvoice = (b) => {
+    const doc = new jsPDF();
+
+    let y = 20;
+
+    // TITLE
+    doc.setFontSize(18);
+    doc.text("INVOICE", 105, y, { align: "center" });
+
+    y += 15;
+
+    // BOOKING DETAILS
+    doc.setFontSize(11);
+
+    doc.text(`Booking No: ${b.booking_number}`, 14, y);
+    y += 8;
+
+    doc.text(`Customer: ${b.customer_name}`, 14, y);
+    y += 8;
+
+    doc.text(`Phone: ${b.customer_phone}`, 14, y);
+    y += 12;
+
+    // VENDOR DETAILS
+    doc.setFontSize(13);
+    doc.text("Vendor Details", 14, y);
+    y += 8;
+
+    doc.setFontSize(11);
+
+    doc.text(`Vendor Name: ${b.vendor_details.vendor_name}`, 14, y);
+    y += 7;
+
+    doc.text(`Service Category: ${b.vendor_details.category_name}`, 14, y);
+    y += 12;
+
+    // ADDRESS
+    doc.setFontSize(13);
+    doc.text("Address", 14, y);
+    y += 8;
+
+    doc.setFontSize(11);
+
+    doc.text(
+      `${b.address.flat}, ${b.address.area}, ${b.address.city}, ${b.address.state} - ${b.address.pincode}`,
+      14,
+      y
+    );
+
+    y += 15;
+
+    // SERVICES TABLE
+    autoTable(doc, {
+      startY: y,
+      head: [["#", "Service", "Qty", "Price"]],
+      body: b.items.map((item, index) => [
+        index + 1,
+        item.sub_service_name,
+        item.quantity,
+        `Rs.${item.price}`,
+      ]),
+      theme: "grid",
+    });
+
+    y = doc.lastAutoTable.finalY + 10;
+
+    // TOTALS
+    doc.setFontSize(12);
+
+    doc.text(`Total Amount: Rs.${b.total_amount}`, 14, y);
+    y += 8;
+
+    doc.text(`Balance Amount: Rs.${b.balance_amount}`, 14, y);
+    y += 8;
+
+    doc.text(`Payment Status: ${b.payment_status}`, 14, y);
+    y += 8;
+
+    doc.text(
+      `Balance Payment Status: ${b.balance_payment_status}`,
+      14,
+      y
+    );
+    y += 8;
+
+    doc.text(`Booking Status: ${b.booking_status}`, 14, y);
+
+    // SAVE PDF
+    doc.save(`invoice-${b.booking_number}.pdf`);
+  };
+
+
 
   const [activeTab, setActiveTab] = useState('All');
   const [bookings, setBookings] = useState([]);
@@ -887,8 +1003,34 @@ function MyBookings() {
           )
         );
 
+        const booking = bookings.find((b) => b.booking_id === bookingId);
+
+        const message = `
+Booking Cancelled
+
+Booking No: ${booking.booking_number}
+
+Customer: ${user.name}
+
+Service: ${booking.vendor_details?.category_name}
+
+Date: ${booking.booking_date}
+Time: ${booking.booking_time}
+
+The customer has cancelled this booking.
+`;
+
+        const vendorPhone = booking.vendor_details?.vendor_phone;
+
+        window.open(
+          `https://wa.me/${vendorPhone}?text=${encodeURIComponent(message)}`,
+          "_blank"
+        );
+
         alert("Booking cancelled successfully");
-      } else {
+      }
+
+      else {
         alert(data.message || "Failed to cancel booking");
       }
     } catch (err) {
@@ -931,6 +1073,7 @@ function MyBookings() {
             return (
               <div className="booking-item" key={b.booking_id}>
 
+
                 {/* ── Top row: booking number · status · balance · amount ── */}
                 <div className="booking-top">
                   <span className="booking-id">{b.booking_number} ·</span>
@@ -960,6 +1103,7 @@ function MyBookings() {
                     </button>
                   )}
 
+                  <span style={{ fontWeight: "bold" }}>₹{parseFloat(b.balance_amount).toFixed(2)}</span>
                   {/* Show "Balance Paid" confirmation badge when balance existed and was settled */}
                   {isBalancePaid(b) && (
                     <span className="balance-paid-badge">
@@ -985,7 +1129,7 @@ function MyBookings() {
                       border: `1px solid ${b.payment_status === 'paid' ? '#BBF7D0' : '#FECACA'}`,
                     }}
                   >
-                    {b.payment_status === 'paid' ? '✓ Paid' : b.payment_status}
+                    {b.payment_status === 'paid' ? '✓ Advance Paid' : b.payment_status}
                   </span>
                 </div>
 
@@ -1005,6 +1149,8 @@ function MyBookings() {
                     <div className="booking-meta">
                       <span>📅 {formatDate(b.booking_date, b.booking_time)}</span>
                       <span>📍 {formatAddress(b.address)}</span>
+                      <span>📞 {vendor.vendor_phone}</span>
+                      <span>📱  {vendor.vendor_whatsapp}</span>
                     </div>
                   </div>
                 </div>
@@ -1122,6 +1268,8 @@ function MyBookings() {
                   )}
                 </div>
 
+
+
                 {/* ── Action buttons ── */}
                 <div className="booking-actions">
                   {(statusKey === 'pending' || statusKey === 'confirmed') && (
@@ -1151,7 +1299,7 @@ function MyBookings() {
                           <button className="btn btn-primary action-sm">↻ Book Again</button>
                         </>
                       )}
-
+                      <button className="btn btn-ghost action-sm" onClick={() => downloadInvoice(b)}> Download Invoice </button>
                       {/* <button className="btn btn-primary action-sm">↻ Book Again</button> */}
                     </>
                   )}
@@ -1184,7 +1332,7 @@ function MyBookings() {
 
 function SavedVendors({ userId = 1 }) {
 
-    const API_URL = process.env.REACT_APP_API_URL;
+  const API_URL = process.env.REACT_APP_API_URL;
 
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -1548,7 +1696,7 @@ export default function Profile() {
   const [activePage, setActivePage] = useState('MyProfile');
   const PageComponent = pages[activePage];
 
-  
+
 
   return (
     <div className="app">

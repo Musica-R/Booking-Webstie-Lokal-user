@@ -903,7 +903,7 @@ export default function BookingService() {
                                         <div className="bk-pay-opt__name">{opt.name}</div>
                                         <div className="bk-pay-opt__sub">{opt.sub}</div>
                                     </div>
-                                    <div className="bk-pay-radio" />
+                                    {/* <div className="bk-pay-radio" /> */}
                                 </div>
                             ))}
                         </div>

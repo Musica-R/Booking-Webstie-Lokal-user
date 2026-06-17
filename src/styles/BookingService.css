@@ -795,7 +795,7 @@
     border: 1.5px solid var(--border);
     border-radius: var(--radius);
     padding: 16px 18px;
-    cursor: pointer;
+    /* cursor: pointer; */
     display: flex;
     align-items: center;
     gap: 14px;
@@ -803,15 +803,15 @@
     transition: all var(--transition);
 }
 
-.bk-pay-opt:hover {
+/* .bk-pay-opt:hover {
     border-color: var(--border-focus);
-}
+} */
 
-.bk-pay-opt.selected {
+/* .bk-pay-opt.selected {
     border-color: var(--primary);
     background: var(--primary-light);
     box-shadow: 0 0 0 3px rgba(37, 99, 235, .1);
-}
+} */
 
 .bk-pay-opt__icon {
     width: 40px;

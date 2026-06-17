@@ -494,7 +494,7 @@ export default function BecomeVendor({ onClose }) {
                             <div className="vnd-field">
                                 <label className="vnd-label">
                                     Sub-services &amp; Pricing -&nbsp;&nbsp;
-                                    <span className="vnd-label-hint">select what you offer and set your price</span>
+                                    <span className="vnd-label-hint">select what you offer and set your price Enter only the labour cost service charge get throught the admin panel</span>
                                 </label>
                                 {loadingSubs ? (
                                     <div className="vnd-subs-loading">Loading sub-services…</div>

@@ -89,7 +89,7 @@ const UserIcon = () => (
 const NAV_LINKS = [
     { label: "Home", path: "/" },
     { label: "Services", path: "/services" },
-    { label: "Activities", path: "/activities" },
+    { label: "Activities", path: "/activity" },
     { label: "Become a Vendor", path: "/become-vendor" },
 ];
 

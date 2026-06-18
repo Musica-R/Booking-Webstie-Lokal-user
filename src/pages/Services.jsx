@@ -25,6 +25,7 @@ const SERVICES = [
             "https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=800&q=80",
         alt: "Fresh fruits",
         text: "Fresh fruits packed with natural goodness and daily nutrition.",
+        link: "https://fresh-fruits-seven-sigma.vercel.app/",
     },
     {
         id: 2,
@@ -33,6 +34,7 @@ const SERVICES = [
         alt: "Sports turf",
         text:
             "Experience the best turf for football, cricket, and friendly matches with premium facilities and lighting.",
+        link: "https://turf-nu.vercel.app/",
     },
     {
         id: 3,
@@ -41,6 +43,7 @@ const SERVICES = [
         alt: "Modern gym",
         text:
             "Transform your body and mind with modern equipment and expert training.",
+        link: "https://gym-ten-mu.vercel.app/",
     },
 ];
 
@@ -60,7 +63,13 @@ export default function Services() {
             {/* Cards Grid */}
             <div className="services__grid">
                 {SERVICES.map((svc) => (
-                    <div className="services__card" key={svc.id}>
+                    <a
+                        href={svc.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="services__card"
+                        key={svc.id}
+                    >
                         <img
                             className="services__card-img"
                             src={svc.image}
@@ -73,7 +82,7 @@ export default function Services() {
                         <div className="services__card-arrow">
                             <ArrowIcon />
                         </div>
-                    </div>
+                    </a>
                 ))}
             </div>
         </section>

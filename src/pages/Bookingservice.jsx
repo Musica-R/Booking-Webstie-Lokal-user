@@ -86,6 +86,14 @@ const WarningIcon = () => (
         <line x1="12" y1="17" x2="12.01" y2="17" />
     </svg>
 );
+const WalletIcon = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+        stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+        <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+        <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
+    </svg>
+);
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const STEPS = [
@@ -308,6 +316,13 @@ export default function BookingService() {
     const [showAddrForm, setShowAddrForm] = useState(false);
     const [addrSaving, setAddrSaving] = useState(false);
 
+    /* wallet */
+    const [walletBalance, setWalletBalance] = useState(0);
+    const [useWallet, setUseWallet] = useState(false);
+    const [walletUsed, setWalletUsed] = useState(0);
+    const [walletLoading, setWalletLoading] = useState(false);
+    const [walletOnlySubmitting, setWalletOnlySubmitting] = useState(false);
+
     /* warning modal */
     const [showWarning, setShowWarning] = useState(false);
 
@@ -441,6 +456,55 @@ export default function BookingService() {
         }
     };
 
+    // ── Fetch wallet balance ─────────────────────────────────────────────────
+    useEffect(() => { fetchWallet(); }, []);
+
+    const fetchWallet = async () => {
+        const storedUser = JSON.parse(localStorage.getItem("user")) || {};
+        const userId = storedUser._id || storedUser.id;
+        if (!userId) return;
+        setWalletLoading(true);
+        try {
+            const res = await fetch(`${API_URL}/booking/wallet/balance/${userId}`);
+            const data = await res.json();
+            if (res.ok && data.success) {
+                setWalletBalance(parseFloat(data.wallet_balance) || 0);
+            }
+        } catch (err) {
+            console.error("Failed to fetch wallet:", err);
+        } finally {
+            setWalletLoading(false);
+        }
+    };
+    console.log(walletBalance);
+    /* pricing — no tax, no discount */
+    const total = selectedSvcs.reduce((s, sv) => s + parseFloat(sv.price), 0);
+    const maxWalletUsable = Math.min(walletBalance, total);
+    const finalPayable = Math.max(total - walletUsed, 0);
+
+    /* keep walletUsed in range if total or balance changes (e.g. user edits
+       services in step 1 after already toggling wallet usage in step 4) */
+    useEffect(() => {
+        if (walletUsed > maxWalletUsable) {
+            setWalletUsed(maxWalletUsable);
+        }
+        if (maxWalletUsable === 0 && useWallet) {
+            setUseWallet(false);
+        }
+    }, [maxWalletUsable, walletUsed, useWallet]);
+
+    const handleWalletToggle = (checked) => {
+        setUseWallet(checked);
+        setWalletUsed(checked ? maxWalletUsable : 0);
+    };
+
+    const handleWalletAmountChange = (rawValue) => {
+        const parsed = parseFloat(rawValue);
+        let val = Number.isNaN(parsed) ? 0 : parsed;
+        val = Math.min(Math.max(val, 0), maxWalletUsable);
+        setWalletUsed(val);
+    };
+
     const buildBookingPayload = () => {
         const user = JSON.parse(localStorage.getItem("user"));
         return {
@@ -451,7 +515,9 @@ export default function BookingService() {
             customer_address: selectedAddrId,
             booking_date: selectedDate,
             booking_time: selectedTime,
-            total_amount: total,
+            total_amount: finalPayable,
+            wallet_used: walletUsed,
+            final_amount: finalPayable,
             category_id: vendor.category.id,
             services: selectedSvcs.map(s => ({
                 sub_service_id: s.sub_service_id,
@@ -460,9 +526,36 @@ export default function BookingService() {
         };
     };
 
-    /* show warning first, then proceed to Razorpay */
+    /* if wallet fully covers the total, skip Razorpay and the non-refundable
+       warning entirely — there's no gateway charge to warn about */
     const handleConfirmClick = () => {
-        setShowWarning(true);
+        if (finalPayable === 0) {
+            handleWalletOnlyBooking();
+        } else {
+            setShowWarning(true);
+        }
+    };
+
+    const handleWalletOnlyBooking = async () => {
+        setWalletOnlySubmitting(true);
+        try {
+            const res = await fetch(`${API_URL}/booking/wallet-only`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(buildBookingPayload())
+            });
+            const data = await res.json();
+            if (data.success) {
+                setStep(5);
+            } else {
+                alert(data.message || "Booking failed. Please try again.");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Server error. Please try again.");
+        } finally {
+            setWalletOnlySubmitting(false);
+        }
     };
 
     const handleWarningConfirm = () => {
@@ -475,7 +568,7 @@ export default function BookingService() {
             const res = await fetch(`${API_URL}/payment/create-order`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ amount: total })
+                body: JSON.stringify({ amount: finalPayable }) // only the remaining amount after wallet
             });
 
             const data = await res.json();
@@ -533,9 +626,6 @@ export default function BookingService() {
         }
     };
 
-    /* pricing — no tax, no discount */
-    const total = selectedSvcs.reduce((s, sv) => s + parseFloat(sv.price), 0);
-
     const toggleService = (svc) =>
         setSelectedSvcs(prev =>
             prev.find(s => s.sub_service_id === svc.sub_service_id)
@@ -588,7 +678,7 @@ export default function BookingService() {
             {/* ── Warning Modal ── */}
             {showWarning && (
                 <RefundWarningModal
-                    amount={total.toFixed(0)}
+                    amount={finalPayable.toFixed(0)}
                     onConfirm={handleWarningConfirm}
                     onCancel={() => setShowWarning(false)}
                 />
@@ -787,8 +877,8 @@ export default function BookingService() {
                                                     slot.status === "booked"
                                                         ? "Already booked"
                                                         : slot.status === "disabled"
-                                                        ? "Not available"
-                                                        : undefined
+                                                            ? "Not available"
+                                                            : undefined
                                                 }
                                                 style={{
                                                     opacity: isUnavailable ? 0.4 : 1,
@@ -893,20 +983,76 @@ export default function BookingService() {
                             <ShieldIcon /> All transactions are secure and encrypted.
                         </p>
 
-                        <div className="bk-payment-opts">
-                            {PAYMENT_OPTS.map(opt => (
-                                <div key={opt.id}
-                                    className={`bk-pay-opt ${selectedPay === opt.id ? "selected" : ""}`}
-                                    onClick={() => setPay(opt.id)}>
-                                    <div className="bk-pay-opt__icon">{opt.icon}</div>
-                                    <div className="bk-pay-opt__info">
-                                        <div className="bk-pay-opt__name">{opt.name}</div>
-                                        <div className="bk-pay-opt__sub">{opt.sub}</div>
+                        {/* ── Wallet ── */}
+                        <div className="bk-card" style={{ marginBottom: 15 }}>
+                            <div className="bk-card-head" style={{ marginBottom: walletBalance > 0 ? 14 : 0 }}>
+                                <WalletIcon />
+                                <div>
+                                    <div className="bk-card-head__title">Wallet</div>
+                                    <div className="bk-card-head__sub">
+                                        {walletLoading ? "Loading…" : `Balance: ₹${walletBalance.toFixed(2)}`}
                                     </div>
-                                    {/* <div className="bk-pay-radio" /> */}
                                 </div>
-                            ))}
+                            </div>
+
+                            {walletLoading ? null : walletBalance <= 0 ? (
+                                <p style={{ color: "#6b7280", fontSize: 14, margin: 0 }}>
+                                    No wallet balance available.
+                                </p>
+                            ) : (
+                                <>
+                                    <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={useWallet}
+                                            onChange={(e) => handleWalletToggle(e.target.checked)}
+                                            readOnly
+                                        />
+                                        Use Wallet Balance (₹{walletBalance.toFixed(2)})
+                                    </label>
+
+                                    {useWallet && (
+                                        <div style={{ marginTop: 10 }}>
+                                            <input
+                                                type="number"
+                                                value={walletUsed}
+                                                max={maxWalletUsable}
+                                                min={0}
+                                                onChange={(e) => handleWalletAmountChange(e.target.value)}
+                                                placeholder="Enter wallet amount"
+                                                style={{
+                                                    padding: "10px",
+                                                    width: "100%",
+                                                    border: "1px solid #ddd",
+                                                    borderRadius: 6
+                                                }}
+                                                readOnly
+                                            />
+                                            <small style={{ color: "#6b7280" }}>
+                                                Max usable: ₹{maxWalletUsable.toFixed(2)}
+                                            </small>
+                                        </div>
+                                    )}
+                                </>
+                            )}
                         </div>
+
+                        {/* ── Payment options — hidden entirely if wallet covers full amount ── */}
+                        {finalPayable > 0 && (
+                            <div className="bk-payment-opts">
+                                {PAYMENT_OPTS.map(opt => (
+                                    <div key={opt.id}
+                                        className={`bk-pay-opt ${selectedPay === opt.id ? "selected" : ""}`}
+                                        onClick={() => setPay(opt.id)}>
+                                        <div className="bk-pay-opt__icon">{opt.icon}</div>
+                                        <div className="bk-pay-opt__info">
+                                            <div className="bk-pay-opt__name">{opt.name}</div>
+                                            <div className="bk-pay-opt__sub">{opt.sub}</div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
 
                         <button className="bk-btn-back" onClick={goBack} style={{ marginBottom: 20 }}>
                             <ArrowLeft size={16} /> Back
@@ -953,13 +1099,34 @@ export default function BookingService() {
                                 <span>Total</span><span>₹{total.toFixed(0)}</span>
                             </div>
 
-                            {/* ── Non-refundable notice strip ── */}
-                            <div className="bk-nonrefund-notice">
-                                ⚠️ This payment is non-refundable · இந்த கட்டணம் திரும்பப் பெற முடியாது
+                            {walletUsed > 0 && (
+                                <div className="bk-summary-total" style={{ color: "#16a34a" }}>
+                                    <span>Wallet Used</span><span>- ₹{walletUsed.toFixed(0)}</span>
+                                </div>
+                            )}
+
+                            <div className="bk-summary-total" style={{ fontWeight: 700 }}>
+                                <span>Payable Now</span><span>₹{finalPayable.toFixed(0)}</span>
                             </div>
 
-                            <button className="bk-confirm-btn" onClick={handleConfirmClick}>
-                                <ShieldIcon /> Confirm &amp; Pay ₹{total.toFixed(0)}
+                            {/* ── Non-refundable notice strip — only relevant if a real charge happens ── */}
+                            {finalPayable > 0 && (
+                                <div className="bk-nonrefund-notice">
+                                    ⚠️ This payment is non-refundable · இந்த கட்டணம் திரும்பப் பெற முடியாது
+                                </div>
+                            )}
+
+                            <button
+                                className="bk-confirm-btn"
+                                onClick={handleConfirmClick}
+                                disabled={walletOnlySubmitting}
+                                style={{ opacity: walletOnlySubmitting ? 0.6 : 1 }}>
+                                <ShieldIcon />{" "}
+                                {walletOnlySubmitting
+                                    ? "Confirming…"
+                                    : finalPayable === 0
+                                        ? "Confirm Booking"
+                                        : `Confirm & Pay ₹${finalPayable.toFixed(0)}`}
                             </button>
                             <p className="bk-terms-note">By proceeding, you agree to our Terms &amp; Conditions</p>
                         </div>

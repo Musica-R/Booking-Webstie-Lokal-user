@@ -13,12 +13,13 @@ import ServicesPage from './pages/Servicespage';
 import VendorList from './pages/Vendorlist';       // ← add this
 import ForgotPasswordPage from "./components/Forgotpassword";
 import Activity from './pages/Activity';
+import ActivityBooking from './pages/ActivityBooking';
 
 function App() {
   return (
     <VendorProvider>
       <Router>
-       
+
         <div className="App">
           <Navbar />
           <Routes>
@@ -28,8 +29,10 @@ function App() {
             <Route path="/account" element={<Profile />} />
             <Route path="/category/:categoryId" element={<VendorList />} />  {/* ← add this */}
             <Route path="/booking/:id" element={<BookingService />} />
+            <Route path="/activity-booking" element={<ActivityBooking />} />
+            <Route path="/activity-booking/:activityName" element={<ActivityBooking />} />
             <Route path="/become-vendor" element={<BecomeVendor />} />
-             <Route path="/activity" element={ <Activity />} />
+            <Route path="/activity" element={<Activity />} />
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           </Routes>

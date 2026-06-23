@@ -474,6 +474,7 @@
 
     .hero__right {
         height: 380px;
+        display: none;
     }
 
     .hero__img-card--yoga {

@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import "../styles/Activities.css";
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
@@ -19,100 +20,26 @@ const PinIcon = () => (
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 const ACTIVITIES = [
-    {
-        id: 1,
-        name: "Yoga",
-        emoji: "🧘",
-        color: "lavender",
-        rating: 4.9,
-        trainers: "24+ Trainers",
-        location: "Indiranagar, BLR",
-    },
-    {
-        id: 2,
-        name: "Silambam",
-        emoji: "🥢",
-        color: "peach",
-        rating: 4.8,
-        trainers: "8+ Trainers",
-        location: "Koramangala, BLR",
-    },
-    {
-        id: 3,
-        name: "Gymnastics",
-        emoji: "🤸",
-        color: "mint",
-        rating: 4.7,
-        trainers: "12+ Trainers",
-        location: "HSR Layout, BLR",
-    },
-    {
-        id: 4,
-        name: "Karate",
-        emoji: "🥋",
-        color: "yellow",
-        rating: 4.8,
-        trainers: "18+ Trainers",
-        location: "Jayanagar, BLR",
-    },
-    {
-        id: 5,
-        name: "Dance",
-        emoji: "💃",
-        color: "pink",
-        rating: 4.9,
-        trainers: "45+ Trainers",
-        location: "Whitefield, BLR",
-    },
-    {
-        id: 6,
-        name: "Music Class",
-        emoji: "🎸",
-        color: "rose",
-        rating: 4.6,
-        trainers: "32+ Trainers",
-        location: "Malleswaram, BLR",
-    },
-    {
-        id: 7,
-        name: "Meditation",
-        emoji: "🪷",
-        color: "teal",
-        rating: 4.9,
-        trainers: "15+ Trainers",
-        location: "JP Nagar, BLR",
-    },
-    {
-        id: 8,
-        name: "Drawing",
-        emoji: "🎨",
-        color: "cream",
-        rating: 4.7,
-        trainers: "22+ Trainers",
-        location: "BTM Layout, BLR",
-    },
-    {
-        id: 9,
-        name: "Zumba",
-        emoji: "🕺",
-        color: "lilac",
-        rating: 4.8,
-        trainers: "28+ Trainers",
-        location: "Marathahalli, BLR",
-    },
-    {
-        id: 10,
-        name: "Spoken English",
-        emoji: "🗣️",
-        color: "sky",
-        rating: 4.5,
-        trainers: "50+ Trainers",
-        location: "Online / Offline",
-    },
+    { id: 1,  name: "Yoga",           emoji: "🧘",  color: "lavender", rating: 4.9, trainers: "24+ Trainers", location: "Indiranagar, BLR" },
+    { id: 2,  name: "Silambam",       emoji: "🥢",  color: "peach",    rating: 4.8, trainers: "8+ Trainers",  location: "Koramangala, BLR" },
+    { id: 3,  name: "Gymnastics",     emoji: "🤸",  color: "mint",     rating: 4.7, trainers: "12+ Trainers", location: "HSR Layout, BLR"  },
+    { id: 4,  name: "Karate",         emoji: "🥋",  color: "yellow",   rating: 4.8, trainers: "18+ Trainers", location: "Jayanagar, BLR"   },
+    { id: 5,  name: "Dance",          emoji: "💃",  color: "pink",     rating: 4.9, trainers: "45+ Trainers", location: "Whitefield, BLR"  },
+    { id: 6,  name: "Music Class",    emoji: "🎸",  color: "rose",     rating: 4.6, trainers: "32+ Trainers", location: "Malleswaram, BLR" },
+    { id: 7,  name: "Meditation",     emoji: "🪷",  color: "teal",     rating: 4.9, trainers: "15+ Trainers", location: "JP Nagar, BLR"    },
+    { id: 8,  name: "Drawing",        emoji: "🎨",  color: "cream",    rating: 4.7, trainers: "22+ Trainers", location: "BTM Layout, BLR"  },
+    { id: 9,  name: "Zumba",          emoji: "🕺",  color: "lilac",    rating: 4.8, trainers: "28+ Trainers", location: "Marathahalli, BLR"},
+    { id: 10, name: "Spoken English", emoji: "🗣️", color: "sky",      rating: 4.5, trainers: "50+ Trainers", location: "Online / Offline"  },
 ];
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function Activities() {
+    const navigate = useNavigate();
+
+    const handleBook = (act) => {
+        navigate(`/activity-booking/${encodeURIComponent(act.name)}`);
+    };
+
     return (
         <section className="activities">
             {/* Top Row */}
@@ -135,28 +62,29 @@ export default function Activities() {
                     <div
                         key={act.id}
                         className={`activities__card activities__card--${act.color}`}
+                        onClick={() => handleBook(act)}
+                        style={{ cursor: "pointer" }}
                     >
-                        {/* Icon */}
                         <div className="activities__icon">{act.emoji}</div>
-
-                        {/* Name */}
                         <div className="activities__card-name">{act.name}</div>
-
-                        {/* Rating */}
                         <div className="activities__rating">
                             <span className="activities__rating-star">★</span>
                             <span className="activities__rating-score">{act.rating}</span>
                             <span className="activities__rating-count">{act.trainers}</span>
                         </div>
-
-                        {/* Location */}
                         <div className="activities__location">
                             <PinIcon />
                             {act.location}
                         </div>
-
-                        {/* Book Button */}
-                        <button className="activities__book-btn">Book Trainer</button>
+                        <button
+                            className="activities__book-btn"
+                            onClick={(e) => {
+                                e.stopPropagation(); // prevent double-fire from card click
+                                handleBook(act);
+                            }}
+                        >
+                            Book Trainer
+                        </button>
                     </div>
                 ))}
             </div>

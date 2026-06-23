@@ -4,7 +4,7 @@ import "../styles/Footer.css";
 const socialLinks = [
     {
         label: "Facebook",
-        href: "#",
+        href: "/",
         icon: (
             <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
@@ -13,7 +13,7 @@ const socialLinks = [
     },
     {
         label: "Twitter / X",
-        href: "#",
+        href: "/",
         icon: (
             <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
@@ -22,7 +22,7 @@ const socialLinks = [
     },
     {
         label: "Instagram",
-        href: "#",
+        href: "/",
         icon: (
             <svg viewBox="0 0 24 24" aria-hidden="true">
                 <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
@@ -33,7 +33,7 @@ const socialLinks = [
     },
     {
         label: "LinkedIn",
-        href: "#",
+        href: "/",
         icon: (
             <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
@@ -45,18 +45,18 @@ const socialLinks = [
 ];
 
 const colOne = [
-    { label: "About Us", href: "#" },
-    { label: "Careers", href: "#" },
-    { label: "Blog", href: "#" },
-    { label: "Contact Support", href: "#" },
-    { label: "Become a Vendor", href: "#", bold: true },
+    { label: "About Us", href: "/" },
+    { label: "Careers", href: "/" },
+    { label: "Blog", href: "/" },
+    { label: "Contact Support", href: "/" },
+    { label: "Become a Vendor", href: "/become-vendor", bold: true },
 ];
 
 const colTwo = [
-    { label: "Privacy Policy", href: "#" },
-    { label: "Terms & Conditions", href: "#" },
-    { label: "Cancellation Policy", href: "#" },
-    { label: "Trust & Safety", href: "#" },
+    { label: "Privacy Policy", href: "/" },
+    { label: "Terms & Conditions", href: "/" },
+    { label: "Cancellation Policy", href: "/" },
+    { label: "Trust & Safety", href: "/" },
 ];
 
 const ArrowRight = () => (

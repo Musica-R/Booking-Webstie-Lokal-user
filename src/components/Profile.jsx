@@ -5,6 +5,7 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import autoTable from "jspdf-autotable";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 // ===== NAVBAR =====
 function Navbar() {
@@ -50,6 +51,7 @@ function Navbar() {
 const navItems = [
   { key: 'MyProfile', label: 'My Profile', icon: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg> },
   { key: 'MyBookings', label: 'My Bookings', icon: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg> },
+  { key: 'MyActivities', label: 'My Activities', icon: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" /></svg> },
   { key: 'SavedVendors', label: 'Saved Vendors', icon: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" /></svg> },
   { key: 'Notifications', label: 'Notifications', badge: 2, icon: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg> },
   { key: 'Wallet', label: 'Wallet', icon: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" /><circle cx="16" cy="12" r="1" fill="currentColor" stroke="none" /></svg> },
@@ -285,15 +287,16 @@ function MyProfile() {
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
 
-  const stats = [
-    { label: "Total Bookings", value: "12", icon: "📅", color: "#EFF6FF" },
-    { label: "Completed", value: "9", icon: "✅", color: "#F0FDF4" },
-    { label: "Saved", value: "5", icon: "❤️", color: "#FFF1F2" },
-    { label: "Wallet Balance", value: "₹450", icon: "💳", color: "#FFFBEB" },
-  ];
+  const [stats, setStats] = useState([
+    { label: "Total Bookings", value: 0, icon: "📅", color: "#EFF6FF" },
+    { label: "Completed", value: 0, icon: "✅", color: "#F0FDF4" },
+    { label: "Saved", value: 0, icon: "❤️", color: "#FFF1F2" },
+    { label: "Wallet Balance", value: "₹0", icon: "💳", color: "#FFFBEB" },
+  ]);
 
   useEffect(() => {
     fetchAddresses();
+    fetchDashboard();
   }, []);
 
   const fetchAddresses = async () => {
@@ -311,6 +314,54 @@ function MyProfile() {
       console.error("Failed to fetch addresses:", error);
     } finally {
       setAddressLoading(false);
+    }
+  };
+
+  const fetchDashboard = async () => {
+    const storedUser = JSON.parse(localStorage.getItem("user")) || {};
+    const userId = storedUser._id || storedUser.id;
+
+    if (!userId) return;
+
+    try {
+      const response = await fetch(
+        `${API_URL}/users/dashboard/${userId}`
+      );
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        const dashboard = data.data;
+
+        setStats([
+          {
+            label: "Total Bookings",
+            value: dashboard.totalBookings,
+            icon: "📅",
+            color: "#EFF6FF",
+          },
+          {
+            label: "Completed",
+            value: dashboard.completedBookings,
+            icon: "✅",
+            color: "#F0FDF4",
+          },
+          {
+            label: "Saved",
+            value: dashboard.savedVendors,
+            icon: "❤️",
+            color: "#FFF1F2",
+          },
+          {
+            label: "Wallet Balance",
+            value: `₹${dashboard.walletAmount}`,
+            icon: "💳",
+            color: "#FFFBEB",
+          },
+        ]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch dashboard:", error);
     }
   };
 
@@ -593,13 +644,11 @@ function MyBookings() {
 
     let y = 20;
 
-    // TITLE
     doc.setFontSize(18);
     doc.text("INVOICE", 105, y, { align: "center" });
 
     y += 15;
 
-    // BOOKING DETAILS
     doc.setFontSize(11);
 
     doc.text(`Booking No: ${b.booking_number}`, 14, y);
@@ -611,7 +660,6 @@ function MyBookings() {
     doc.text(`Phone: ${b.customer_phone}`, 14, y);
     y += 12;
 
-    // VENDOR DETAILS
     doc.setFontSize(13);
     doc.text("Vendor Details", 14, y);
     y += 8;
@@ -624,7 +672,6 @@ function MyBookings() {
     doc.text(`Service Category: ${b.vendor_details.category_name}`, 14, y);
     y += 12;
 
-    // ADDRESS
     doc.setFontSize(13);
     doc.text("Address", 14, y);
     y += 8;
@@ -639,7 +686,6 @@ function MyBookings() {
 
     y += 15;
 
-    // SERVICES TABLE
     autoTable(doc, {
       startY: y,
       head: [["#", "Service", "Qty", "Price"]],
@@ -654,7 +700,6 @@ function MyBookings() {
 
     y = doc.lastAutoTable.finalY + 10;
 
-    // TOTALS
     doc.setFontSize(12);
 
     doc.text(`Total Amount: Rs.${b.total_amount}`, 14, y);
@@ -675,7 +720,6 @@ function MyBookings() {
 
     doc.text(`Booking Status: ${b.booking_status}`, 14, y);
 
-    // SAVE PDF
     doc.save(`invoice-${b.booking_number}.pdf`);
   };
 
@@ -763,8 +807,6 @@ function MyBookings() {
       }
     };
 
-
-
     return (
       <div className="modal-overlay" onClick={onClose}>
         <div className="modal-box" onClick={(e) => e.stopPropagation()}>
@@ -783,7 +825,6 @@ function MyBookings() {
               <strong>{booking.vendor_details?.vendor_name || 'this vendor'}</strong>?
             </p>
 
-            {/* Star rating */}
             <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginBottom: 20 }}>
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -833,6 +874,7 @@ function MyBookings() {
       </div>
     );
   }
+
   const handlePayBalance = async (booking) => {
     try {
       const storedUser = JSON.parse(localStorage.getItem("user")) || {};
@@ -942,11 +984,9 @@ function MyBookings() {
       .join(', ');
   };
 
-  // Helper: true when there is an unpaid balance amount
   const hasOutstandingBalance = (b) =>
     parseFloat(b.balance_amount) > 0 && b.balance_payment_status !== 'paid';
 
-  // Helper: true when balance existed and has been paid
   const isBalancePaid = (b) =>
     parseFloat(b.balance_amount) > 0 && b.balance_payment_status === 'paid';
 
@@ -973,6 +1013,7 @@ function MyBookings() {
       </div>
     );
   }
+
   const handleCancelBooking = async (bookingId) => {
     if (!window.confirm("Are you sure you want to cancel this booking?")) {
       return;
@@ -1073,8 +1114,7 @@ The customer has cancelled this booking.
             return (
               <div className="booking-item" key={b.booking_id}>
 
-
-                {/* ── Top row: booking number · status · balance · amount ── */}
+                {/* ── Top row ── */}
                 <div className="booking-top">
                   <span className="booking-id">{b.booking_number} ·</span>
 
@@ -1083,7 +1123,6 @@ The customer has cancelled this booking.
                     {cfg.label}
                   </span>
 
-                  {/* Show Pay Balance button only when balance > 0 AND not yet paid */}
                   {hasOutstandingBalance(b) && (
                     <button
                       className="pay-balance-btn"
@@ -1104,7 +1143,7 @@ The customer has cancelled this booking.
                   )}
 
                   <span style={{ fontWeight: "bold" }}>₹{parseFloat(b.balance_amount).toFixed(2)}</span>
-                  {/* Show "Balance Paid" confirmation badge when balance existed and was settled */}
+
                   {isBalancePaid(b) && (
                     <span className="balance-paid-badge">
                       <svg
@@ -1178,7 +1217,6 @@ The customer has cancelled this booking.
 
                   {isExpanded && (
                     <div className="breakdown-panel">
-                      {/* Services list */}
                       <div className="breakdown-section">
                         <p className="breakdown-section-title">Services Booked</p>
                         {items.length === 0 ? (
@@ -1209,7 +1247,6 @@ The customer has cancelled this booking.
                         )}
                       </div>
 
-                      {/* Payment details */}
                       <div className="breakdown-section">
                         <p className="breakdown-section-title">Payment Details</p>
                         <div className="breakdown-payment">
@@ -1227,7 +1264,6 @@ The customer has cancelled this booking.
                             </span>
                           </div>
 
-                          {/* Balance amount row — only shown when relevant */}
                           {parseFloat(b.balance_amount) > 0 && (
                             <div className="breakdown-payment-row">
                               <span className="breakdown-pay-label">Balance Due</span>
@@ -1268,8 +1304,6 @@ The customer has cancelled this booking.
                   )}
                 </div>
 
-
-
                 {/* ── Action buttons ── */}
                 <div className="booking-actions">
                   {(statusKey === 'pending' || statusKey === 'confirmed') && (
@@ -1286,30 +1320,29 @@ The customer has cancelled this booking.
                   )}
                   {statusKey === 'completed' && (
                     <>
-                      {/* <button className="btn btn-ghost action-sm">⬇ Invoice</button> */}
                       {statusKey === 'completed' && (
                         <>
-                          {/* <button className="btn btn-ghost action-sm">⬇ Invoice</button> */}
                           <button
                             className="btn btn-ghost action-sm"
-                            onClick={() => setRatingBooking(b)}   // ← add this onClick
+                            onClick={() => setRatingBooking(b)}
                           >
                             ☆ Rate Service
                           </button>
-                          <button className="btn btn-primary action-sm">↻ Book Again</button>
+                          <Link className="btn btn-primary action-sm" to={`/booking/${vendor.vendor_id}`}>
+                            ↻ Book Again
+                          </Link>
                         </>
                       )}
                       <button className="btn btn-ghost action-sm" onClick={() => downloadInvoice(b)}> Download Invoice </button>
-                      {/* <button className="btn btn-primary action-sm">↻ Book Again</button> */}
                     </>
                   )}
                   {(
                     statusKey === 'cancelled_by_user' ||
                     statusKey === 'cancelled_by_vendor'
                   ) && (
-                      <button className="btn btn-primary action-sm">
+                      <Link className="btn btn-primary action-sm" to={`/booking/${vendor.vendor_id}`}>
                         ↻ Book Again
-                      </button>
+                      </Link>
                     )}
                 </div>
 
@@ -1327,9 +1360,338 @@ The customer has cancelled this booking.
   );
 }
 
+// ===== MY ACTIVITIES PAGE =====
+const activityStatusCfg = {
+  pending:   { label: 'Upcoming',   color: '#2563EB', bg: '#EFF6FF', dot: '#2563EB' },
+  confirmed: { label: 'Confirmed',  color: '#7C3AED', bg: '#F5F3FF', dot: '#7C3AED' },
+  completed: { label: 'Completed',  color: '#16A34A', bg: '#F0FDF4', dot: '#22C55E' },
+  cancelled: { label: 'Cancelled',  color: '#DC2626', bg: '#FEF2F2', dot: '#EF4444' },
+  cancelled_by_user:   { label: 'Cancelled By You',    color: '#DC2626', bg: '#FEF2F2', dot: '#EF4444' },
+  cancelled_by_vendor: { label: 'Cancelled By Vendor', color: '#DC2626', bg: '#FEF2F2', dot: '#EF4444' },
+};
+
+function MyActivities() {
+  const API_URL = process.env.REACT_APP_API_URL;
+
+  const [activeTab, setActiveTab]     = useState('All');
+  const [activities, setActivities]   = useState([]);
+  const [loading, setLoading]         = useState(true);
+  const [error, setError]             = useState(null);
+  const [expandedId, setExpandedId]   = useState(null);
+
+  const tabs = ['All', 'Upcoming', 'Confirmed', 'Completed', 'Cancelled'];
+
+  useEffect(() => {
+    const fetchActivities = async () => {
+      const storedUser = JSON.parse(localStorage.getItem('user')) || {};
+      const userId = storedUser._id || storedUser.id;
+      if (!userId) {
+        setError('User not found. Please log in again.');
+        setLoading(false);
+        return;
+      }
+      try {
+        const response = await fetch(`${API_URL}/act/user-act/${userId}`);
+        const data = await response.json();
+        if (response.ok && data.success) {
+          setActivities(data.data || []);
+        } else {
+          setError(data.message || 'Failed to load activities.');
+        }
+      } catch (err) {
+        console.error('Failed to fetch activities:', err);
+        setError('Server error. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchActivities();
+  }, []);
+
+  const getStatusCfg = (status) => {
+    return activityStatusCfg[status?.toLowerCase()] || activityStatusCfg.pending;
+  };
+
+  const getTabLabel = (status) => {
+    return getStatusCfg(status).label;
+  };
+
+  const filtered =
+    activeTab === 'All'
+      ? activities
+      : activities.filter((a) => getTabLabel(a.booking_status) === activeTab);
+
+  const count = (tab) =>
+    tab === 'All'
+      ? activities.length
+      : activities.filter((a) => getTabLabel(a.booking_status) === tab).length;
+
+  const formatDate = (dateStr, timeStr) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const options = { day: 'numeric', month: 'short', year: 'numeric' };
+    return `${date.toLocaleDateString('en-IN', options)}${timeStr ? ` at ${timeStr}` : ''}`;
+  };
+
+  const formatAddress = (addr) => {
+    if (!addr) return '';
+    return [addr.flat, addr.area, addr.city, addr.state, addr.pincode]
+      .filter(Boolean)
+      .join(', ');
+  };
+
+  if (loading) {
+    return (
+      <div className="bookings-page card">
+        <div className="bookings-header">
+          <h2>My Activities</h2>
+          <p className="bookings-sub">View and manage all your activity enrollments</p>
+        </div>
+        <p style={{ padding: '2rem 0', color: '#6B7280', textAlign: 'center' }}>Loading activities...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bookings-page card">
+        <div className="bookings-header">
+          <h2>My Activities</h2>
+          <p className="bookings-sub">View and manage all your activity enrollments</p>
+        </div>
+        <p style={{ padding: '2rem 0', color: '#DC2626', textAlign: 'center' }}>{error}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bookings-page card">
+      <div className="bookings-header">
+        <h2>My Activities</h2>
+        <p className="bookings-sub">View and manage all your activity enrollments</p>
+      </div>
+
+      <div className="bookings-tabs">
+        {tabs.map((t) => (
+          <button
+            key={t}
+            className={`tab-btn${activeTab === t ? ' active' : ''}`}
+            onClick={() => setActiveTab(t)}
+          >
+            {t} ({count(t)})
+          </button>
+        ))}
+      </div>
+
+      {filtered.length === 0 ? (
+        <p style={{ padding: '2rem 0', color: '#6B7280', textAlign: 'center' }}>No activities found.</p>
+      ) : (
+        <div className="bookings-list">
+          {filtered.map((a) => {
+            const cfg = getStatusCfg(a.booking_status);
+            const vendor = a.vendor_details || {};
+            const plan = a.plan || {};
+            const isExpanded = expandedId === a.booking_id;
+
+            return (
+              <div className="booking-item" key={a.booking_id}>
+
+                {/* ── Top row ── */}
+                <div className="booking-top">
+                  <span className="booking-id">{a.booking_number} ·</span>
+
+                  <span className="booking-status" style={{ color: cfg.color, background: cfg.bg }}>
+                    <span className="status-dot" style={{ background: cfg.dot }} />
+                    {cfg.label}
+                  </span>
+
+                  {/* Plan badge */}
+                  {plan.plan_name && (
+                    <span
+                      className="breakdown-pay-badge"
+                      style={{
+                        background: '#F5F3FF',
+                        color: '#7C3AED',
+                        border: '1px solid #DDD6FE',
+                      }}
+                    >
+                      📋 {plan.plan_name}
+                    </span>
+                  )}
+
+                  <span className="booking-amount">₹{parseFloat(a.advance_amount).toFixed(2)}</span>
+
+                  <span
+                    className="breakdown-pay-badge"
+                    style={{
+                      background: a.payment_status === 'paid' ? '#F0FDF4' : '#FEF2F2',
+                      color: a.payment_status === 'paid' ? '#16A34A' : '#DC2626',
+                      border: `1px solid ${a.payment_status === 'paid' ? '#BBF7D0' : '#FECACA'}`,
+                    }}
+                  >
+                    {a.payment_status === 'paid' ? '✓ Advance Paid' : a.payment_status}
+                  </span>
+                </div>
+
+                {/* ── Vendor + date + address ── */}
+                <div className="booking-body">
+                  <img
+                    src={vendor.vendor_profile || 'https://i.pravatar.cc/48?img=12'}
+                    alt={vendor.vendor_name || 'Vendor'}
+                    className="booking-avatar"
+                    onError={(e) => { e.target.src = 'https://i.pravatar.cc/48?img=12'; }}
+                  />
+                  <div className="booking-details">
+                    <p className="booking-service">
+                      {vendor.activity_name || 'Activity'}{' '}
+                      <span className="provider-name">with {vendor.vendor_name}</span>
+                    </p>
+                    {vendor.shop_name && (
+                      <p style={{ fontSize: 12, color: '#6B7280', marginBottom: 4 }}>
+                        🏫 {vendor.shop_name}
+                      </p>
+                    )}
+                    <div className="booking-meta">
+                      <span>📅 {formatDate(a.booking_date, a.booking_time)}</span>
+                      <span>📍 {formatAddress(a.address)}</span>
+                      <span>📞 {vendor.vendor_phone}</span>
+                      {vendor.vendor_whatsapp && (
+                        <span>📱 {vendor.vendor_whatsapp}</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* ── Plan & Payment breakdown (toggle) ── */}
+                <div className="booking-breakdown">
+                  <button
+                    className="breakdown-toggle"
+                    onClick={() => setExpandedId(isExpanded ? null : a.booking_id)}
+                  >
+                    <span>
+                      <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ marginRight: 5, verticalAlign: 'middle' }}>
+                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                      Plan &amp; Payment
+                    </span>
+                    <svg
+                      width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2"
+                      viewBox="0 0 24 24"
+                      style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
+                    >
+                      <path d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  {isExpanded && (
+                    <div className="breakdown-panel">
+                      {/* Plan details */}
+                      <div className="breakdown-section">
+                        <p className="breakdown-section-title">Plan Details</p>
+                        <div className="breakdown-items">
+                          <div className="breakdown-row">
+                            <div className="breakdown-row-left">
+                              <span className="breakdown-check">✓</span>
+                              <span className="breakdown-item-name">{plan.plan_name} Plan</span>
+                            </div>
+                            <span className="breakdown-item-price">₹{parseFloat(plan.amount || 0).toFixed(2)}</span>
+                          </div>
+                          <div className="breakdown-total-row">
+                            <span>Total</span>
+                            <span>₹{parseFloat(a.total_amount).toFixed(2)}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Payment details */}
+                      <div className="breakdown-section">
+                        <p className="breakdown-section-title">Payment Details</p>
+                        <div className="breakdown-payment">
+                          <div className="breakdown-payment-row">
+                            <span className="breakdown-pay-label">Advance Paid</span>
+                            <span
+                              className="breakdown-pay-badge"
+                              style={{
+                                background: '#F0FDF4',
+                                color: '#16A34A',
+                                border: '1px solid #BBF7D0',
+                              }}
+                            >
+                              ✓ ₹{parseFloat(plan.advance_amount || 0).toFixed(2)}
+                            </span>
+                          </div>
+
+                          <div className="breakdown-payment-row">
+                            <span className="breakdown-pay-label">Balance Due</span>
+                            <span
+                              className="breakdown-pay-badge"
+                              style={{
+                                background: '#FFF7ED',
+                                color: '#92400E',
+                                border: '1px solid #FCD34D',
+                              }}
+                            >
+                              ₹{(parseFloat(plan.amount || 0) - parseFloat(plan.advance_amount || 0)).toFixed(2)} Pending
+                            </span>
+                          </div>
+
+                          <div className="breakdown-payment-row">
+                            <span className="breakdown-pay-label">Payment Status</span>
+                            <span
+                              className="breakdown-pay-badge"
+                              style={{
+                                background: a.payment_status === 'paid' ? '#F0FDF4' : '#FEF2F2',
+                                color: a.payment_status === 'paid' ? '#16A34A' : '#DC2626',
+                                border: `1px solid ${a.payment_status === 'paid' ? '#BBF7D0' : '#FECACA'}`,
+                              }}
+                            >
+                              {a.payment_status === 'paid' ? '✓ Paid' : a.payment_status}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* ── Action buttons ── */}
+                <div className="booking-actions">
+                  {(a.booking_status?.toLowerCase() === 'pending' ||
+                    a.booking_status?.toLowerCase() === 'confirmed') && (
+                    <button
+                      className="btn btn-ghost action-sm"
+                      onClick={() => {
+                        if (window.confirm('Are you sure you want to cancel this activity?')) {
+                          alert('Cancel feature coming soon.');
+                        }
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  )}
+                  {a.booking_status?.toLowerCase() === 'completed' && (
+                    <button className="btn btn-ghost action-sm">☆ Rate Activity</button>
+                  )}
+                  <a
+                    href={`https://wa.me/${vendor.vendor_whatsapp || vendor.vendor_phone}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-ghost action-sm"
+                  >
+                    💬 WhatsApp
+                  </a>
+                </div>
+
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ===== SAVED VENDORS PAGE =====
-
-
 function SavedVendors({ userId = 1 }) {
 
   const API_URL = process.env.REACT_APP_API_URL;
@@ -1405,7 +1767,9 @@ function SavedVendors({ userId = 1 }) {
                   <span className="rating-val">{parseFloat(v.rating).toFixed(1)}</span>
                 </div>
               </div>
-              <button className="book-btn">Book</button>
+              <Link className="book-btn" to={`/booking/${v.id}`}>
+                Book
+              </Link>
             </div>
           ))}
         </div>
@@ -1560,7 +1924,6 @@ function Wallet() {
                   >
                     {tx.payment_status === 'paid' ? '✓ Paid' : tx.payment_status}
                   </span>
-
                 </div>
               </div>
             ))}
@@ -1679,24 +2042,23 @@ function Footer() {
 }
 
 // ===== PAGE MAP =====
-const pages = { MyProfile, MyBookings, SavedVendors, Notifications, Wallet, Settings };
+const pages = { MyProfile, MyBookings, MyActivities, SavedVendors, Notifications, Wallet, Settings };
 const user = JSON.parse(localStorage.getItem("user"));
 
 const greetings = {
-  MyProfile: `Welcome back, ${user?.name} 🗒️`,
-  MyBookings: `Welcome back, ${user?.name} 👋`,
+  MyProfile:    `Welcome back, ${user?.name} 🗒️`,
+  MyBookings:   `Welcome back, ${user?.name} 👋`,
+  MyActivities: `Welcome back, ${user?.name} ⚡`,
   SavedVendors: `Welcome back, ${user?.name} 🗒️`,
-  Notifications: `Welcome back, ${user?.name} 🗒️`,
-  Wallet: `Welcome back, ${user?.name} 🗒️`,
-  Settings: `Welcome back, ${user?.name} 🗒️`,
+  Notifications:`Welcome back, ${user?.name} 🗒️`,
+  Wallet:       `Welcome back, ${user?.name} 🗒️`,
+  Settings:     `Welcome back, ${user?.name} 🗒️`,
 };
 
 // ===== APP ROOT =====
 export default function Profile() {
   const [activePage, setActivePage] = useState('MyProfile');
   const PageComponent = pages[activePage];
-
-
 
   return (
     <div className="app">
@@ -1712,7 +2074,6 @@ export default function Profile() {
           </div>
         </div>
       </main>
-
     </div>
   );
 }

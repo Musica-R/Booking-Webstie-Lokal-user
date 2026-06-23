@@ -3,21 +3,6 @@ import { useNavigate } from "react-router-dom";
 import "../styles/ServicesPage.css";
 
 // ── Category Images ───────────────────────────────────────────────────────────
-const CATEGORY_IMAGES = {
-    "Electrician":      "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=600&q=80",
-    "Plumber":          "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80",
-    "AC Repair":        "https://images.unsplash.com/photo-1555963966-b7ae5404b6ed?auto=format&fit=crop&w=600&q=80",
-    "Painting":         "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=600&q=80",
-    "Cleaning":         "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?w=600&q=80",
-    "Car Wash":         "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=600&q=80",
-    "RO Service":       "https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=600&q=80",
-    "CCTV Install":     "https://images.unsplash.com/photo-1557597774-9d273605dfa9?w=600&q=80",
-    "Pest Control":     "https://images.unsplash.com/photo-1632408258154-97a4c6e0d8e3?w=600&q=80",
-    "Appliance Repair": "https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=600&q=80",
-    "Carpenter":        "https://images.unsplash.com/photo-1588854337221-4cf9fa96059c?w=600&q=80",
-    "Tank Cleaning":    "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=600&q=80",
-};
-
 const DEFAULT_COVER = "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&q=80";
 const PAGE_SIZE = 6;
 const safeLC = (val) => (val ?? "").toString().toLowerCase();
@@ -131,13 +116,19 @@ const HeartIcon = ({ filled }) => (
 );
 
 // ── Professional Card ─────────────────────────────────────────────────────────
-function ProfessionalCard({ vendor, onBook, isLoggedIn }) {
-    const API_URL    = process.env.REACT_APP_API_URL;
-    const coverImg   = CATEGORY_IMAGES[vendor.category] || DEFAULT_COVER;
+function ProfessionalCard({
+    vendor,
+    categoryImages,
+    onBook,
+    isLoggedIn,
+}) {
+    const API_URL = process.env.REACT_APP_API_URL;
+    const coverImg =
+    categoryImages[vendor.category_name] || DEFAULT_COVER;
     const avatarFallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(vendor.full_name ?? "?")}&background=2563eb&color=fff&size=80`;
 
-    const [faved,    setFaved]    = useState(false);
-    const [favBusy,  setFavBusy]  = useState(false);
+    const [faved, setFaved] = useState(false);
+    const [favBusy, setFavBusy] = useState(false);
 
     const handleFav = async (e) => {
         e.stopPropagation();
@@ -163,28 +154,28 @@ function ProfessionalCard({ vendor, onBook, isLoggedIn }) {
     };
 
     useEffect(() => {
-    const loadFavoriteStatus = async () => {
-        const user = getStoredUser();
+        const loadFavoriteStatus = async () => {
+            const user = getStoredUser();
 
-        if (!user?.id) return;
+            if (!user?.id) return;
 
-        try {
-            const res = await fetch(
-                `${API_URL}/fav/check?user_id=${user.id}&vendor_id=${vendor.id}`
-            );
+            try {
+                const res = await fetch(
+                    `${API_URL}/fav/check?user_id=${user.id}&vendor_id=${vendor.id}`
+                );
 
-            const data = await res.json();
+                const data = await res.json();
 
-            if (data.success) {
-                setFaved(data.is_favorite);
+                if (data.success) {
+                    setFaved(data.is_favorite);
+                }
+            } catch (error) {
+                console.error(error);
             }
-        } catch (error) {
-            console.error(error);
-        }
-    };
+        };
 
-    loadFavoriteStatus();
-}, [vendor.id, API_URL]);
+        loadFavoriteStatus();
+    }, [vendor.id, API_URL]);
 
     return (
         <div className="sp-card">
@@ -213,16 +204,16 @@ function ProfessionalCard({ vendor, onBook, isLoggedIn }) {
             {/* Body */}
             <div className="sp-card__body">
                 <div className="sp-card__name-row">
-                    
+
                     <h3 className="sp-card__name">{vendor.full_name ?? "Unknown"}</h3>
 
                     {/* Heart button — right of name, before shield */}
-                  
+
 
                     <ShieldIcon />
                 </div>
                 <div className="sp-card__meta">
-                      <button
+                    <button
                         className={`sp-card__fav ${faved ? "sp-card__fav--active" : ""} ${!isLoggedIn ? "sp-card__fav--disabled" : ""}`}
                         onClick={handleFav}
                         aria-label={faved ? "Remove from favourites" : "Add to favourites"}
@@ -262,14 +253,16 @@ function ProfessionalCard({ vendor, onBook, isLoggedIn }) {
 
 // ── ServicesPage ──────────────────────────────────────────────────────────────
 export default function ServicesPage() {
-    const API_URL  = process.env.REACT_APP_API_URL;
+    const API_URL = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
 
-    const [vendors,     setVendors]     = useState([]);
-    const [loading,     setLoading]     = useState(true);
-    const [error,       setError]       = useState(null);
-    const [search,      setSearch]      = useState("");
-    const [page,        setPage]        = useState(1);
+    const [vendors, setVendors] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [search, setSearch] = useState("");
+    const [page, setPage] = useState(1);
+
+    const [categoryImages, setCategoryImages] = useState({});
 
     // ── Auth state — read once on mount, then listen for login/logout events ──
     const [isLoggedIn, setIsLoggedIn] = useState(() => !!getStoredUser());
@@ -277,15 +270,15 @@ export default function ServicesPage() {
     useEffect(() => {
         // Sync when user logs in from another tab or via the custom event
         const handleStorageChange = () => setIsLoggedIn(!!getStoredUser());
-        const handleLoginEvent    = () => setIsLoggedIn(!!getStoredUser());
+        const handleLoginEvent = () => setIsLoggedIn(!!getStoredUser());
 
-        window.addEventListener("storage",   handleStorageChange);
+        window.addEventListener("storage", handleStorageChange);
         window.addEventListener("userLogin", handleLoginEvent);
         window.addEventListener("userLogout", handleStorageChange);
 
         return () => {
-            window.removeEventListener("storage",    handleStorageChange);
-            window.removeEventListener("userLogin",  handleLoginEvent);
+            window.removeEventListener("storage", handleStorageChange);
+            window.removeEventListener("userLogin", handleLoginEvent);
             window.removeEventListener("userLogout", handleStorageChange);
         };
     }, []);
@@ -296,7 +289,7 @@ export default function ServicesPage() {
             try {
                 setLoading(true);
                 setError(null);
-                const res  = await fetch(`${API_URL}/vendors/list-vendors`);
+                const res = await fetch(`${API_URL}/vendors/list-vendors`);
                 if (!res.ok) throw new Error(`Server error: ${res.status}`);
                 const data = await res.json();
                 if (data.success && Array.isArray(data.vendors)) {
@@ -319,18 +312,18 @@ export default function ServicesPage() {
         if (!q) return vendors;
         return vendors.filter(v =>
             safeLC(v.full_name).includes(q) ||
-            safeLC(v.city).includes(q)      ||
-            safeLC(v.category).includes(q)  ||
+            safeLC(v.city).includes(q) ||
+            safeLC(v.category).includes(q) ||
             safeLC(v.shop_name).includes(q)
         );
     }, [vendors, search]);
 
     // ── Pagination ────────────────────────────────────────────────────────────
     const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-    const paginated  = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+    const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
     const handleSearch = (e) => { setSearch(e.target.value); setPage(1); };
-    const clearSearch  = ()    => { setSearch(""); setPage(1); };
+    const clearSearch = () => { setSearch(""); setPage(1); };
 
     // ── Book handler: guard with auth check ───────────────────────────────────
     const handleBook = (vendor) => {
@@ -349,7 +342,7 @@ export default function ServicesPage() {
 
     const pageNumbers = () => {
         if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1);
-        if (page <= 3)              return [1, 2, 3, "...", totalPages];
+        if (page <= 3) return [1, 2, 3, "...", totalPages];
         if (page >= totalPages - 2) return [1, "...", totalPages - 2, totalPages - 1, totalPages];
         return [1, "...", page, "...", totalPages];
     };
@@ -357,9 +350,33 @@ export default function ServicesPage() {
     const countLabel = () => {
         if (filtered.length === 0) return "No professionals found";
         const from = (page - 1) * PAGE_SIZE + 1;
-        const to   = Math.min(page * PAGE_SIZE, filtered.length);
+        const to = Math.min(page * PAGE_SIZE, filtered.length);
         return `Showing ${from}–${to} of ${filtered.length} professionals`;
     };
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const res = await fetch(`${API_URL}/vendors/list-categories`);
+                const data = await res.json();
+
+                if (data.success) {
+                    const images = {};
+
+                    data.categories.forEach((cat) => {
+                        images[cat.category_name] =
+                            `/assets/${cat.category_name.toLowerCase().replace(/\s+/g, "-")}.jpg`;
+                    });
+
+                    setCategoryImages(images);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        fetchCategories();
+    }, [API_URL]);
 
     // ── Render ────────────────────────────────────────────────────────────────
     return (
@@ -477,6 +494,7 @@ export default function ServicesPage() {
                                 <ProfessionalCard
                                     key={vendor.id}
                                     vendor={vendor}
+                                    categoryImages={categoryImages}
                                     onBook={handleBook}
                                     isLoggedIn={isLoggedIn}   // ← passed down
                                 />

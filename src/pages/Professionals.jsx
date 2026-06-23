@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/Professionals.css";
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
@@ -26,48 +28,67 @@ const CalendarIcon = () => (
     </svg>
 );
 
-// ── Data ──────────────────────────────────────────────────────────────────────
-const PROFESSIONALS = [
-    {
-        id: 1,
-        name: "Ramesh Kumar",
-        profession: "Electrician",
-        experience: "8 yrs exp",
-        location: "Indiranagar, BLR",
-        rating: 4.9,
-        reviews: 342,
-        availability: "available",
-        coverImg: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=700&q=80",
-        avatarImg: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80",
-    },
-    {
-        id: 2,
-        name: "Suresh Plumbing",
-        profession: "Plumber",
-        experience: "12 yrs exp",
-        location: "Koramangala, BLR",
-        rating: 4.8,
-        reviews: 215,
-        availability: "available",
-        coverImg: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=700&q=80",
-        avatarImg: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80",
-    },
-    {
-        id: 3,
-        name: "Priya Sharma",
-        profession: "Yoga Trainer",
-        experience: "5 yrs exp",
-        location: "HSR Layout, BLR",
-        rating: 5,
-        reviews: 128,
-        availability: "busy",
-        coverImg: "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=700&q=80",
-        avatarImg: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80",
-    },
-];
+const StarIcon = () => (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="#F59E0B" stroke="none">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+    </svg>
+);
+
+// ── Skeleton Card ─────────────────────────────────────────────────────────────
+const SkeletonCard = () => (
+    <div className="professionals__card professionals__card--skeleton">
+        <div className="professionals__img-wrap skeleton-block" style={{ height: 160 }} />
+        <div className="professionals__card-body">
+            <div className="skeleton-line" style={{ width: "60%", height: 16, marginBottom: 8 }} />
+            <div className="skeleton-line" style={{ width: "40%", height: 12, marginBottom: 12 }} />
+            <div className="skeleton-line" style={{ width: "80%", height: 12, marginBottom: 20 }} />
+            <div style={{ display: "flex", gap: 8 }}>
+                <div className="skeleton-line" style={{ flex: 1, height: 36, borderRadius: 8 }} />
+                <div className="skeleton-line" style={{ flex: 1, height: 36, borderRadius: 8 }} />
+            </div>
+        </div>
+    </div>
+);
+
+// ── Availability helpers ───────────────────────────────────────────────────────
+const getAvailabilityLabel = (availability) => {
+    if (!availability) return { label: "Available", status: "available" };
+    const v = availability.toLowerCase();
+    if (v === "weekdays") return { label: "Weekdays", status: "available" };
+    if (v === "weekends") return { label: "Weekends Only", status: "busy" };
+    return { label: "Available", status: "available" };
+};
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function Professionals() {
+    const API_URL = process.env.REACT_APP_API_URL;
+    const navigate = useNavigate();
+
+    const [vendors, setVendors] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchVendors = async () => {
+            try {
+                const res = await fetch(`${API_URL}/vendors/top-rated-vendors`);
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    setVendors(data.vendors || []);
+                } else {
+                    setError("Failed to load professionals.");
+                }
+            } catch (err) {
+                console.error("Failed to fetch top-rated vendors:", err);
+                setError("Network error. Please try again.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchVendors();
+    }, []);
+
     return (
         <section className="professionals">
             {/* Header */}
@@ -79,82 +100,107 @@ export default function Professionals() {
                 </p>
             </div>
 
+            {/* Error */}
+            {error && (
+                <p style={{ textAlign: "center", color: "#DC2626", padding: "2rem 0" }}>
+                    {error}
+                </p>
+            )}
+
             {/* Grid */}
             <div className="professionals__grid">
-                {PROFESSIONALS.map((pro) => (
-                    <div className="professionals__card" key={pro.id}>
+                {loading ? (
+                    [1, 2, 3].map((n) => <SkeletonCard key={n} />)
+                ) : (
+                    vendors.map((pro) => {
+                        const avail = getAvailabilityLabel(pro.availability);
+                        const rating = parseFloat(pro.rating) || 0;
 
-                        {/* Cover Image */}
-                        <div className="professionals__img-wrap">
-                            <img
-                                className="professionals__img"
-                                src={pro.coverImg}
-                                alt={pro.profession}
-                            />
-                            <div className="professionals__img-overlay" />
+                        return (
+                            <div className="professionals__card" key={pro.id}>
 
-                            {/* Profession + Experience badges */}
-                            <div className="professionals__img-badges">
-                                <span className="professionals__badge">{pro.profession}</span>
-                                <span className="professionals__badge">{pro.experience}</span>
-                            </div>
+                                {/* Cover / Profile Image */}
+                                <div className="professionals__img-wrap">
+                                    <img
+                                        className="professionals__img"
+                                        src={pro.profile_url}
+                                        alt={pro.category_name}
+                                        onError={(e) => {
+                                            e.target.src = "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=700&q=80";
+                                        }}
+                                    />
+                                    <div className="professionals__img-overlay" />
 
-                            {/* Avatar */}
-                            <div className="professionals__avatar-wrap">
-                                <img
-                                    className="professionals__avatar"
-                                    src={pro.avatarImg}
-                                    alt={pro.name}
-                                />
-                            </div>
-                        </div>
+                                    {/* Category + Experience badges */}
+                                    <div className="professionals__img-badges">
+                                        <span className="professionals__badge">{pro.category_name}</span>
+                                        <span className="professionals__badge">{pro.experience}</span>
+                                    </div>
 
-                        {/* Body */}
-                        <div className="professionals__card-body">
-                            <div className="professionals__card-name">{pro.name}</div>
-
-                            <div className="professionals__card-location">
-                                <PinIcon />
-                                {pro.location}
-                            </div>
-
-                            {/* Rating + Availability */}
-                            <div className="professionals__card-meta">
-                                <div className="professionals__rating">
-                                    <span className="star">★</span>
-                                    <span className="professionals__rating-score">{pro.rating}</span>
-                                    <span className="professionals__rating-reviews">
-                                        ({pro.reviews} reviews)
-                                    </span>
+                                    {/* Avatar */}
+                                    <div className="professionals__avatar-wrap">
+                                        <img
+                                            className="professionals__avatar"
+                                            src={pro.profile_url}
+                                            alt={pro.full_name}
+                                            onError={(e) => {
+                                                e.target.src = "https://i.pravatar.cc/80?img=8";
+                                            }}
+                                        />
+                                    </div>
                                 </div>
 
-                                <div className={`professionals__availability professionals__availability--${pro.availability}`}>
-                                    <span className="professionals__availability-dot" />
-                                    {pro.availability === "available" ? "Available Now" : "Busy"}
+                                {/* Body */}
+                                <div className="professionals__card-body">
+                                    <div className="professionals__card-name">{pro.full_name}</div>
+                                    <div className="professionals__card-shop">{pro.shop_name}</div>
+
+                                    <div className="professionals__card-location">
+                                        <PinIcon />
+                                        {[pro.address1, pro.city].filter(Boolean).join(", ")}
+                                    </div>
+
+                                    {/* Rating + Availability */}
+                                    <div className="professionals__card-meta">
+                                        <div className="professionals__rating">
+                                            <StarIcon />
+                                            <span className="professionals__rating-score">
+                                                {rating > 0 ? rating.toFixed(1) : "New"}
+                                            </span>
+                                            {rating > 0 && (
+                                                <span className="professionals__rating-reviews">/ 5.0</span>
+                                            )}
+                                        </div>
+
+                                        <div className={`professionals__availability professionals__availability--${avail.status}`}>
+                                            <span className="professionals__availability-dot" />
+                                            {avail.label}
+                                        </div>
+                                    </div>
+
+                                    <div className="professionals__divider" />
+
+                                    {/* Actions */}
+                                    <div className="professionals__actions">
+                                        {/* <button
+                                            className="professionals__btn professionals__btn--call"
+                                            onClick={() => window.open(`tel:${pro.phone}`)}
+                                        >
+                                            <PhoneIcon /> Call
+                                        </button> */}
+                                        <button
+                                            className="professionals__btn professionals__btn--book"
+                                            onClick={() => navigate(`/booking/${pro.id}`)}
+                                        >
+                                            <CalendarIcon /> Book Now
+                                        </button>
+                                    </div>
                                 </div>
+
                             </div>
-
-                            <div className="professionals__divider" />
-
-                            {/* Actions */}
-                            <div className="professionals__actions">
-                                <button
-                                    className="professionals__btn professionals__btn--call"
-                                    onClick={() => alert(`Calling ${pro.name}...`)}
-                                >
-                                    <PhoneIcon /> Call
-                                </button>
-                                <button
-                                    className="professionals__btn professionals__btn--book"
-                                    onClick={() => alert(`Booking ${pro.name}...`)}
-                                >
-                                    <CalendarIcon /> Book Now
-                                </button>
-                            </div>
-                        </div>
-
-                    </div>
-                ))}
+                        );
+                    })
+                )}
             </div>
         </section>
     );

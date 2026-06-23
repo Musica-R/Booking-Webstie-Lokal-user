@@ -462,6 +462,275 @@
 .vnd-submit:active:not(:disabled) { transform: scale(0.99); }
 .vnd-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 
+/* ── Vendor Type Toggle ───────────────────────────────────────────────────── */
+.vnd-type-toggle {
+    display: flex;
+    gap: 8px;
+    padding: 0 20px 16px;
+}
+
+.vnd-type-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: 1.5px solid #e5e7eb;
+    background: #f9fafb;
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.vnd-type-btn svg {
+    stroke: #6b7280;
+    transition: stroke 0.18s ease;
+}
+
+.vnd-type-btn:hover {
+    border-color: #2563eb;
+    color: #2563eb;
+    background: #eff6ff;
+}
+
+.vnd-type-btn:hover svg {
+    stroke: #2563eb;
+}
+
+.vnd-type-btn--active {
+    background: #eff6ff;
+    border-color: #2563eb;
+    color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.vnd-type-btn--active svg {
+    stroke: #2563eb;
+}
+
+/* ── Membership Plans Grid ────────────────────────────────────────────────── */
+.vnd-plans-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.vnd-plans-header {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 32px;
+    gap: 8px;
+    padding: 0 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.vnd-plan-row {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 32px;
+    gap: 8px;
+    align-items: center;
+}
+
+.vnd-plan-row .vnd-input {
+    margin: 0;
+}
+
+.vnd-plan-row .vnd-price-wrap {
+    margin: 0;
+}
+
+.vnd-plan-remove {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1px solid #fecaca;
+    background: #fff5f5;
+    color: #ef4444;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s;
+}
+
+.vnd-plan-remove:hover {
+    background: #fee2e2;
+}
+
+.vnd-plan-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: 1.5px dashed #93c5fd;
+    background: transparent;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+    margin-top: 4px;
+}
+
+.vnd-plan-add:hover {
+    background: #eff6ff;
+}
+
+/* ── Near Stall additions — append these to your BecomeVendor.css ── */
+
+/* Location button */
+.vnd-location-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    padding: 7px 14px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+.vnd-location-btn:hover:not(:disabled) {
+    background: #dbeafe;
+    border-color: #93c5fd;
+}
+.vnd-location-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Payment section */
+.vnd-payment-section {
+    border: 1.5px solid #e0e7ff;
+    background: #f8faff;
+}
+
+.vnd-payment-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    flex-wrap: wrap;
+}
+
+.vnd-payment-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.vnd-payment-amount {
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+}
+
+.vnd-payment-currency {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1d4ed8;
+}
+
+.vnd-payment-number {
+    font-size: 32px;
+    font-weight: 800;
+    color: #1d4ed8;
+    line-height: 1;
+}
+
+.vnd-payment-period {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-left: 4px;
+}
+
+.vnd-payment-desc {
+    font-size: 12.5px;
+    color: #6b7280;
+    max-width: 280px;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Pay button */
+.vnd-pay-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 11px 22px;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    white-space: nowrap;
+}
+.vnd-pay-btn:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+.vnd-pay-btn:active {
+    transform: translateY(0);
+}
+
+/* Payment success badge */
+.vnd-payment-success {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: #dcfce7;
+    border: 1px solid #bbf7d0;
+    border-radius: 10px;
+    color: #166534;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.vnd-payment-tick {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    background: #16a34a;
+    color: #fff;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* Submit disabled note */
+.vnd-payment-note {
+    text-align: center;
+    font-size: 12px;
+    color: #f59e0b;
+    margin-top: -8px;
+    margin-bottom: 4px;
+}
+
 /* ── Responsive ── */
 /* ─────────────────────────────────────────────
    Responsive: ≤ 1024px (Tablet / Small Laptop)

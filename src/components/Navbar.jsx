@@ -130,6 +130,8 @@ export default function Navbar() {
         navigate('/account');
     };
 
+    
+
     return (
         <>
             <nav className="navbar">

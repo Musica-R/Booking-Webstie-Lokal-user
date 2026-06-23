@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import "../styles/EssentialServices.css";
+import MobileVendorList from "./MobileVendorList";
 
 // ── Arrow Icon ────────────────────────────────────────────────────────────────
 const ArrowRight = () => (
@@ -97,18 +98,18 @@ const icons = {
 
 // ── Services Data — id matches the API category id ────────────────────────────
 export const SERVICES = [
-  { id: 1,  name: "Electrician",     desc: "Wiring, repair & installation", iconKey: "electrician", color: "blue"   },
-  { id: 2,  name: "Plumber",         desc: "Pipes, leaks & fittings",        iconKey: "plumber",     color: "yellow" },
-  { id: 3,  name: "AC Repair",       desc: "Service, gas & repair",          iconKey: "ac",          color: "teal"   },
-  { id: 4,  name: "Painting",        desc: "Interior & exterior",            iconKey: "painting",    color: "rose"   },
-  { id: 5,  name: "Cleaning",        desc: "Deep home cleaning",             iconKey: "cleaning",    color: "purple" },
-  { id: 6,  name: "Car Wash",        desc: "Doorstep car care",              iconKey: "carwash",     color: "yellow" },
-  { id: 7,  name: "RO Service",      desc: "Water purifier repair",          iconKey: "ro",          color: "sky"    },
-  { id: 8,  name: "CCTV Install",    desc: "Security camera setup",          iconKey: "cctv",        color: "orange" },
-  { id: 9,  name: "Pest Control",    desc: "Termite & bug removal",          iconKey: "pest",        color: "red"    },
-  { id: 10, name: "Appliance Repair",desc: "Washing machine, fridge",        iconKey: "appliance",   color: "lime"   },
-  { id: 11, name: "Carpenter",       desc: "Furniture & woodwork",           iconKey: "carpenter",   color: "slate"  },
-  { id: 12, name: "Tank Cleaning",   desc: "Water tank hygiene",             iconKey: "tank",        color: "amber"  },
+  { id: 1, name: "Electrician", desc: "Wiring, repair & installation", iconKey: "electrician", color: "blue" },
+  { id: 2, name: "Plumber", desc: "Pipes, leaks & fittings", iconKey: "plumber", color: "yellow" },
+  { id: 3, name: "AC Repair", desc: "Service, gas & repair", iconKey: "ac", color: "teal" },
+  { id: 4, name: "Painting", desc: "Interior & exterior", iconKey: "painting", color: "rose" },
+  { id: 5, name: "Cleaning", desc: "Deep home cleaning", iconKey: "cleaning", color: "purple" },
+  { id: 6, name: "Car Wash", desc: "Doorstep car care", iconKey: "carwash", color: "yellow" },
+  { id: 7, name: "RO Service", desc: "Water purifier repair", iconKey: "ro", color: "sky" },
+  { id: 8, name: "CCTV Install", desc: "Security camera setup", iconKey: "cctv", color: "orange" },
+  { id: 9, name: "Pest Control", desc: "Termite & bug removal", iconKey: "pest", color: "red" },
+  { id: 10, name: "Appliance Repair", desc: "Washing machine, fridge", iconKey: "appliance", color: "lime" },
+  { id: 11, name: "Carpenter", desc: "Furniture & woodwork", iconKey: "carpenter", color: "slate" },
+  { id: 12, name: "Tank Cleaning", desc: "Water tank hygiene", iconKey: "tank", color: "amber" },
 ];
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -121,38 +122,41 @@ export default function EssentialServices() {
   };
 
   return (
-    <section className="home-services">
-      {/* Top Row */}
-      <div className="home-services__top">
-        <div>
-          <h2 className="home-services__heading">Essential Home Services</h2>
-          <p className="home-services__sub">
-            Book expert professionals for all your home maintenance and repair
-            needs. Quality service guaranteed.
-          </p>
-        </div>
-        <a href="#" className="home-services__view-all">
-          View All Services <ArrowRight />
-        </a>
-      </div>
-
-      {/* Grid */}
-      <div className="home-services__grid">
-        {SERVICES.map((svc) => (
-          <div
-            className="home-services__card"
-            key={svc.id}
-            onClick={() => handleServiceClick(svc)}
-            style={{ cursor: "pointer" }}
-          >
-            <div className={`home-services__icon-wrap home-services__icon-wrap--${svc.color}`}>
-              {icons[svc.iconKey]}
-            </div>
-            <div className="home-services__card-name">{svc.name}</div>
-            <div className="home-services__card-desc">{svc.desc}</div>
+    <>
+      <section className="home-services">
+        {/* Top Row */}
+        <div className="home-services__top">
+          <div>
+            <h2 className="home-services__heading">Essential Home Services</h2>
+            <p className="home-services__sub">
+              Book expert professionals for all your home maintenance and repair
+              needs. Quality service guaranteed.
+            </p>
           </div>
-        ))}
-      </div>
-    </section>
+          <a href="#" className="home-services__view-all">
+            View All Services <ArrowRight />
+          </a>
+        </div>
+
+        {/* Grid */}
+        <div className="home-services__grid">
+          {SERVICES.map((svc) => (
+            <div
+              className="home-services__card"
+              key={svc.id}
+              onClick={() => handleServiceClick(svc)}
+              style={{ cursor: "pointer" }}
+            >
+              <div className={`home-services__icon-wrap home-services__icon-wrap--${svc.color}`}>
+                {icons[svc.iconKey]}
+              </div>
+              <div className="home-services__card-name">{svc.name}</div>
+              <div className="home-services__card-desc">{svc.desc}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+      <MobileVendorList />
+    </>
   );
 }

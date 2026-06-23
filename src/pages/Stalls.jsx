@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import "../styles/Stalls.css";
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
@@ -22,92 +23,80 @@ const DistanceIcon = () => (
     </svg>
 );
 
-const MapPinIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-        <polygon points="3 11 22 2 13 21 11 13 3 11" />
-    </svg>
-);
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-// ── Stalls Data ───────────────────────────────────────────────────────────────
-const STALLS = [
-    {
-        id: 1,
-        name: "Sri Krishna Tea Stall",
-        category: "Tea Shop",
-        status: "open",
-        rating: 4.8,
-        distance: "0.2 km",
-        phone: "+91 98765 43210",
-        image: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=600&q=80",
-        // Bengaluru coords
-        lat: 12.9716,
-        lng: 77.5946,
-    },
-    {
-        id: 2,
-        name: "Fresh Juice Corner",
-        category: "Juice Stall",
-        status: "open",
-        rating: 4.5,
-        distance: "0.4 km",
-        phone: "+91 98765 43211",
-        image: "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=600&q=80",
-        lat: 12.9352,
-        lng: 77.6245,
-    },
-    {
-        id: 3,
-        name: "Raju Auto Works",
-        category: "Mechanic",
-        status: "closed",
-        rating: 4.9,
-        distance: "1.2 km",
-        phone: "+91 98765 43212",
-        image: "https://images.unsplash.com/photo-1599256872237-5dcc0fbe9668?w=600&q=80",
-        lat: 12.9279,
-        lng: 77.6271,
-    },
-    {
-        id: 4,
-        name: "TechFix Mobile Repair",
-        category: "Mobile Repair",
-        status: "open",
-        rating: 4.6,
-        distance: "0.8 km",
-        phone: "+91 98765 43213",
-        image: "https://images.unsplash.com/photo-1580910051074-3eb694886505?w=600&q=80",
-        lat: 12.9698,
-        lng: 77.7499,
-    },
-    {
-        id: 5,
-        name: "Annapoorna Tiffin",
-        category: "Food Stall",
-        status: "open",
-        rating: 4.7,
-        distance: "0.3 km",
-        phone: "+91 98765 43214",
-        image: "https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=600&q=80",
-        lat: 12.9082,
-        lng: 77.6476,
-    },
-];
+/** Returns true if current time is between opening_time and closing_time (HH:MM:SS strings) */
+function isOpenNow(opening_time, closing_time) {
+    if (!opening_time || !closing_time) return false;
+    const now = new Date();
+    const toMinutes = (t) => {
+        const [h, m] = t.split(":").map(Number);
+        return h * 60 + m;
+    };
+    const cur = now.getHours() * 60 + now.getMinutes();
+    return cur >= toMinutes(opening_time) && cur < toMinutes(closing_time);
+}
 
-// ── Mini Map (OpenStreetMap embed) ────────────────────────────────────────────
-function MiniMap({ lat, lng }) {
-    const url = `https://www.openstreetmap.org/export/embed.html?bbox=${lng - 0.005},${lat - 0.005},${lng + 0.005},${lat + 0.005}&layer=mapnik&marker=${lat},${lng}`;
+/** Format HH:MM:SS → 8:00 AM */
+function formatTime(t) {
+    if (!t) return "";
+    const [h, m] = t.split(":").map(Number);
+    const ampm = h >= 12 ? "PM" : "AM";
+    return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${ampm}`;
+}
+
+/** Build a Google Maps URL from the stall object */
+function buildMapUrl(stall) {
+    if (stall.google_map_link) return stall.google_map_link;
+    return `https://www.google.com/maps/search/?api=1&query=${stall.latitude},${stall.longitude}`;
+}
+
+/** Static Google Maps thumbnail (no API key needed) */
+function mapThumbnailUrl(lat, lng) {
+    return `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=15&size=400x160&markers=color:red%7C${lat},${lng}&key=YOUR_GOOGLE_MAPS_API_KEY`;
+}
+
+// ── Mini Map ──────────────────────────────────────────────────────────────────
+function MiniMap({ stall }) {
+    const mapUrl = buildMapUrl(stall);
+    const lat = parseFloat(stall.latitude);
+    const lng = parseFloat(stall.longitude);
+
+    // Use OpenStreetMap embed (no API key needed); clicking opens Google Maps
+    const osmEmbed = `https://www.openstreetmap.org/export/embed.html?bbox=${lng - 0.005},${lat - 0.005},${lng + 0.005},${lat + 0.005}&layer=mapnik&marker=${lat},${lng}`;
+
     return (
-        <div className="stalls__map">
+        <div
+            className="stalls__map"
+            onClick={() => window.open(mapUrl, "_blank", "noopener,noreferrer")}
+            title="Open in Google Maps"
+            style={{ cursor: "pointer", position: "relative" }}
+        >
             <iframe
-                title="map"
-                src={url}
+                title={`map-${stall.id}`}
+                src={osmEmbed}
                 loading="lazy"
+                style={{ pointerEvents: "none" }} // Let the wrapper div handle the click
             />
-            <div className="stalls__map-pin">
-                <div className="stalls__map-pin-dot">
-                    <MapPinIcon />
-                </div>
+            {/* Click-to-open overlay hint */}
+            <div className="stalls__map-overlay">
+                <span className="stalls__map-overlay-label">
+                    <NavigateIcon /> Open in Maps
+                </span>
+            </div>
+        </div>
+    );
+}
+
+// ── Skeleton Card ─────────────────────────────────────────────────────────────
+function SkeletonCard() {
+    return (
+        <div className="stalls__card stalls__card--skeleton">
+            <div className="stalls__card-img-wrap skeleton-block" style={{ height: 180 }} />
+            <div className="stalls__card-body" style={{ gap: 10 }}>
+                <div className="skeleton-block" style={{ height: 16, width: "70%", borderRadius: 6 }} />
+                <div className="skeleton-block" style={{ height: 12, width: "50%", borderRadius: 6 }} />
+                <div className="skeleton-block" style={{ height: 120, borderRadius: 8 }} />
             </div>
         </div>
     );
@@ -115,6 +104,32 @@ function MiniMap({ lat, lng }) {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function Stalls() {
+    const [stalls, setStalls] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+     const API_URL = process.env.REACT_APP_API_URL;
+
+    useEffect(() => {
+        async function fetchStalls() {
+            try {
+                const res = await fetch(`${API_URL}/vendors/near-list`);
+                if (!res.ok) throw new Error(`Server error: ${res.status}`);
+                const data = await res.json();
+                if (data.success) {
+                    setStalls(data.stalls);
+                } else {
+                    throw new Error("Failed to load stalls.");
+                }
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchStalls();
+    }, []);
+
     return (
         <section className="stalls">
             {/* Top */}
@@ -131,61 +146,90 @@ export default function Stalls() {
             {/* Horizontal scroll track */}
             <div className="stalls__track-wrap">
                 <div className="stalls__track">
-                    {STALLS.map((stall) => (
-                        <div className="stalls__card" key={stall.id}>
-                            {/* Image */}
-                            <div className="stalls__card-img-wrap">
-                                <img
-                                    className="stalls__card-img"
-                                    src={stall.image}
-                                    alt={stall.name}
-                                />
-                                <span className="stalls__badge-category">{stall.category}</span>
-                                <span className={`stalls__badge-status stalls__badge-status--${stall.status}`}>
-                                    {stall.status === "open" ? "Open Now" : "Closed"}
-                                </span>
-                            </div>
+                    {loading && (
+                        <>
+                            <SkeletonCard />
+                            <SkeletonCard />
+                            <SkeletonCard />
+                        </>
+                    )}
 
-                            {/* Body */}
-                            <div className="stalls__card-body">
-                                {/* Name + Rating */}
-                                <div className="stalls__card-title-row">
-                                    <span className="stalls__card-name">{stall.name}</span>
-                                    <span className="stalls__card-rating">
-                                        <span className="star">★</span> {stall.rating}
+                    {error && (
+                        <p style={{ color: "#f87171", padding: "16px" }}>
+                            ⚠️ {error}
+                        </p>
+                    )}
+
+                    {!loading && !error && stalls.map((stall) => {
+                        const open = isOpenNow(stall.opening_time, stall.closing_time);
+                        const status = open ? "open" : "closed";
+
+                        return (
+                            <div className="stalls__card" key={stall.id}>
+                                {/* Image */}
+                                <div className="stalls__card-img-wrap">
+                                    <img
+                                        className="stalls__card-img"
+                                        src={stall.profile_url}
+                                        alt={stall.shop_name}
+                                        onError={(e) => {
+                                            e.target.src = "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=600&q=80";
+                                        }}
+                                    />
+                                    <span className="stalls__badge-category">
+                                        {stall.description
+                                            ? stall.description.split(" ").slice(0, 2).join(" ")
+                                            : "Local Stall"}
+                                    </span>
+                                    <span className={`stalls__badge-status stalls__badge-status--${status}`}>
+                                        {open ? "Open Now" : "Closed"}
                                     </span>
                                 </div>
 
-                                {/* Distance + Phone */}
-                                <div className="stalls__card-meta">
-                                    <div className="stalls__meta-item">
-                                        <DistanceIcon />
-                                        {stall.distance}
+                                {/* Body */}
+                                <div className="stalls__card-body">
+                                    {/* Name + Hours */}
+                                    <div className="stalls__card-title-row">
+                                        <span className="stalls__card-name">{stall.shop_name}</span>
+                                        <span className="stalls__card-rating" title="Hours">
+                                            {formatTime(stall.opening_time)} – {formatTime(stall.closing_time)}
+                                        </span>
                                     </div>
-                                    <div className="stalls__meta-item">
-                                        <PhoneIcon />
-                                        {stall.phone}
+
+                                    {/* Address + Phone */}
+                                    <div className="stalls__card-meta">
+                                        <div className="stalls__meta-item">
+                                            <DistanceIcon />
+                                            {[stall.address1, stall.city].filter(Boolean).join(", ")}
+                                        </div>
+                                        <div className="stalls__meta-item">
+                                            <PhoneIcon />
+                                            {stall.phone}
+                                        </div>
                                     </div>
+
+                                    {/* Mini Map — click opens Google Maps */}
+                                    <MiniMap stall={stall} />
                                 </div>
 
-                                {/* Mini Map */}
-                                <MiniMap lat={stall.lat} lng={stall.lng} />
+                                {/* Actions */}
+                                <div className="stalls__card-actions" style={{ padding: "0 16px 16px" }}>
+                                    <button
+                                        className="stalls__btn stalls__btn--navigate"
+                                        onClick={() => window.open(buildMapUrl(stall), "_blank", "noopener,noreferrer")}
+                                    >
+                                        <NavigateIcon /> Navigate
+                                    </button>
+                                    <button
+                                        className="stalls__btn stalls__btn--call"
+                                        onClick={() => window.location.href = `tel:${stall.phone}`}
+                                    >
+                                        <PhoneIcon /> Quick Call
+                                    </button>
+                                </div>
                             </div>
-
-                            {/* Actions */}
-                            <div className="stalls__card-actions" style={{ padding: "0 16px 16px" }}>
-                                <button className="stalls__btn stalls__btn--navigate">
-                                    <NavigateIcon /> Navigate
-                                </button>
-                                <button
-                                    className="stalls__btn stalls__btn--call"
-                                    onClick={() => window.location.href = `tel:${stall.phone.replace(/\s/g, "")}`}
-                                >
-                                    <PhoneIcon /> Quick Call
-                                </button>
-                            </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
         </section>

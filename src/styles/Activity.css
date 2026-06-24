@@ -70,7 +70,6 @@
 
 /* Full-width item (Spoken English) */
 .lokal-activity-item.lokal-full-width {
-  grid-column: 1 / -1;
   width: fit-content;
 }
 

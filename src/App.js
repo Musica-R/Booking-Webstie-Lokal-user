@@ -14,11 +14,13 @@ import VendorList from './pages/Vendorlist';       // ← add this
 import ForgotPasswordPage from "./components/Forgotpassword";
 import Activity from './pages/Activity';
 import ActivityBooking from './pages/ActivityBooking';
+import ScrollToTop from './pages/ScrollToTop';
 
 function App() {
   return (
     <VendorProvider>
       <Router>
+        <ScrollToTop />
 
         <div className="App">
           <Navbar />

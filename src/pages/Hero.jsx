@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "../styles/Hero.css";
 import { useNavigate } from "react-router-dom";
-
+import axios from "axios";
 // ── SVG Icons ─────────────────────────────────────────────────────────────────
 const SearchIcon = () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -66,13 +66,40 @@ export default function Hero() {
     const [service, setService] = useState("");
     const [location, setLocation] = useState("Bengaluru");
 
-    const handleSearch = (e) => {
-        e.preventDefault();
-        alert(`Searching for "${service}" in ${location}`);
-    };
+    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
 
+    const handleSearch = async (e) => {
+        e.preventDefault();
+
+        if (!service.trim()) return;
+
+        setLoading(true);
+
+        try {
+            const res = await axios.get(
+                `http://localhost:5000/api/fav/search?q=${service}`
+            );
+
+            const data = res.data;
+
+            if (data.success) {
+                setTimeout(() => {
+                    if (data.type === "service") {
+                        navigate(`/services?category=${data.id}`);
+                    } else {
+                        navigate(`/activity?category=${data.id}`);
+                    }
+                }, 800); // 300ms delay
+            } else {
+                setLoading(false);
+                alert("No service or activity found");
+            }
+        } catch (err) {
+            setLoading(false);
+        }
+    };
     return (
         <section className="hero">
             <div className="hero__inner">
@@ -122,8 +149,8 @@ export default function Hero() {
                                 onChange={(e) => setLocation(e.target.value)}
                             />
                         </div>
-                        <button type="submit" className="hero__search-btn">
-                            Search
+                        <button type="submit" className="hero__search-btn" disabled={loading}>
+                            {loading ? "Searching..." : "Search"}
                         </button>
                     </form>
 

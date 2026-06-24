@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/ServicesPage.css";
 
+
 // ── Category Images ───────────────────────────────────────────────────────────
 const DEFAULT_COVER = "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&q=80";
 const PAGE_SIZE = 6;
@@ -124,11 +125,13 @@ function ProfessionalCard({
 }) {
     const API_URL = process.env.REACT_APP_API_URL;
     const coverImg =
-    categoryImages[vendor.category_name] || DEFAULT_COVER;
+        categoryImages[vendor.category_name] || DEFAULT_COVER;
     const avatarFallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(vendor.full_name ?? "?")}&background=2563eb&color=fff&size=80`;
 
     const [faved, setFaved] = useState(false);
     const [favBusy, setFavBusy] = useState(false);
+
+
 
     const handleFav = async (e) => {
         e.stopPropagation();

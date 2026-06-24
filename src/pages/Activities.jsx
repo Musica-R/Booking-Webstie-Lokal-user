@@ -20,16 +20,18 @@ const PinIcon = () => (
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 const ACTIVITIES = [
-    { id: 1,  name: "Yoga",           emoji: "🧘",  color: "lavender", rating: 4.9, trainers: "24+ Trainers", location: "Indiranagar, BLR" },
-    { id: 2,  name: "Silambam",       emoji: "🥢",  color: "peach",    rating: 4.8, trainers: "8+ Trainers",  location: "Koramangala, BLR" },
-    { id: 3,  name: "Gymnastics",     emoji: "🤸",  color: "mint",     rating: 4.7, trainers: "12+ Trainers", location: "HSR Layout, BLR"  },
-    { id: 4,  name: "Karate",         emoji: "🥋",  color: "yellow",   rating: 4.8, trainers: "18+ Trainers", location: "Jayanagar, BLR"   },
-    { id: 5,  name: "Dance",          emoji: "💃",  color: "pink",     rating: 4.9, trainers: "45+ Trainers", location: "Whitefield, BLR"  },
-    { id: 6,  name: "Music Class",    emoji: "🎸",  color: "rose",     rating: 4.6, trainers: "32+ Trainers", location: "Malleswaram, BLR" },
-    { id: 7,  name: "Meditation",     emoji: "🪷",  color: "teal",     rating: 4.9, trainers: "15+ Trainers", location: "JP Nagar, BLR"    },
-    { id: 8,  name: "Drawing",        emoji: "🎨",  color: "cream",    rating: 4.7, trainers: "22+ Trainers", location: "BTM Layout, BLR"  },
-    { id: 9,  name: "Zumba",          emoji: "🕺",  color: "lilac",    rating: 4.8, trainers: "28+ Trainers", location: "Marathahalli, BLR"},
-    { id: 10, name: "Spoken English", emoji: "🗣️", color: "sky",      rating: 4.5, trainers: "50+ Trainers", location: "Online / Offline"  },
+    { id: 3,  name: "Dance",           emoji: "💃",  color: "pink",     rating: 4.9, trainers: "45+ Trainers", location: "Whitefield, BLR"  },
+    { id: 7,  name: "Drawing",         emoji: "🎨",  color: "cream",    rating: 4.7, trainers: "22+ Trainers", location: "BTM Layout, BLR"  },
+    { id: 1,  name: "Gym",             emoji: "🏋️",  color: "yellow",   rating: 4.8, trainers: "30+ Trainers", location: "Indiranagar, BLR" },
+    { id: 5,  name: "Karate",          emoji: "🥋",  color: "peach",    rating: 4.8, trainers: "18+ Trainers", location: "Jayanagar, BLR"   },
+    { id: 10, name: "Meditation",      emoji: "🪷",  color: "teal",     rating: 4.9, trainers: "15+ Trainers", location: "JP Nagar, BLR"    },
+    { id: 4,  name: "Music Class",     emoji: "🎸",  color: "rose",     rating: 4.6, trainers: "32+ Trainers", location: "Malleswaram, BLR" },
+    { id: 6,  name: "Silambam",        emoji: "🥢",  color: "lavender", rating: 4.8, trainers: "8+ Trainers",  location: "Koramangala, BLR" },
+    { id: 11, name: "Spoken English",  emoji: "🗣️", color: "sky",      rating: 4.5, trainers: "50+ Trainers", location: "Online / Offline"  },
+    { id: 8,  name: "Swimming",        emoji: "🏊",  color: "mint",     rating: 4.7, trainers: "20+ Trainers", location: "HSR Layout, BLR"  },
+    { id: 12, name: "Tuition",         emoji: "📚",  color: "lilac",    rating: 4.6, trainers: "60+ Trainers", location: "Online / Offline"  },
+    { id: 2,  name: "Yoga",            emoji: "🧘",  color: "lavender", rating: 4.9, trainers: "24+ Trainers", location: "Indiranagar, BLR" },
+    { id: 9,  name: "Zumba",           emoji: "🕺",  color: "lilac",    rating: 4.8, trainers: "28+ Trainers", location: "Marathahalli, BLR"},
 ];
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -51,7 +53,7 @@ export default function Activities() {
                         development near you.
                     </p>
                 </div>
-                <a href="#" className="activities__view-all">
+                <a href="/activity" className="activities__view-all">
                     View All Activities <ArrowRight />
                 </a>
             </div>

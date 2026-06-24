@@ -133,7 +133,7 @@ export default function EssentialServices() {
               needs. Quality service guaranteed.
             </p>
           </div>
-          <a href="#" className="home-services__view-all">
+          <a href="/services" className="home-services__view-all">
             View All Services <ArrowRight />
           </a>
         </div>

@@ -151,8 +151,8 @@ const RefundWarningModal = ({ amount, onConfirm, onCancel }) => (
             <div className="bk-modal-lang-block">
                 <p className="bk-modal-lang-tag">English</p>
                 <p className="bk-modal-msg">
-                    The payment of <strong>₹{amount}</strong> is <strong>non-refundable</strong> once confirmed.
-                    Please make sure your booking details are correct before proceeding.
+                    By proceeding, you acknowledge that <strong>₹{amount}</strong> is non-refundable in case of customer cancellation.
+                    If the booking is cancelled by the vendor, the amount will be credited to your wallet for future use.
                 </p>
             </div>
 
@@ -160,10 +160,10 @@ const RefundWarningModal = ({ amount, onConfirm, onCancel }) => (
             <div className="bk-modal-lang-block bk-modal-lang-block--tamil">
                 <p className="bk-modal-lang-tag">தமிழ்</p>
                 <p className="bk-modal-msg">
-                    நீங்கள் செலுத்தவுள்ள <strong>₹{amount}</strong> தொகை உறுதிப்படுத்தப்பட்டதும்
-                    <strong> திரும்பப் பெற முடியாது</strong>. தொடர்வதற்கு முன் உங்கள் முன்பதிவு
-                    விவரங்களை சரிபார்க்கவும்.
+                    தொடர்வதன் மூலம், <strong>₹{amount}</strong> தொகை வாடிக்கையாளர் முன்பதிவை ரத்து செய்தால் திருப்பி வழங்கப்படாது என்பதை நீங்கள் ஒப்புக்கொள்கிறீர்கள்.
+                    முன்பதிவு விற்பனையாளரால் (Vendor) ரத்து செய்யப்பட்டால், அந்த முழுத் தொகையும் உங்கள் வாலெட்டில் (Wallet) வரவு வைக்கப்படும் மற்றும் எதிர்கால முன்பதிவுகளுக்கு பயன்படுத்தலாம்.
                 </p>
+
             </div>
 
             <div className="bk-modal-actions">

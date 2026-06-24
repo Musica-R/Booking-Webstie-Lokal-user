@@ -619,14 +619,12 @@ function MyProfile() {
 const statusCfg = {
   pending: { label: 'Upcoming', color: '#2563EB', bg: '#EFF6FF', dot: '#2563EB' },
   completed: { label: 'Completed', color: '#16A34A', bg: '#F0FDF4', dot: '#22C55E' },
-
   cancelled_by_user: {
     label: 'Cancelled By You',
     color: '#DC2626',
     bg: '#FEF2F2',
     dot: '#EF4444'
   },
-
   cancelled_by_vendor: {
     label: 'Cancelled By vendor',
     color: '#DC2626',
@@ -641,51 +639,27 @@ function MyBookings() {
 
   const downloadInvoice = (b) => {
     const doc = new jsPDF();
-
     let y = 20;
-
     doc.setFontSize(18);
     doc.text("INVOICE", 105, y, { align: "center" });
-
     y += 15;
-
     doc.setFontSize(11);
-
-    doc.text(`Booking No: ${b.booking_number}`, 14, y);
-    y += 8;
-
-    doc.text(`Customer: ${b.customer_name}`, 14, y);
-    y += 8;
-
-    doc.text(`Phone: ${b.customer_phone}`, 14, y);
-    y += 12;
-
+    doc.text(`Booking No: ${b.booking_number}`, 14, y); y += 8;
+    doc.text(`Customer: ${b.customer_name}`, 14, y); y += 8;
+    doc.text(`Phone: ${b.customer_phone}`, 14, y); y += 12;
     doc.setFontSize(13);
-    doc.text("Vendor Details", 14, y);
-    y += 8;
-
+    doc.text("Vendor Details", 14, y); y += 8;
     doc.setFontSize(11);
-
-    doc.text(`Vendor Name: ${b.vendor_details.vendor_name}`, 14, y);
-    y += 7;
-
-    doc.text(`Service Category: ${b.vendor_details.category_name}`, 14, y);
-    y += 12;
-
+    doc.text(`Vendor Name: ${b.vendor_details.vendor_name}`, 14, y); y += 7;
+    doc.text(`Service Category: ${b.vendor_details.category_name}`, 14, y); y += 12;
     doc.setFontSize(13);
-    doc.text("Address", 14, y);
-    y += 8;
-
+    doc.text("Address", 14, y); y += 8;
     doc.setFontSize(11);
-
     doc.text(
       `${b.address.flat}, ${b.address.area}, ${b.address.city}, ${b.address.state} - ${b.address.pincode}`,
-      14,
-      y
+      14, y
     );
-
     y += 15;
-
     autoTable(doc, {
       startY: y,
       head: [["#", "Service", "Qty", "Price"]],
@@ -697,33 +671,17 @@ function MyBookings() {
       ]),
       theme: "grid",
     });
-
     y = doc.lastAutoTable.finalY + 10;
-
     doc.setFontSize(12);
-
-    doc.text(`Total Amount: Rs.${b.total_amount}`, 14, y);
-    y += 8;
-
-    doc.text(`Balance Amount: Rs.${b.balance_amount}`, 14, y);
-    y += 8;
-
-    doc.text(`Payment Status: ${b.payment_status}`, 14, y);
-    y += 8;
-
-    doc.text(
-      `Balance Payment Status: ${b.balance_payment_status}`,
-      14,
-      y
-    );
-    y += 8;
-
+    doc.text(`Total Amount: Rs.${b.total_amount}`, 14, y); y += 8;
+    doc.text(`Balance Amount: Rs.${b.balance_amount}`, 14, y); y += 8;
+    doc.text(`Payment Status: ${b.payment_status}`, 14, y); y += 8;
+    doc.text(`Balance Payment Status: ${b.balance_payment_status}`, 14, y); y += 8;
     doc.text(`Booking Status: ${b.booking_status}`, 14, y);
-
     doc.save(`invoice-${b.booking_number}.pdf`);
   };
 
-
+  const BOOKINGS_PER_PAGE = 2;
 
   const [activeTab, setActiveTab] = useState('All');
   const [bookings, setBookings] = useState([]);
@@ -731,6 +689,7 @@ function MyBookings() {
   const [error, setError] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
   const [ratingBooking, setRatingBooking] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const tabs = ['All', 'Upcoming', 'Completed', 'Cancelled'];
 
@@ -760,7 +719,6 @@ function MyBookings() {
     };
     fetchBookings();
   }, []);
-
 
   function RatingModal({ isOpen, onClose, booking }) {
     const API_URL = process.env.REACT_APP_API_URL;
@@ -818,13 +776,11 @@ function MyBookings() {
               </svg>
             </button>
           </div>
-
           <div className="modal-body">
             <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 16 }}>
               How was your experience with{' '}
               <strong>{booking.vendor_details?.vendor_name || 'this vendor'}</strong>?
             </p>
-
             <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginBottom: 20 }}>
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -844,13 +800,11 @@ function MyBookings() {
                 </button>
               ))}
             </div>
-
             {rating > 0 && (
               <p style={{ textAlign: 'center', fontSize: 13, color: '#6B7280', marginBottom: 12 }}>
                 {['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'][rating]}
               </p>
             )}
-
             <div className="modal-field">
               <label className="field-label">Review (optional)</label>
               <textarea
@@ -863,7 +817,6 @@ function MyBookings() {
               />
             </div>
           </div>
-
           <div className="modal-footer">
             <button className="btn btn-ghost" onClick={onClose} disabled={loading}>Cancel</button>
             <button className="btn btn-primary" onClick={handleSubmit} disabled={loading}>
@@ -878,21 +831,17 @@ function MyBookings() {
   const handlePayBalance = async (booking) => {
     try {
       const storedUser = JSON.parse(localStorage.getItem("user")) || {};
-
       const res = await fetch(`${API_URL}/payment/balance/order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount: booking.balance_amount }),
       });
-
       const data = await res.json();
       if (!data.success) {
         alert("Order creation failed. Please try again.");
         return;
       }
-
       const order = data.order;
-
       const options = {
         key: process.env.REACT_APP_RAZORPAY_KEY_ID,
         amount: order.amount,
@@ -900,7 +849,6 @@ function MyBookings() {
         name: "Lokal Services",
         description: "Balance Payment",
         order_id: order.id,
-
         handler: async function (response) {
           try {
             const verifyRes = await fetch(`${API_URL}/payment/balance/verify`, {
@@ -914,9 +862,7 @@ function MyBookings() {
                 amount: booking.balance_amount,
               }),
             });
-
             const verifyData = await verifyRes.json();
-
             if (verifyData.success) {
               alert("Payment Successful!");
               setBookings((prev) =>
@@ -934,16 +880,13 @@ function MyBookings() {
             alert("Verification failed. Contact support with your payment ID: " + response.razorpay_payment_id);
           }
         },
-
         prefill: {
           name: storedUser?.name || "",
           email: storedUser?.email || "",
           contact: storedUser?.phone || "",
         },
-
         theme: { color: "#2563eb" },
       };
-
       const rzp = new window.Razorpay(options);
       rzp.on("payment.failed", function (response) {
         alert("Payment failed: " + response.error.description);
@@ -964,6 +907,12 @@ function MyBookings() {
     activeTab === 'All'
       ? bookings
       : bookings.filter((b) => getTabLabel(b.booking_status) === activeTab);
+
+  const totalPages = Math.ceil(filtered.length / BOOKINGS_PER_PAGE);
+  const paginatedBookings = filtered.slice(
+    (currentPage - 1) * BOOKINGS_PER_PAGE,
+    currentPage * BOOKINGS_PER_PAGE
+  );
 
   const count = (tab) =>
     tab === 'All'
@@ -990,6 +939,53 @@ function MyBookings() {
   const isBalancePaid = (b) =>
     parseFloat(b.balance_amount) > 0 && b.balance_payment_status === 'paid';
 
+  const handleCancelBooking = async (bookingId) => {
+    if (!window.confirm("Are you sure you want to cancel this booking?")) return;
+    try {
+      const res = await fetch(`${API_URL}/vendors/booking-status/${bookingId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ booking_status: "cancelled_by_user" }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setBookings((prev) =>
+          prev.map((b) =>
+            b.booking_id === bookingId
+              ? { ...b, booking_status: "cancelled_by_user" }
+              : b
+          )
+        );
+        const booking = bookings.find((b) => b.booking_id === bookingId);
+        const message = `
+Booking Cancelled
+
+Booking No: ${booking.booking_number}
+
+Customer: ${user.name}
+
+Service: ${booking.vendor_details?.category_name}
+
+Date: ${booking.booking_date}
+Time: ${booking.booking_time}
+
+The customer has cancelled this booking.
+`;
+        const vendorPhone = booking.vendor_details?.vendor_phone;
+        window.open(
+          `https://wa.me/${vendorPhone}?text=${encodeURIComponent(message)}`,
+          "_blank"
+        );
+        alert("Booking cancelled successfully");
+      } else {
+        alert(data.message || "Failed to cancel booking");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong");
+    }
+  };
+
   if (loading) {
     return (
       <div className="bookings-page card">
@@ -1014,72 +1010,6 @@ function MyBookings() {
     );
   }
 
-  const handleCancelBooking = async (bookingId) => {
-    if (!window.confirm("Are you sure you want to cancel this booking?")) {
-      return;
-    }
-
-    try {
-      const res = await fetch(
-        `${API_URL}/vendors/booking-status/${bookingId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            booking_status: "cancelled_by_user",
-          }),
-        }
-      );
-
-      const data = await res.json();
-
-      if (data.success) {
-        setBookings((prev) =>
-          prev.map((b) =>
-            b.booking_id === bookingId
-              ? { ...b, booking_status: "cancelled_by_user" }
-              : b
-          )
-        );
-
-        const booking = bookings.find((b) => b.booking_id === bookingId);
-
-        const message = `
-Booking Cancelled
-
-Booking No: ${booking.booking_number}
-
-Customer: ${user.name}
-
-Service: ${booking.vendor_details?.category_name}
-
-Date: ${booking.booking_date}
-Time: ${booking.booking_time}
-
-The customer has cancelled this booking.
-`;
-
-        const vendorPhone = booking.vendor_details?.vendor_phone;
-
-        window.open(
-          `https://wa.me/${vendorPhone}?text=${encodeURIComponent(message)}`,
-          "_blank"
-        );
-
-        alert("Booking cancelled successfully");
-      }
-
-      else {
-        alert(data.message || "Failed to cancel booking");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Something went wrong");
-    }
-  };
-
   return (
     <div className="bookings-page card">
       <div className="bookings-header">
@@ -1092,7 +1022,7 @@ The customer has cancelled this booking.
           <button
             key={t}
             className={`tab-btn${activeTab === t ? ' active' : ''}`}
-            onClick={() => setActiveTab(t)}
+            onClick={() => { setActiveTab(t); setCurrentPage(1); }}
           >
             {t} ({count(t)})
           </button>
@@ -1102,255 +1032,246 @@ The customer has cancelled this booking.
       {filtered.length === 0 ? (
         <p style={{ padding: '2rem 0', color: '#6B7280', textAlign: 'center' }}>No bookings found.</p>
       ) : (
-        <div className="bookings-list">
-          {filtered.map((b) => {
-            const statusKey = b.booking_status?.toLowerCase();
-            const cfg = statusCfg[statusKey] || statusCfg.pending;
-            const vendor = b.vendor_details || {};
-            const payment = b.payment || {};
-            const items = b.items || [];
-            const isExpanded = expandedId === b.booking_id;
+        <>
+          <div className="bookings-list">
+            {paginatedBookings.map((b) => {
+              const statusKey = b.booking_status?.toLowerCase();
+              const cfg = statusCfg[statusKey] || statusCfg.pending;
+              const vendor = b.vendor_details || {};
+              const payment = b.payment || {};
+              const items = b.items || [];
+              const isExpanded = expandedId === b.booking_id;
 
-            return (
-              <div className="booking-item" key={b.booking_id}>
+              return (
+                <div className="booking-item" key={b.booking_id}>
 
-                {/* ── Top row ── */}
-                <div className="booking-top">
-                  <span className="booking-id">{b.booking_number} ·</span>
-
-                  <span className="booking-status" style={{ color: cfg.color, background: cfg.bg }}>
-                    <span className="status-dot" style={{ background: cfg.dot }} />
-                    {cfg.label}
-                  </span>
-
-                  {hasOutstandingBalance(b) && (
-                    <button
-                      className="pay-balance-btn"
-                      onClick={() => handlePayBalance(b)}
-                    >
-                      <svg
-                        width="13" height="13"
-                        fill="none" stroke="currentColor" strokeWidth="2"
-                        viewBox="0 0 24 24"
-                        style={{ flexShrink: 0 }}
-                        aria-hidden="true"
-                      >
-                        <rect x="2" y="5" width="20" height="14" rx="2" />
-                        <path d="M2 10h20" />
-                      </svg>
-                      Pay Balance ₹{parseFloat(b.balance_amount).toFixed(2)}
-                    </button>
-                  )}
-
-                  <span style={{ fontWeight: "bold" }}>₹{parseFloat(b.balance_amount).toFixed(2)}</span>
-
-                  {isBalancePaid(b) && (
-                    <span className="balance-paid-badge">
-                      <svg
-                        width="11" height="11"
-                        fill="none" stroke="currentColor" strokeWidth="2.5"
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                      >
-                        <path d="M20 6L9 17l-5-5" />
-                      </svg>
-                      Balance Paid
+                  {/* ── Top row ── */}
+                  <div className="booking-top">
+                    <span className="booking-id">{b.booking_number} ·</span>
+                    <span className="booking-status" style={{ color: cfg.color, background: cfg.bg }}>
+                      <span className="status-dot" style={{ background: cfg.dot }} />
+                      {cfg.label}
                     </span>
-                  )}
+                    {hasOutstandingBalance(b) && (
+                      <button className="pay-balance-btn" onClick={() => handlePayBalance(b)}>
+                        <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink: 0 }} aria-hidden="true">
+                          <rect x="2" y="5" width="20" height="14" rx="2" />
+                          <path d="M2 10h20" />
+                        </svg>
+                        Pay Balance ₹{parseFloat(b.balance_amount).toFixed(2)}
+                      </button>
+                    )}
+                    <span style={{ fontWeight: "bold" }}>₹{parseFloat(b.balance_amount).toFixed(2)}</span>
+                    {isBalancePaid(b) && (
+                      <span className="balance-paid-badge">
+                        <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M20 6L9 17l-5-5" />
+                        </svg>
+                        Balance Paid
+                      </span>
+                    )}
+                    <span className="booking-amount">₹{parseFloat(b.total_amount).toFixed(2)}</span>
+                    <span
+                      className="breakdown-pay-badge"
+                      style={{
+                        background: b.payment_status === 'paid' ? '#F0FDF4' : '#FEF2F2',
+                        color: b.payment_status === 'paid' ? '#16A34A' : '#DC2626',
+                        border: `1px solid ${b.payment_status === 'paid' ? '#BBF7D0' : '#FECACA'}`,
+                      }}
+                    >
+                      {b.payment_status === 'paid' ? '✓ Advance Paid' : b.payment_status}
+                    </span>
+                  </div>
 
-                  <span className="booking-amount">₹{parseFloat(b.total_amount).toFixed(2)}</span>
-
-                  <span
-                    className="breakdown-pay-badge"
-                    style={{
-                      background: b.payment_status === 'paid' ? '#F0FDF4' : '#FEF2F2',
-                      color: b.payment_status === 'paid' ? '#16A34A' : '#DC2626',
-                      border: `1px solid ${b.payment_status === 'paid' ? '#BBF7D0' : '#FECACA'}`,
-                    }}
-                  >
-                    {b.payment_status === 'paid' ? '✓ Advance Paid' : b.payment_status}
-                  </span>
-                </div>
-
-                {/* ── Vendor + date + address ── */}
-                <div className="booking-body">
-                  <img
-                    src={vendor.vendor_profile || 'https://i.pravatar.cc/48?img=12'}
-                    alt={vendor.vendor_name || 'Vendor'}
-                    className="booking-avatar"
-                    onError={(e) => { e.target.src = 'https://i.pravatar.cc/48?img=12'; }}
-                  />
-                  <div className="booking-details">
-                    <p className="booking-service">
-                      {vendor.category_name || 'Service'}{' '}
-                      <span className="provider-name">with {vendor.vendor_name}</span>
-                    </p>
-                    <div className="booking-meta">
-                      <span>📅 {formatDate(b.booking_date, b.booking_time)}</span>
-                      <span>📍 {formatAddress(b.address)}</span>
-                      <span>📞 {vendor.vendor_phone}</span>
-                      <span>📱  {vendor.vendor_whatsapp}</span>
+                  {/* ── Vendor + date + address ── */}
+                  <div className="booking-body">
+                    <img
+                      src={vendor.vendor_profile || 'https://i.pravatar.cc/48?img=12'}
+                      alt={vendor.vendor_name || 'Vendor'}
+                      className="booking-avatar"
+                      onError={(e) => { e.target.src = 'https://i.pravatar.cc/48?img=12'; }}
+                    />
+                    <div className="booking-details">
+                      <p className="booking-service">
+                        {vendor.category_name || 'Service'}{' '}
+                        <span className="provider-name">with {vendor.vendor_name}</span>
+                      </p>
+                      <div className="booking-meta">
+                        <span>📅 {formatDate(b.booking_date, b.booking_time)}</span>
+                        <span>📍 {formatAddress(b.address)}</span>
+                        <span>📞 {vendor.vendor_phone}</span>
+                        <span>📱 {vendor.vendor_whatsapp}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* ── Services & Payment breakdown (toggle) ── */}
-                <div className="booking-breakdown">
-                  <button
-                    className="breakdown-toggle"
-                    onClick={() => setExpandedId(isExpanded ? null : b.booking_id)}
-                  >
-                    <span>
-                      <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ marginRight: 5, verticalAlign: 'middle' }}>
-                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                      </svg>
-                      Services &amp; Payment
-                    </span>
-                    <svg
-                      width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2"
-                      viewBox="0 0 24 24"
-                      style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
+                  {/* ── Services & Payment breakdown (toggle) ── */}
+                  <div className="booking-breakdown">
+                    <button
+                      className="breakdown-toggle"
+                      onClick={() => setExpandedId(isExpanded ? null : b.booking_id)}
                     >
-                      <path d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
+                      <span>
+                        <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ marginRight: 5, verticalAlign: 'middle' }}>
+                          <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        Services &amp; Payment
+                      </span>
+                      <svg
+                        width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2"
+                        viewBox="0 0 24 24"
+                        style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
+                      >
+                        <path d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
 
-                  {isExpanded && (
-                    <div className="breakdown-panel">
-                      <div className="breakdown-section">
-                        <p className="breakdown-section-title">Services Booked</p>
-                        {items.length === 0 ? (
-                          <p className="breakdown-empty">No service items found.</p>
-                        ) : (
-                          <div className="breakdown-items">
-                            {items.map((item, idx) => (
-                              <div className="breakdown-row" key={item.item_id || idx}>
-                                <div className="breakdown-row-left">
-                                  <span className="breakdown-check">✓</span>
-                                  <span className="breakdown-item-name">
-                                    Sub-service - {item.sub_service_name}
-                                  </span>
-                                  {item.quantity > 1 && (
-                                    <span className="breakdown-qty">× {item.quantity}</span>
-                                  )}
+                    {isExpanded && (
+                      <div className="breakdown-panel">
+                        <div className="breakdown-section">
+                          <p className="breakdown-section-title">Services Booked</p>
+                          {items.length === 0 ? (
+                            <p className="breakdown-empty">No service items found.</p>
+                          ) : (
+                            <div className="breakdown-items">
+                              {items.map((item, idx) => (
+                                <div className="breakdown-row" key={item.item_id || idx}>
+                                  <div className="breakdown-row-left">
+                                    <span className="breakdown-check">✓</span>
+                                    <span className="breakdown-item-name">Sub-service - {item.sub_service_name}</span>
+                                    {item.quantity > 1 && (
+                                      <span className="breakdown-qty">× {item.quantity}</span>
+                                    )}
+                                  </div>
+                                  <span className="breakdown-item-price">₹{parseFloat(item.price).toFixed(2)}</span>
                                 </div>
-                                <span className="breakdown-item-price">
-                                  ₹{parseFloat(item.price).toFixed(2)}
-                                </span>
+                              ))}
+                              <div className="breakdown-total-row">
+                                <span>Total</span>
+                                <span>₹{parseFloat(b.total_amount).toFixed(2)}</span>
                               </div>
-                            ))}
-                            <div className="breakdown-total-row">
-                              <span>Total</span>
-                              <span>₹{parseFloat(b.total_amount).toFixed(2)}</span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="breakdown-section">
-                        <p className="breakdown-section-title">Payment Details</p>
-                        <div className="breakdown-payment">
-                          <div className="breakdown-payment-row">
-                            <span className="breakdown-pay-label">Status</span>
-                            <span
-                              className="breakdown-pay-badge"
-                              style={{
-                                background: b.payment_status === 'paid' ? '#F0FDF4' : '#FEF2F2',
-                                color: b.payment_status === 'paid' ? '#16A34A' : '#DC2626',
-                                border: `1px solid ${b.payment_status === 'paid' ? '#BBF7D0' : '#FECACA'}`,
-                              }}
-                            >
-                              {b.payment_status === 'paid' ? '✓ Paid' : b.payment_status}
-                            </span>
-                          </div>
-
-                          {parseFloat(b.balance_amount) > 0 && (
-                            <div className="breakdown-payment-row">
-                              <span className="breakdown-pay-label">Balance Due</span>
-                              <span
-                                className="breakdown-pay-badge"
-                                style={{
-                                  background: b.balance_payment_status === 'paid' ? '#F0FDF4' : '#FFF7ED',
-                                  color: b.balance_payment_status === 'paid' ? '#16A34A' : '#92400E',
-                                  border: `1px solid ${b.balance_payment_status === 'paid' ? '#BBF7D0' : '#FCD34D'}`,
-                                }}
-                              >
-                                {b.balance_payment_status === 'paid'
-                                  ? `✓ ₹${parseFloat(b.balance_amount).toFixed(2)} Paid`
-                                  : `₹${parseFloat(b.balance_amount).toFixed(2)} Pending`}
-                              </span>
-                            </div>
-                          )}
-
-                          {payment.razorpay_payment_id && (
-                            <div className="breakdown-payment-row">
-                              <span className="breakdown-pay-label">Transaction ID</span>
-                              <span className="breakdown-pay-value breakdown-pay-mono">
-                                {payment.razorpay_payment_id}
-                              </span>
-                            </div>
-                          )}
-                          {payment.paid_amount && (
-                            <div className="breakdown-payment-row">
-                              <span className="breakdown-pay-label">Amount Paid</span>
-                              <span className="breakdown-pay-value" style={{ color: '#16A34A', fontWeight: 600 }}>
-                                ₹{parseFloat(payment.paid_amount).toFixed(2)}
-                              </span>
                             </div>
                           )}
                         </div>
+
+                        <div className="breakdown-section">
+                          <p className="breakdown-section-title">Payment Details</p>
+                          <div className="breakdown-payment">
+                            <div className="breakdown-payment-row">
+                              <span className="breakdown-pay-label">Status</span>
+                              <span
+                                className="breakdown-pay-badge"
+                                style={{
+                                  background: b.payment_status === 'paid' ? '#F0FDF4' : '#FEF2F2',
+                                  color: b.payment_status === 'paid' ? '#16A34A' : '#DC2626',
+                                  border: `1px solid ${b.payment_status === 'paid' ? '#BBF7D0' : '#FECACA'}`,
+                                }}
+                              >
+                                {b.payment_status === 'paid' ? '✓ Paid' : b.payment_status}
+                              </span>
+                            </div>
+                            {parseFloat(b.balance_amount) > 0 && (
+                              <div className="breakdown-payment-row">
+                                <span className="breakdown-pay-label">Balance Due</span>
+                                <span
+                                  className="breakdown-pay-badge"
+                                  style={{
+                                    background: b.balance_payment_status === 'paid' ? '#F0FDF4' : '#FFF7ED',
+                                    color: b.balance_payment_status === 'paid' ? '#16A34A' : '#92400E',
+                                    border: `1px solid ${b.balance_payment_status === 'paid' ? '#BBF7D0' : '#FCD34D'}`,
+                                  }}
+                                >
+                                  {b.balance_payment_status === 'paid'
+                                    ? `✓ ₹${parseFloat(b.balance_amount).toFixed(2)} Paid`
+                                    : `₹${parseFloat(b.balance_amount).toFixed(2)} Pending`}
+                                </span>
+                              </div>
+                            )}
+                            {payment.razorpay_payment_id && (
+                              <div className="breakdown-payment-row">
+                                <span className="breakdown-pay-label">Transaction ID</span>
+                                <span className="breakdown-pay-value breakdown-pay-mono">
+                                  {payment.razorpay_payment_id}
+                                </span>
+                              </div>
+                            )}
+                            {payment.paid_amount && (
+                              <div className="breakdown-payment-row">
+                                <span className="breakdown-pay-label">Amount Paid</span>
+                                <span className="breakdown-pay-value" style={{ color: '#16A34A', fontWeight: 600 }}>
+                                  ₹{parseFloat(payment.paid_amount).toFixed(2)}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* ── Action buttons ── */}
-                <div className="booking-actions">
-                  {(statusKey === 'pending' || statusKey === 'confirmed') && (
-                    <>
-                      <button
-                        className="btn btn-ghost action-sm"
-                        onClick={() => handleCancelBooking(b.booking_id)}
-                      >
-                        Cancel
-                      </button>
-                      <button className="btn btn-ghost action-sm">Reschedule</button>
-                      <button className="btn btn-primary action-sm">Track Pro →</button>
-                    </>
-                  )}
-                  {statusKey === 'completed' && (
-                    <>
-                      {statusKey === 'completed' && (
-                        <>
-                          <button
-                            className="btn btn-ghost action-sm"
-                            onClick={() => setRatingBooking(b)}
-                          >
-                            ☆ Rate Service
-                          </button>
-                          <Link className="btn btn-primary action-sm" to={`/booking/${vendor.vendor_id}`}>
-                            ↻ Book Again
-                          </Link>
-                        </>
-                      )}
-                      <button className="btn btn-ghost action-sm" onClick={() => downloadInvoice(b)}> Download Invoice </button>
-                    </>
-                  )}
-                  {(
-                    statusKey === 'cancelled_by_user' ||
-                    statusKey === 'cancelled_by_vendor'
-                  ) && (
-                      <Link className="btn btn-primary action-sm" to={`/booking/${vendor.vendor_id}`}>
-                        ↻ Book Again
-                      </Link>
                     )}
-                </div>
+                  </div>
 
-              </div>
-            );
-          })}
-        </div>
+                  {/* ── Action buttons ── */}
+                  <div className="booking-actions">
+                    {(statusKey === 'pending' || statusKey === 'confirmed') && (
+                      <>
+                        <button className="btn btn-ghost action-sm" onClick={() => handleCancelBooking(b.booking_id)}>Cancel</button>
+                        <button className="btn btn-ghost action-sm">Reschedule</button>
+                        <button className="btn btn-primary action-sm">Track Pro →</button>
+                      </>
+                    )}
+                    {statusKey === 'completed' && (
+                      <>
+                        <button className="btn btn-ghost action-sm" onClick={() => setRatingBooking(b)}>☆ Rate Service</button>
+                        <Link className="btn btn-primary action-sm" to={`/booking/${vendor.vendor_id}`}>↻ Book Again</Link>
+                        <button className="btn btn-ghost action-sm" onClick={() => downloadInvoice(b)}>Download Invoice</button>
+                      </>
+                    )}
+                    {(statusKey === 'cancelled_by_user' || statusKey === 'cancelled_by_vendor') && (
+                      <Link className="btn btn-primary action-sm" to={`/booking/${vendor.vendor_id}`}>↻ Book Again</Link>
+                    )}
+                  </div>
+
+                </div>
+              );
+            })}
+          </div>
+
+          {/* ── Pagination ── */}
+          {totalPages > 1 && (
+            <div className="bookings-pagination">
+              <button
+                className="pg-btn"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((p) => p - 1)}
+              >
+                ‹
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                <button
+                  key={p}
+                  className={`pg-btn${currentPage === p ? ' active' : ''}`}
+                  onClick={() => setCurrentPage(p)}
+                >
+                  {p}
+                </button>
+              ))}
+
+              <button
+                className="pg-btn"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((p) => p + 1)}
+              >
+                ›
+              </button>
+
+              <span className="pg-info">
+                {(currentPage - 1) * BOOKINGS_PER_PAGE + 1}–{Math.min(currentPage * BOOKINGS_PER_PAGE, filtered.length)} of {filtered.length}
+              </span>
+            </div>
+          )}
+        </>
       )}
+
       <RatingModal
         isOpen={!!ratingBooking}
         onClose={() => setRatingBooking(null)}
@@ -1360,24 +1281,25 @@ The customer has cancelled this booking.
   );
 }
 
+
 // ===== MY ACTIVITIES PAGE =====
 const activityStatusCfg = {
-  pending:   { label: 'Upcoming',   color: '#2563EB', bg: '#EFF6FF', dot: '#2563EB' },
-  confirmed: { label: 'Confirmed',  color: '#7C3AED', bg: '#F5F3FF', dot: '#7C3AED' },
-  completed: { label: 'Completed',  color: '#16A34A', bg: '#F0FDF4', dot: '#22C55E' },
-  cancelled: { label: 'Cancelled',  color: '#DC2626', bg: '#FEF2F2', dot: '#EF4444' },
-  cancelled_by_user:   { label: 'Cancelled By You',    color: '#DC2626', bg: '#FEF2F2', dot: '#EF4444' },
+  pending: { label: 'Upcoming', color: '#2563EB', bg: '#EFF6FF', dot: '#2563EB' },
+  confirmed: { label: 'Confirmed', color: '#7C3AED', bg: '#F5F3FF', dot: '#7C3AED' },
+  completed: { label: 'Completed', color: '#16A34A', bg: '#F0FDF4', dot: '#22C55E' },
+  cancelled: { label: 'Cancelled', color: '#DC2626', bg: '#FEF2F2', dot: '#EF4444' },
+  cancelled_by_user: { label: 'Cancelled By You', color: '#DC2626', bg: '#FEF2F2', dot: '#EF4444' },
   cancelled_by_vendor: { label: 'Cancelled By Vendor', color: '#DC2626', bg: '#FEF2F2', dot: '#EF4444' },
 };
 
 function MyActivities() {
   const API_URL = process.env.REACT_APP_API_URL;
 
-  const [activeTab, setActiveTab]     = useState('All');
-  const [activities, setActivities]   = useState([]);
-  const [loading, setLoading]         = useState(true);
-  const [error, setError]             = useState(null);
-  const [expandedId, setExpandedId]   = useState(null);
+  const [activeTab, setActiveTab] = useState('All');
+  const [activities, setActivities] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [expandedId, setExpandedId] = useState(null);
 
   const tabs = ['All', 'Upcoming', 'Confirmed', 'Completed', 'Cancelled'];
 
@@ -1658,17 +1580,17 @@ function MyActivities() {
                 <div className="booking-actions">
                   {(a.booking_status?.toLowerCase() === 'pending' ||
                     a.booking_status?.toLowerCase() === 'confirmed') && (
-                    <button
-                      className="btn btn-ghost action-sm"
-                      onClick={() => {
-                        if (window.confirm('Are you sure you want to cancel this activity?')) {
-                          alert('Cancel feature coming soon.');
-                        }
-                      }}
-                    >
-                      Cancel
-                    </button>
-                  )}
+                      <button
+                        className="btn btn-ghost action-sm"
+                        onClick={() => {
+                          if (window.confirm('Are you sure you want to cancel this activity?')) {
+                            alert('Cancel feature coming soon.');
+                          }
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    )}
                   {a.booking_status?.toLowerCase() === 'completed' && (
                     <button className="btn btn-ghost action-sm">☆ Rate Activity</button>
                   )}
@@ -2046,13 +1968,13 @@ const pages = { MyProfile, MyBookings, MyActivities, SavedVendors, Notifications
 const user = JSON.parse(localStorage.getItem("user"));
 
 const greetings = {
-  MyProfile:    `Welcome back, ${user?.name} 🗒️`,
-  MyBookings:   `Welcome back, ${user?.name} 👋`,
+  MyProfile: `Welcome back, ${user?.name} 🗒️`,
+  MyBookings: `Welcome back, ${user?.name} 👋`,
   MyActivities: `Welcome back, ${user?.name} ⚡`,
   SavedVendors: `Welcome back, ${user?.name} 🗒️`,
-  Notifications:`Welcome back, ${user?.name} 🗒️`,
-  Wallet:       `Welcome back, ${user?.name} 🗒️`,
-  Settings:     `Welcome back, ${user?.name} 🗒️`,
+  Notifications: `Welcome back, ${user?.name} 🗒️`,
+  Wallet: `Welcome back, ${user?.name} 🗒️`,
+  Settings: `Welcome back, ${user?.name} 🗒️`,
 };
 
 // ===== APP ROOT =====

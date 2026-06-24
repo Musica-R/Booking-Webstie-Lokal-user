@@ -966,6 +966,7 @@ function ServiceVendorForm({ onClose }) {
     const [categories, setCategories] = useState([]);
     const [subServices, setSubServices] = useState([]);
     const [selectedServices, setSelectedServices] = useState({});
+    const [customServices, setCustomServices] = useState([]);
     const [loadingCats, setLoadingCats] = useState(true);
     const [loadingSubs, setLoadingSubs] = useState(false);
     const [dragOverId, setDragOverId] = useState(null);
@@ -1020,6 +1021,19 @@ function ServiceVendorForm({ onClose }) {
         });
     };
 
+    const addCustomService = () =>
+        setCustomServices(prev => [...prev, { service_name: "", price: "" }]);
+
+    const removeCustomService = (i) =>
+        setCustomServices(prev => prev.filter((_, idx) => idx !== i));
+
+    const handleCustomServiceChange = (i, field, value) =>
+        setCustomServices(prev => {
+            const updated = [...prev];
+            updated[i] = { ...updated[i], [field]: value };
+            return updated;
+        });
+
     const handleServicePrice = (id, price) =>
         setSelectedServices((prev) => ({ ...prev, [id]: price }));
 
@@ -1054,10 +1068,21 @@ function ServiceVendorForm({ onClose }) {
     const handleTermsAccepted = async (termsAccepted) => {
         setShowTerms(false);
 
-        const servicesArray = Object.entries(selectedServices).map(([id, price]) => ({
-            sub_service_id: Number(id),
-            price: price === "" ? 0 : Number(price),
-        }));
+        const servicesArray = [
+            // existing selected sub-services
+            ...Object.entries(selectedServices).map(([id, price]) => ({
+                sub_service_id: Number(id),
+                price: price === "" ? 0 : Number(price),
+            })),
+            // custom services
+            ...customServices
+                .filter(s => s.service_name.trim() !== "")
+                .map(s => ({
+                    service_name: s.service_name.trim(),
+                    price: s.price === "" ? 0 : Number(s.price),
+                    is_custom: true,
+                })),
+        ];
 
         const formData = new FormData();
         formData.append("fullName", form.fullName);
@@ -1262,7 +1287,39 @@ function ServiceVendorForm({ onClose }) {
                                     })}
                                 </div>
                             )}
+                            {/* Custom services */}
+                            {customServices.map((cs, i) => (
+                                <div key={i} className="vnd-plan-row" style={{ marginTop: "8px" }}>
+                                    <input
+                                        className="vnd-input"
+                                        placeholder="Custom service name"
+                                        value={cs.service_name}
+                                        onChange={e => handleCustomServiceChange(i, "service_name", e.target.value)}
+                                    />
+                                    <div className="vnd-price-wrap">
+                                        <span className="vnd-price-icon"><RupeeIcon /></span>
+                                        <input
+                                            className="vnd-price-input"
+                                            type="number"
+                                            min="0"
+                                            placeholder="Price"
+                                            value={cs.price}
+                                            onChange={e => handleCustomServiceChange(i, "price", e.target.value)}
+                                        />
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="vnd-plan-remove"
+                                        onClick={() => removeCustomService(i)}
+                                    >✕</button>
+                                </div>
+                            ))}
+
+                            <button type="button" className="vnd-plan-add" onClick={addCustomService}>
+                                + Add Custom Service
+                            </button>
                         </div>
+
                     )}
                     <div className="vnd-field">
                         <label className="vnd-label">Availability</label>

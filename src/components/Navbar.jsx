@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import "../styles/Navbar.css";
+import axios from "axios";
 
 // ── SVG Icons (inline, zero-dependency) ──────────────────────────────────────
 const PinIcon = () => (
@@ -130,7 +131,33 @@ export default function Navbar() {
         navigate('/account');
     };
 
-    
+
+
+    const handleSearch = async () => {
+        if (!search.trim()) return;
+
+        try {
+            const res = await axios.get(
+                `http://localhost:5000/api/fav/search?q=${search}`
+            );
+
+            const data = res.data;
+
+            if (data.success) {
+                if (data.type === "service") {
+                    navigate(`/services?category=${data.id}`);
+                } else if (data.type === "activity") {
+                    navigate(`/activity?category=${data.id}`);
+                }
+            } else {
+                alert("No service or activity found");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Something went wrong");
+        }
+    };
+
 
     return (
         <>
@@ -156,7 +183,11 @@ export default function Navbar() {
                         placeholder="Search nearby services, activities..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        aria-label="Search"
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                                handleSearch();
+                            }
+                        }}
                     />
                 </div>
 
@@ -236,6 +267,11 @@ export default function Navbar() {
                         placeholder="Search nearby services, activities..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                                handleSearch();
+                            }
+                        }}
                     />
                 </div>
 

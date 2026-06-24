@@ -3,16 +3,18 @@ import { useNavigate } from "react-router-dom";
 import "../styles/Activity.css";
 
 const activities = [
-  { id: 1, name: "Yoga", count: "24+ trainers nearby", emoji: "🧘", iconClass: "lokal-icon-yoga" },
-  { id: 2, name: "Silambam", count: "8+ trainers nearby", emoji: "🥢", iconClass: "lokal-icon-silambam" },
-  { id: 3, name: "Gymnastics", count: "12+ trainers nearby", emoji: "🤸", iconClass: "lokal-icon-gymnastics" },
+  { id: 1, name: "Dance", count: "45+ trainers nearby", emoji: "💃", iconClass: "lokal-icon-dance" },
+  { id: 2, name: "Drawing", count: "22+ trainers nearby", emoji: "🎨", iconClass: "lokal-icon-drawing" },
+  { id: 3, name: "Gym", count: "30+ trainers nearby", emoji: "🏋️", iconClass: "lokal-icon-gym" },
   { id: 4, name: "Karate", count: "18+ trainers nearby", emoji: "🥋", iconClass: "lokal-icon-karate" },
-  { id: 5, name: "Dance", count: "45+ trainers nearby", emoji: "💃", iconClass: "lokal-icon-dance" },
+  { id: 5, name: "Meditation", count: "15+ trainers nearby", emoji: "🪷", iconClass: "lokal-icon-meditation" },
   { id: 6, name: "Music Class", count: "32+ trainers nearby", emoji: "🎸", iconClass: "lokal-icon-music" },
-  { id: 7, name: "Meditation", count: "15+ trainers nearby", emoji: "🪷", iconClass: "lokal-icon-meditation" },
-  { id: 8, name: "Drawing", count: "22+ trainers nearby", emoji: "🎨", iconClass: "lokal-icon-drawing" },
-  { id: 9, name: "Zumba", count: "28+ trainers nearby", emoji: "🕺", iconClass: "lokal-icon-zumba" },
-  { id: 10, name: "Spoken English", count: "50+ trainers nearby", emoji: "💬", iconClass: "lokal-icon-spoken", fullWidth: true },
+  { id: 7, name: "Silambam", count: "8+ trainers nearby", emoji: "🥢", iconClass: "lokal-icon-silambam" },
+  { id: 8, name: "Spoken English", count: "50+ trainers nearby", emoji: "🗣️", iconClass: "lokal-icon-spoken", fullWidth: true },
+  { id: 9, name: "Swimming", count: "20+ trainers nearby", emoji: "🏊", iconClass: "lokal-icon-swimming" },
+  { id: 10, name: "Tuition", count: "60+ trainers nearby", emoji: "📚", iconClass: "lokal-icon-tuition" },
+  { id: 11, name: "Yoga", count: "24+ trainers nearby", emoji: "🧘", iconClass: "lokal-icon-yoga" },
+  { id: 12, name: "Zumba", count: "28+ trainers nearby", emoji: "🕺", iconClass: "lokal-icon-zumba" },
 ];
 
 function ActivityItem({ activity, onClick }) {

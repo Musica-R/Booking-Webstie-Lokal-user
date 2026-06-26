@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/Profilee.css';
 import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+// import html2canvas from "html2canvas";
 import autoTable from "jspdf-autotable";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
@@ -53,8 +53,9 @@ const navItems = [
   { key: 'MyBookings', label: 'My Bookings', icon: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg> },
   { key: 'MyActivities', label: 'My Activities', icon: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" /></svg> },
   { key: 'SavedVendors', label: 'Saved Vendors', icon: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" /></svg> },
-  { key: 'Notifications', label: 'Notifications', badge: 2, icon: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg> },
-  { key: 'Wallet', label: 'Wallet', icon: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" /><circle cx="16" cy="12" r="1" fill="currentColor" stroke="none" /></svg> },
+  // { key: 'Notifications', label: 'Notifications', badge: 2, icon: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg> },
+  { key: 'Wallet', label: 'Transaction History', icon: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" /><circle cx="16" cy="12" r="1" fill="currentColor" stroke="none" /></svg> },
+  { key: 'WalletHistory', label: 'Wallet', icon: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" /><circle cx="16" cy="12" r="1" fill="currentColor" stroke="none" /></svg> },
   { key: 'Settings', label: 'Settings', icon: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" /></svg> },
 ];
 
@@ -909,10 +910,7 @@ function MyBookings() {
       : bookings.filter((b) => getTabLabel(b.booking_status) === activeTab);
 
   const totalPages = Math.ceil(filtered.length / BOOKINGS_PER_PAGE);
-  const paginatedBookings = filtered.slice(
-    (currentPage - 1) * BOOKINGS_PER_PAGE,
-    currentPage * BOOKINGS_PER_PAGE
-  );
+  const paginatedBookings = filtered.slice((currentPage - 1) * BOOKINGS_PER_PAGE, currentPage * BOOKINGS_PER_PAGE);
 
   const count = (tab) =>
     tab === 'All'
@@ -1280,7 +1278,51 @@ The customer has cancelled this booking.
     </div>
   );
 }
+function Pagination({ total, page, onPage }) {
+  const totalPages = Math.ceil(total / PAGE_SIZE);
+  if (totalPages <= 1) return null;
 
+  const from = (page - 1) * PAGE_SIZE + 1;
+  const to = Math.min(page * PAGE_SIZE, total);
+
+  const pages = [];
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= page - 1 && i <= page + 1)) {
+      pages.push(i);
+    } else if (pages[pages.length - 1] !== "…") {
+      pages.push("…");
+    }
+  }
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 0 8px', flexWrap: 'wrap', gap: 8 }}>
+      <span style={{ fontSize: 13, color: '#6B7280' }}>Showing {from}–{to} of {total}</span>
+      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+        <button onClick={() => onPage(page - 1)} disabled={page === 1} style={btnStyle(false)}>‹</button>
+        {pages.map((p, i) =>
+          p === "…"
+            ? <span key={`e-${i}`} style={{ color: '#9CA3AF', padding: '0 4px' }}>…</span>
+            : <button key={p} onClick={() => onPage(p)} style={btnStyle(p === page)}>{p}</button>
+        )}
+        <button onClick={() => onPage(page + 1)} disabled={page === totalPages} style={btnStyle(false)}>›</button>
+      </div>
+    </div>
+  );
+}
+
+const btnStyle = (active) => ({
+  minWidth: 34,
+  height: 34,
+  padding: '0 8px',
+  borderRadius: 8,
+  border: active ? '1.5px solid #2563EB' : '1px solid #E5E7EB',
+  background: active ? '#2563EB' : '#fff',
+  color: active ? '#fff' : '#374151',
+  fontWeight: active ? 700 : 400,
+  fontSize: 14,
+  cursor: active ? 'default' : 'pointer',
+  opacity: 1,
+});
 
 // ===== MY ACTIVITIES PAGE =====
 const activityStatusCfg = {
@@ -1292,6 +1334,8 @@ const activityStatusCfg = {
   cancelled_by_vendor: { label: 'Cancelled By Vendor', color: '#DC2626', bg: '#FEF2F2', dot: '#EF4444' },
 };
 
+const PAGE_SIZE = 2;
+
 function MyActivities() {
   const API_URL = process.env.REACT_APP_API_URL;
 
@@ -1300,6 +1344,7 @@ function MyActivities() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
+  const [page, setPage] = useState(1);
 
   const tabs = ['All', 'Upcoming', 'Confirmed', 'Completed', 'Cancelled'];
 
@@ -1342,6 +1387,8 @@ function MyActivities() {
     activeTab === 'All'
       ? activities
       : activities.filter((a) => getTabLabel(a.booking_status) === activeTab);
+
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const count = (tab) =>
     tab === 'All'
@@ -1398,7 +1445,7 @@ function MyActivities() {
           <button
             key={t}
             className={`tab-btn${activeTab === t ? ' active' : ''}`}
-            onClick={() => setActiveTab(t)}
+            onClick={() => { setActiveTab(t); setPage(1); }}
           >
             {t} ({count(t)})
           </button>
@@ -1408,219 +1455,268 @@ function MyActivities() {
       {filtered.length === 0 ? (
         <p style={{ padding: '2rem 0', color: '#6B7280', textAlign: 'center' }}>No activities found.</p>
       ) : (
-        <div className="bookings-list">
-          {filtered.map((a) => {
-            const cfg = getStatusCfg(a.booking_status);
-            const vendor = a.vendor_details || {};
-            const plan = a.plan || {};
-            const isExpanded = expandedId === a.booking_id;
+        <>
+          <div className="bookings-list">
+            {paginated.map((a) => {
+              const cfg = getStatusCfg(a.booking_status);
+              const vendor = a.vendor_details || {};
+              const plan = a.plan || {};
+              const isExpanded = expandedId === a.booking_id;
 
-            return (
-              <div className="booking-item" key={a.booking_id}>
+              return (
+                <div className="booking-item" key={a.booking_id}>
 
-                {/* ── Top row ── */}
-                <div className="booking-top">
-                  <span className="booking-id">{a.booking_number} ·</span>
+                  {/* ── Top row ── */}
+                  <div className="booking-top">
+                    <span className="booking-id">{a.booking_number} ·</span>
 
-                  <span className="booking-status" style={{ color: cfg.color, background: cfg.bg }}>
-                    <span className="status-dot" style={{ background: cfg.dot }} />
-                    {cfg.label}
-                  </span>
+                    <span className="booking-status" style={{ color: cfg.color, background: cfg.bg }}>
+                      <span className="status-dot" style={{ background: cfg.dot }} />
+                      {cfg.label}
+                    </span>
 
-                  {/* Plan badge */}
-                  {plan.plan_name && (
+                    {/* Plan badge */}
+                    {plan.plan_name && (
+                      <span
+                        className="breakdown-pay-badge"
+                        style={{
+                          background: '#F5F3FF',
+                          color: '#7C3AED',
+                          border: '1px solid #DDD6FE',
+                        }}
+                      >
+                        📋 {plan.plan_name}
+                      </span>
+                    )}
+
+                    <span className="booking-amount">₹{parseFloat(a.advance_amount).toFixed(2)}</span>
+
                     <span
                       className="breakdown-pay-badge"
                       style={{
-                        background: '#F5F3FF',
-                        color: '#7C3AED',
-                        border: '1px solid #DDD6FE',
+                        background: a.payment_status === 'paid' ? '#F0FDF4' : '#FEF2F2',
+                        color: a.payment_status === 'paid' ? '#16A34A' : '#DC2626',
+                        border: `1px solid ${a.payment_status === 'paid' ? '#BBF7D0' : '#FECACA'}`,
                       }}
                     >
-                      📋 {plan.plan_name}
+                      {a.payment_status === 'paid' ? '✓ Advance Paid' : a.payment_status}
                     </span>
-                  )}
+                  </div>
 
-                  <span className="booking-amount">₹{parseFloat(a.advance_amount).toFixed(2)}</span>
-
-                  <span
-                    className="breakdown-pay-badge"
-                    style={{
-                      background: a.payment_status === 'paid' ? '#F0FDF4' : '#FEF2F2',
-                      color: a.payment_status === 'paid' ? '#16A34A' : '#DC2626',
-                      border: `1px solid ${a.payment_status === 'paid' ? '#BBF7D0' : '#FECACA'}`,
-                    }}
-                  >
-                    {a.payment_status === 'paid' ? '✓ Advance Paid' : a.payment_status}
-                  </span>
-                </div>
-
-                {/* ── Vendor + date + address ── */}
-                <div className="booking-body">
-                  <img
-                    src={vendor.vendor_profile || 'https://i.pravatar.cc/48?img=12'}
-                    alt={vendor.vendor_name || 'Vendor'}
-                    className="booking-avatar"
-                    onError={(e) => { e.target.src = 'https://i.pravatar.cc/48?img=12'; }}
-                  />
-                  <div className="booking-details">
-                    <p className="booking-service">
-                      {vendor.activity_name || 'Activity'}{' '}
-                      <span className="provider-name">with {vendor.vendor_name}</span>
-                    </p>
-                    {vendor.shop_name && (
-                      <p style={{ fontSize: 12, color: '#6B7280', marginBottom: 4 }}>
-                        🏫 {vendor.shop_name}
+                  {/* ── Vendor + date + address ── */}
+                  <div className="booking-body">
+                    <img
+                      src={vendor.vendor_profile || 'https://i.pravatar.cc/48?img=12'}
+                      alt={vendor.vendor_name || 'Vendor'}
+                      className="booking-avatar"
+                      onError={(e) => { e.target.src = 'https://i.pravatar.cc/48?img=12'; }}
+                    />
+                    <div className="booking-details">
+                      <p className="booking-service">
+                        {vendor.activity_name || 'Activity'}{' '}
+                        <span className="provider-name">with {vendor.vendor_name}</span>
                       </p>
-                    )}
-                    <div className="booking-meta">
-                      <span>📅 {formatDate(a.booking_date, a.booking_time)}</span>
-                      <span>📍 {formatAddress(a.address)}</span>
-                      <span>📞 {vendor.vendor_phone}</span>
-                      {vendor.vendor_whatsapp && (
-                        <span>📱 {vendor.vendor_whatsapp}</span>
+                      {vendor.shop_name && (
+                        <p style={{ fontSize: 12, color: '#6B7280', marginBottom: 4 }}>
+                          🏫 {vendor.shop_name}
+                        </p>
                       )}
+                      <div className="booking-meta">
+                        <span>📅 {formatDate(a.booking_date, a.booking_time)}</span>
+                        <span>📍 {formatAddress(a.address)}</span>
+                        <span>📞 {vendor.vendor_phone}</span>
+                        {vendor.vendor_whatsapp && (
+                          <span>📱 {vendor.vendor_whatsapp}</span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* ── Plan & Payment breakdown (toggle) ── */}
-                <div className="booking-breakdown">
-                  <button
-                    className="breakdown-toggle"
-                    onClick={() => setExpandedId(isExpanded ? null : a.booking_id)}
-                  >
-                    <span>
-                      <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ marginRight: 5, verticalAlign: 'middle' }}>
-                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                      </svg>
-                      Plan &amp; Payment
-                    </span>
-                    <svg
-                      width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2"
-                      viewBox="0 0 24 24"
-                      style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
+                  {/* ── Plan & Payment breakdown (toggle) ── */}
+                  <div className="booking-breakdown">
+                    <button
+                      className="breakdown-toggle"
+                      onClick={() => setExpandedId(isExpanded ? null : a.booking_id)}
                     >
-                      <path d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-
-                  {isExpanded && (
-                    <div className="breakdown-panel">
-                      {/* Plan details */}
-                      <div className="breakdown-section">
-                        <p className="breakdown-section-title">Plan Details</p>
-                        <div className="breakdown-items">
-                          <div className="breakdown-row">
-                            <div className="breakdown-row-left">
-                              <span className="breakdown-check">✓</span>
-                              <span className="breakdown-item-name">{plan.plan_name} Plan</span>
-                            </div>
-                            <span className="breakdown-item-price">₹{parseFloat(plan.amount || 0).toFixed(2)}</span>
-                          </div>
-                          <div className="breakdown-total-row">
-                            <span>Total</span>
-                            <span>₹{parseFloat(a.total_amount).toFixed(2)}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Payment details */}
-                      <div className="breakdown-section">
-                        <p className="breakdown-section-title">Payment Details</p>
-                        <div className="breakdown-payment">
-                          <div className="breakdown-payment-row">
-                            <span className="breakdown-pay-label">Advance Paid</span>
-                            <span
-                              className="breakdown-pay-badge"
-                              style={{
-                                background: '#F0FDF4',
-                                color: '#16A34A',
-                                border: '1px solid #BBF7D0',
-                              }}
-                            >
-                              ✓ ₹{parseFloat(plan.advance_amount || 0).toFixed(2)}
-                            </span>
-                          </div>
-
-                          <div className="breakdown-payment-row">
-                            <span className="breakdown-pay-label">Balance Due</span>
-                            <span
-                              className="breakdown-pay-badge"
-                              style={{
-                                background: '#FFF7ED',
-                                color: '#92400E',
-                                border: '1px solid #FCD34D',
-                              }}
-                            >
-                              ₹{(parseFloat(plan.amount || 0) - parseFloat(plan.advance_amount || 0)).toFixed(2)} Pending
-                            </span>
-                          </div>
-
-                          <div className="breakdown-payment-row">
-                            <span className="breakdown-pay-label">Payment Status</span>
-                            <span
-                              className="breakdown-pay-badge"
-                              style={{
-                                background: a.payment_status === 'paid' ? '#F0FDF4' : '#FEF2F2',
-                                color: a.payment_status === 'paid' ? '#16A34A' : '#DC2626',
-                                border: `1px solid ${a.payment_status === 'paid' ? '#BBF7D0' : '#FECACA'}`,
-                              }}
-                            >
-                              {a.payment_status === 'paid' ? '✓ Paid' : a.payment_status}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* ── Action buttons ── */}
-                <div className="booking-actions">
-                  {(a.booking_status?.toLowerCase() === 'pending' ||
-                    a.booking_status?.toLowerCase() === 'confirmed') && (
-                      <button
-                        className="btn btn-ghost action-sm"
-                        onClick={() => {
-                          if (window.confirm('Are you sure you want to cancel this activity?')) {
-                            alert('Cancel feature coming soon.');
-                          }
-                        }}
+                      <span>
+                        <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ marginRight: 5, verticalAlign: 'middle' }}>
+                          <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        Plan &amp; Payment
+                      </span>
+                      <svg
+                        width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2"
+                        viewBox="0 0 24 24"
+                        style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
                       >
-                        Cancel
-                      </button>
-                    )}
-                  {a.booking_status?.toLowerCase() === 'completed' && (
-                    <button className="btn btn-ghost action-sm">☆ Rate Activity</button>
-                  )}
-                  <a
-                    href={`https://wa.me/${vendor.vendor_whatsapp || vendor.vendor_phone}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-ghost action-sm"
-                  >
-                    💬 WhatsApp
-                  </a>
-                </div>
+                        <path d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
 
-              </div>
-            );
-          })}
-        </div>
+                    {isExpanded && (
+                      <div className="breakdown-panel">
+                        {/* Plan details */}
+                        <div className="breakdown-section">
+                          <p className="breakdown-section-title">Plan Details</p>
+                          <div className="breakdown-items">
+                            <div className="breakdown-row">
+                              <div className="breakdown-row-left">
+                                <span className="breakdown-check">✓</span>
+                                <span className="breakdown-item-name">{plan.plan_name} Plan</span>
+                              </div>
+                              <span className="breakdown-item-price">₹{parseFloat(plan.amount || 0).toFixed(2)}</span>
+                            </div>
+                            <div className="breakdown-total-row">
+                              <span>Total</span>
+                              <span>₹{parseFloat(a.total_amount).toFixed(2)}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Payment details */}
+                        <div className="breakdown-section">
+                          <p className="breakdown-section-title">Payment Details</p>
+                          <div className="breakdown-payment">
+                            <div className="breakdown-payment-row">
+                              <span className="breakdown-pay-label">Advance Paid</span>
+                              <span
+                                className="breakdown-pay-badge"
+                                style={{
+                                  background: '#F0FDF4',
+                                  color: '#16A34A',
+                                  border: '1px solid #BBF7D0',
+                                }}
+                              >
+                                ✓ ₹{parseFloat(plan.advance_amount || 0).toFixed(2)}
+                              </span>
+                            </div>
+
+                            <div className="breakdown-payment-row">
+                              <span className="breakdown-pay-label">Balance Due</span>
+                              <span
+                                className="breakdown-pay-badge"
+                                style={{
+                                  background: '#FFF7ED',
+                                  color: '#92400E',
+                                  border: '1px solid #FCD34D',
+                                }}
+                              >
+                                ₹{(parseFloat(plan.amount || 0) - parseFloat(plan.advance_amount || 0)).toFixed(2)} Pending
+                              </span>
+                            </div>
+
+                            <div className="breakdown-payment-row">
+                              <span className="breakdown-pay-label">Payment Status</span>
+                              <span
+                                className="breakdown-pay-badge"
+                                style={{
+                                  background: a.payment_status === 'paid' ? '#F0FDF4' : '#FEF2F2',
+                                  color: a.payment_status === 'paid' ? '#16A34A' : '#DC2626',
+                                  border: `1px solid ${a.payment_status === 'paid' ? '#BBF7D0' : '#FECACA'}`,
+                                }}
+                              >
+                                {a.payment_status === 'paid' ? '✓ Paid' : a.payment_status}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* ── Action buttons ── */}
+                  <div className="booking-actions">
+                    {(a.booking_status?.toLowerCase() === 'pending' ||
+                      a.booking_status?.toLowerCase() === 'confirmed') && (
+                        <button
+                          className="btn btn-ghost action-sm"
+                          onClick={() => {
+                            if (window.confirm('Are you sure you want to cancel this activity?')) {
+                              alert('Cancel feature coming soon.');
+                            }
+                          }}
+                        >
+                          Cancel
+                        </button>
+                      )}
+                    {a.booking_status?.toLowerCase() === 'completed' && (
+                      <button className="btn btn-ghost action-sm">☆ Rate Activity</button>
+                    )}
+                    <a
+                      href={`https://wa.me/${vendor.vendor_whatsapp || vendor.vendor_phone}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-ghost action-sm"
+                    >
+                      💬 WhatsApp
+                    </a>
+                  </div>
+
+                </div>
+              );
+            })}
+          </div>
+          <Pagination total={filtered.length} page={page} onPage={setPage} />
+        </>
       )}
     </div>
   );
 }
 
 // ===== SAVED VENDORS PAGE =====
-function SavedVendors({ userId = 1 }) {
+const SV_PAGE_SIZE = 6;
 
+function SvPagination({ total, page, onPage }) {
+  const totalPages = Math.ceil(total / SV_PAGE_SIZE);
+  if (totalPages <= 1) return null;
+
+  const from = (page - 1) * SV_PAGE_SIZE + 1;
+  const to = Math.min(page * SV_PAGE_SIZE, total);
+
+  const pages = [];
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= page - 1 && i <= page + 1)) {
+      pages.push(i);
+    } else if (pages[pages.length - 1] !== "…") {
+      pages.push("…");
+    }
+  }
+
+  const btn = (active, disabled) => ({
+    minWidth: 34, height: 34, padding: '0 8px',
+    borderRadius: 8,
+    border: active ? '1.5px solid #7C3AED' : '1px solid #E5E7EB',
+    background: active ? '#7C3AED' : '#fff',
+    color: active ? '#fff' : '#374151',
+    fontWeight: active ? 700 : 400,
+    fontSize: 14,
+    cursor: disabled || active ? 'default' : 'pointer',
+    opacity: disabled ? 0.35 : 1,
+  });
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 0 8px', flexWrap: 'wrap', gap: 8 }}>
+      <span style={{ fontSize: 13, color: '#6B7280' }}>Showing {from}–{to} of {total}</span>
+      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+        <button onClick={() => onPage(page - 1)} disabled={page === 1} style={btn(false, page === 1)}>‹</button>
+        {pages.map((p, i) =>
+          p === "…"
+            ? <span key={`e-${i}`} style={{ color: '#9CA3AF', padding: '0 4px' }}>…</span>
+            : <button key={p} onClick={() => onPage(p)} style={btn(p === page, false)}>{p}</button>
+        )}
+        <button onClick={() => onPage(page + 1)} disabled={page === totalPages} style={btn(false, page === totalPages)}>›</button>
+      </div>
+    </div>
+  );
+}
+
+function SavedVendors({ userId = 1 }) {
   const API_URL = process.env.REACT_APP_API_URL;
 
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     const fetchFavorites = async () => {
@@ -1630,6 +1726,7 @@ function SavedVendors({ userId = 1 }) {
         const json = await res.json();
         if (json.success) {
           setVendors(json.data);
+          setPage(1);
         } else {
           setError("Failed to load saved vendors.");
         }
@@ -1642,6 +1739,8 @@ function SavedVendors({ userId = 1 }) {
 
     fetchFavorites();
   }, [userId]);
+
+  const paginated = vendors.slice((page - 1) * SV_PAGE_SIZE, page * SV_PAGE_SIZE);
 
   if (loading) {
     return (
@@ -1677,29 +1776,32 @@ function SavedVendors({ userId = 1 }) {
       {vendors.length === 0 ? (
         <p className="sv-empty">No saved vendors yet. Start exploring!</p>
       ) : (
-        <div className="sv-grid">
-          {vendors.map((v) => (
-            <div className="vendor-card" key={v.id}>
-              <img src={v.profile_url} alt={v.full_name} className="vendor-avatar" />
-              <div className="vendor-info">
-                <p className="vendor-name">{v.full_name}</p>
-                <p className="vendor-role">{v.category_name}</p>
-                <div className="vendor-rating">
-                  <span className="star">★</span>
-                  <span className="rating-val">{parseFloat(v.rating).toFixed(1)}</span>
+        <>
+          <div className="sv-grid">
+            {paginated.map((v) => (
+              <div className="vendor-card" key={v.id}>
+                <img src={v.profile_url} alt={v.full_name} className="vendor-avatar" />
+                <div className="vendor-info">
+                  <p className="vendor-name">{v.full_name}</p>
+                  <p className="vendor-role">{v.category_name}</p>
+                  <div className="vendor-rating">
+                    <span className="star">★</span>
+                    <span className="rating-val">{parseFloat(v.rating).toFixed(1)}</span>
+                  </div>
                 </div>
+                <Link className="book-btn" to={`/booking/${v.id}`}>
+                  Book
+                </Link>
               </div>
-              <Link className="book-btn" to={`/booking/${v.id}`}>
-                Book
-              </Link>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+
+          <SvPagination total={vendors.length} page={page} onPage={setPage} />
+        </>
       )}
     </div>
   );
 }
-
 // ===== NOTIFICATIONS PAGE =====
 const initNotifs = [
   { id: 1, title: 'Booking Confirmed', desc: 'Your electrician booking is confirmed for tomorrow 12:30 PM.', time: '2 hrs ago', read: false },
@@ -1748,11 +1850,58 @@ function Notifications() {
 }
 
 // ===== WALLET PAGE =====
+const WL_PAGE_SIZE = 4;
+
+function WlPagination({ total, page, onPage }) {
+  const totalPages = Math.ceil(total / WL_PAGE_SIZE);
+  if (totalPages <= 1) return null;
+
+  const from = (page - 1) * WL_PAGE_SIZE + 1;
+  const to = Math.min(page * WL_PAGE_SIZE, total);
+
+  const pages = [];
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= page - 1 && i <= page + 1)) {
+      pages.push(i);
+    } else if (pages[pages.length - 1] !== "…") {
+      pages.push("…");
+    }
+  }
+
+  const btn = (active, disabled) => ({
+    minWidth: 34, height: 34, padding: '0 8px',
+    borderRadius: 8,
+    border: active ? '1.5px solid #7C3AED' : '1px solid #E5E7EB',
+    background: active ? '#7C3AED' : '#fff',
+    color: active ? '#fff' : '#374151',
+    fontWeight: active ? 700 : 400,
+    fontSize: 14,
+    cursor: disabled || active ? 'default' : 'pointer',
+    opacity: disabled ? 0.35 : 1,
+  });
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0 4px', flexWrap: 'wrap', gap: 8 }}>
+      <span style={{ fontSize: 13, color: '#6B7280' }}>Showing {from}–{to} of {total}</span>
+      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+        <button onClick={() => onPage(page - 1)} disabled={page === 1} style={btn(false, page === 1)}>‹</button>
+        {pages.map((p, i) =>
+          p === "…"
+            ? <span key={`e-${i}`} style={{ color: '#9CA3AF', padding: '0 4px' }}>…</span>
+            : <button key={p} onClick={() => onPage(p)} style={btn(p === page, false)}>{p}</button>
+        )}
+        <button onClick={() => onPage(page + 1)} disabled={page === totalPages} style={btn(false, page === totalPages)}>›</button>
+      </div>
+    </div>
+  );
+}
+
 function Wallet() {
   const API_URL = process.env.REACT_APP_API_URL;
   const [txns, setTxns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -1768,6 +1917,7 @@ function Wallet() {
         const data = await res.json();
         if (res.ok && data.success) {
           setTxns(data.data || []);
+          setPage(1);
         } else {
           setError(data.message || "Failed to load transactions.");
         }
@@ -1783,24 +1933,26 @@ function Wallet() {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
   const totalPaid = txns
     .filter(tx => tx.payment_status === 'paid')
     .reduce((sum, tx) => sum + parseFloat(tx.amount || 0), 0);
 
+  const paginated = txns.slice((page - 1) * WL_PAGE_SIZE, page * WL_PAGE_SIZE);
+
   return (
     <div className="wallet-page">
       <div className="balance-card">
         <p className="balance-label">Total Paid</p>
         <p className="balance-amount">₹{totalPaid.toFixed(2)}</p>
-        <div className="wallet-actions">
+        {/* <div className="wallet-actions">
           <button className="wallet-add-btn">+ Add Money</button>
           <button className="wallet-withdraw-btn">Withdraw</button>
-        </div>
+        </div> */}
       </div>
+
       <div className="card transactions-card">
         <div className="tx-header"><h3>Recent Transactions</h3></div>
 
@@ -1817,45 +1969,256 @@ function Wallet() {
             No transactions found.
           </p>
         ) : (
-          <div className="tx-list">
-            {txns.map(tx => (
-              <div className="tx-item" key={tx.payment_id}>
-                <div className={`tx-icon ${tx.payment_type === 'advance' ? 'debit' : 'credit'}`}>
-                  {tx.payment_type === 'advance'
-                    ? <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 5v14m7-7l-7 7-7-7" /></svg>
-                    : <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 19V5m-7 7l7-7 7 7" /></svg>
-                  }
+          <>
+            <div className="tx-list">
+              {paginated.map(tx => (
+                <div className="tx-item" key={tx.payment_id}>
+                  <div className={`tx-icon ${tx.payment_type === 'advance' ? 'debit' : 'credit'}`}>
+                    {tx.payment_type === 'advance'
+                      ? <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 5v14m7-7l-7 7-7-7" /></svg>
+                      : <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 19V5m-7 7l7-7 7 7" /></svg>
+                    }
+                  </div>
+                  <div className="tx-info">
+                    <p className="tx-label">
+                      {tx.payment_type === 'advance' ? 'Advance' : 'Balance'} payment to {tx.vendor_name}
+                    </p>
+                    <p className="tx-date">{tx.services}</p>
+                    <p className="tx-date">{formatDate(tx.created_at)}</p>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <p className="tx-amount debit">-₹{parseFloat(tx.amount).toFixed(2)}</p>
+                    <span
+                      className="breakdown-pay-badge"
+                      style={{
+                        background: tx.payment_status === 'paid' ? '#F0FDF4' : '#FEF2F2',
+                        color: tx.payment_status === 'paid' ? '#16A34A' : '#DC2626',
+                        border: `1px solid ${tx.payment_status === 'paid' ? '#BBF7D0' : '#FECACA'}`,
+                        fontSize: 11,
+                      }}
+                    >
+                      {tx.payment_status === 'paid' ? '✓ Paid' : tx.payment_status}
+                    </span>
+                  </div>
                 </div>
-                <div className="tx-info">
-                  <p className="tx-label">
-                    {tx.payment_type === 'advance' ? 'Advance' : 'Balance'} payment to {tx.vendor_name}
-                  </p>
-                  <p className="tx-date">{tx.services}</p>
-                  <p className="tx-date">{formatDate(tx.created_at)}</p>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <p className="tx-amount debit">-₹{parseFloat(tx.amount).toFixed(2)}</p>
-                  <span
-                    className="breakdown-pay-badge"
-                    style={{
-                      background: tx.payment_status === 'paid' ? '#F0FDF4' : '#FEF2F2',
-                      color: tx.payment_status === 'paid' ? '#16A34A' : '#DC2626',
-                      border: `1px solid ${tx.payment_status === 'paid' ? '#BBF7D0' : '#FECACA'}`,
-                      fontSize: 11,
-                    }}
-                  >
-                    {tx.payment_status === 'paid' ? '✓ Paid' : tx.payment_status}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+
+            <WlPagination total={txns.length} page={page} onPage={setPage} />
+          </>
         )}
       </div>
     </div>
   );
 }
 
+// ==== Wallet ===
+
+const WL_WALLET_PAGE_SIZE = 6;
+
+function WlWalletPagination({ total, page, onPage }) {
+  const totalPages = Math.ceil(total / WL_WALLET_PAGE_SIZE);
+  if (totalPages <= 1) return null;
+
+  const from = (page - 1) * WL_WALLET_PAGE_SIZE + 1;
+  const to = Math.min(page * WL_WALLET_PAGE_SIZE, total);
+
+  const pages = [];
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= page - 1 && i <= page + 1)) {
+      pages.push(i);
+    } else if (pages[pages.length - 1] !== "…") {
+      pages.push("…");
+    }
+  }
+
+  const btn = (active, disabled) => ({
+    minWidth: 34, height: 34, padding: '0 8px',
+    borderRadius: 8,
+    border: active ? '1.5px solid #7C3AED' : '1px solid #E5E7EB',
+    background: active ? '#7C3AED' : '#fff',
+    color: active ? '#fff' : '#374151',
+    fontWeight: active ? 700 : 400,
+    fontSize: 14,
+    cursor: disabled || active ? 'default' : 'pointer',
+    opacity: disabled ? 0.35 : 1,
+  });
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0 4px', flexWrap: 'wrap', gap: 8 }}>
+      <span style={{ fontSize: 13, color: '#6B7280' }}>Showing {from}–{to} of {total}</span>
+      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+        <button onClick={() => onPage(page - 1)} disabled={page === 1} style={btn(false, page === 1)}>‹</button>
+        {pages.map((p, i) =>
+          p === "…"
+            ? <span key={`e-${i}`} style={{ color: '#9CA3AF', padding: '0 4px' }}>…</span>
+            : <button key={p} onClick={() => onPage(p)} style={btn(p === page, false)}>{p}</button>
+        )}
+        <button onClick={() => onPage(page + 1)} disabled={page === totalPages} style={btn(false, page === totalPages)}>›</button>
+      </div>
+    </div>
+  );
+}
+
+function WalletHistory() {
+  const API_URL = process.env.REACT_APP_API_URL;
+  const [txns, setTxns] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      const storedUser = JSON.parse(localStorage.getItem("user")) || {};
+      const userId = storedUser._id || storedUser.id;
+      if (!userId) {
+        setError("User not found. Please log in again.");
+        setLoading(false);
+        return;
+      }
+      try {
+        const res = await fetch(`${API_URL}/users/wallet-history/${userId}`);
+        const data = await res.json();
+        if (res.ok && data.success) {
+          setTxns(data.wallet_history || []);
+          setPage(1);
+        } else {
+          setError(data.message || "Failed to load wallet history.");
+        }
+      } catch (err) {
+        console.error("Failed to fetch wallet history:", err);
+        setError("Server error. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchHistory();
+  }, []);
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  };
+
+  const formatTime = (dateStr) => {
+    if (!dateStr) return '';
+    return new Date(dateStr).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+  };
+
+  const formatAmount = (val) => {
+    const n = parseFloat(val);
+    if (isNaN(n)) return '₹0.00';
+    return `₹${n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
+  const totalCredits = txns
+    .filter(tx => tx.type === 'credit')
+    .reduce((sum, tx) => sum + parseFloat(tx.amount || 0), 0);
+
+  const totalDebits = txns
+    .filter(tx => tx.type === 'debit')
+    .reduce((sum, tx) => sum + parseFloat(tx.amount || 0), 0);
+
+  const walletBalance = totalCredits - totalDebits;
+
+  const paginated = txns.slice((page - 1) * WL_WALLET_PAGE_SIZE, page * WL_WALLET_PAGE_SIZE);
+
+  return (
+    <div className="wallet-page">
+
+      {/* Balance card */}
+      <div className="balance-card">
+        <p className="balance-label">Wallet Balance</p>
+        <p className="balance-amount">{formatAmount(walletBalance)}</p>
+        <div style={{ display: 'flex', gap: 24, justifyContent: 'center', marginTop: 12 }}>
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginBottom: 2 }}>Total Credits</p>
+            <p style={{ fontSize: 15, fontWeight: 600, color: '#86EFAC' }}>{formatAmount(totalCredits)}</p>
+          </div>
+          <div style={{ width: 1, background: 'rgba(255,255,255,0.2)' }} />
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginBottom: 2 }}>Total Debits</p>
+            <p style={{ fontSize: 15, fontWeight: 600, color: '#FCA5A5' }}>{formatAmount(totalDebits)}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Transactions card */}
+      <div className="card transactions-card">
+        <div className="tx-header">
+          <h3>Wallet History</h3>
+          {!loading && !error && (
+            <span style={{ fontSize: 13, color: '#6B7280' }}>{txns.length} transaction{txns.length !== 1 ? 's' : ''}</span>
+          )}
+        </div>
+
+        {loading ? (
+          <p style={{ padding: '2rem 0', color: '#6B7280', textAlign: 'center' }}>Loading wallet history...</p>
+        ) : error ? (
+          <p style={{ padding: '2rem 0', color: '#DC2626', textAlign: 'center' }}>{error}</p>
+        ) : txns.length === 0 ? (
+          <p style={{ padding: '2rem 0', color: '#6B7280', textAlign: 'center' }}>No wallet transactions found.</p>
+        ) : (
+          <>
+            <div className="tx-list">
+              {paginated.map(tx => (
+                <div className="tx-item" key={tx.id}>
+
+                  {/* Icon */}
+                  <div className={`tx-icon ${tx.type === 'debit' ? 'debit' : 'credit'}`}>
+                    {tx.type === 'debit'
+                      ? <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 5v14m7-7l-7 7-7-7" /></svg>
+                      : <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 19V5m-7 7l7-7 7 7" /></svg>
+                    }
+                  </div>
+
+                  {/* Info */}
+                  <div className="tx-info">
+                    <p className="tx-label">
+                      {tx.reason}
+                    </p>
+                    <p className="tx-date" style={{ marginBottom: 2 }}>
+                      🏪 {tx.vendor_name}
+                      {tx.shop_name && <span style={{ color: '#9CA3AF' }}> · {tx.shop_name}</span>}
+                    </p>
+                    <p className="tx-date">
+                      {formatDate(tx.created_at)} · {formatTime(tx.created_at)}
+                      <span style={{ marginLeft: 8, color: '#9CA3AF' }}>Booking #{tx.booking_id}</span>
+                    </p>
+                  </div>
+
+                  {/* Amount + status */}
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    <p
+                      className="tx-amount"
+                      style={{ color: tx.type === 'credit' ? '#16A34A' : '#DC2626', marginBottom: 4 }}
+                    >
+                      {tx.type === 'credit' ? '+' : '-'}{formatAmount(tx.amount)}
+                    </p>
+                    <span
+                      className="breakdown-pay-badge"
+                      style={{
+                        background: tx.type === 'credit' ? '#F0FDF4' : '#FEF2F2',
+                        color: tx.type === 'credit' ? '#16A34A' : '#DC2626',
+                        border: `1px solid ${tx.type === 'credit' ? '#BBF7D0' : '#FECACA'}`,
+                        fontSize: 11,
+                      }}
+                    >
+                      {tx.type === 'credit' ? '↑ Credit' : '↓ Debit'}
+                    </span>
+                  </div>
+
+                </div>
+              ))}
+            </div>
+
+            <WlWalletPagination total={txns.length} page={page} onPage={setPage} />
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
 // ===== SETTINGS PAGE =====
 function Toggle({ checked, onChange }) {
   return (
@@ -1923,24 +2286,24 @@ function Footer() {
           <div className="footer-logo">Lokal<span>.</span></div>
           <p className="footer-tagline">Your trusted hyperlocal platform to book verified services, skilled professionals, and engaging co-curricular activities near your doorstep.</p>
           <div className="footer-socials">
-            <a href="#" className="social-icon">f</a>
-            <a href="#" className="social-icon">𝕏</a>
-            <a href="#" className="social-icon">◎</a>
-            <a href="#" className="social-icon">in</a>
+            <a href="/" className="social-icon">f</a>
+            <a href="/" className="social-icon">𝕏</a>
+            <a href="/" className="social-icon">◎</a>
+            <a href="/" className="social-icon">in</a>
           </div>
         </div>
         <div className="footer-links">
-          <a href="#">About Us</a>
-          <a href="#">Careers</a>
-          <a href="#">Blog</a>
-          <a href="#">Contact Support</a>
-          <a href="#" className="footer-vendor-link">Become a Vendor</a>
+          <a href="/">About Us</a>
+          <a href="/">Careers</a>
+          <a href="/">Blog</a>
+          <a href="/">Contact Support</a>
+          <a href="/" className="footer-vendor-link">Become a Vendor</a>
         </div>
         <div className="footer-links">
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms &amp; Conditions</a>
-          <a href="#">Cancellation Policy</a>
-          <a href="#">Trust &amp; Safety</a>
+          <a href="/">Privacy Policy</a>
+          <a href="/">Terms &amp; Conditions</a>
+          <a href="/">Cancellation Policy</a>
+          <a href="/">Trust &amp; Safety</a>
         </div>
         <div className="footer-newsletter">
           <p>Subscribe to our newsletter for the latest offers and updates.</p>
@@ -1964,7 +2327,7 @@ function Footer() {
 }
 
 // ===== PAGE MAP =====
-const pages = { MyProfile, MyBookings, MyActivities, SavedVendors, Notifications, Wallet, Settings };
+const pages = { MyProfile, MyBookings, MyActivities, SavedVendors, Notifications, Wallet, WalletHistory, Settings };
 const user = JSON.parse(localStorage.getItem("user"));
 
 const greetings = {
@@ -1974,6 +2337,7 @@ const greetings = {
   SavedVendors: `Welcome back, ${user?.name} 🗒️`,
   Notifications: `Welcome back, ${user?.name} 🗒️`,
   Wallet: `Welcome back, ${user?.name} 🗒️`,
+  WalletHistory: `Welcome back, ${user?.name} 💰`,
   Settings: `Welcome back, ${user?.name} 🗒️`,
 };
 

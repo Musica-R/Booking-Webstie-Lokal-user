@@ -144,7 +144,26 @@
     background: var(--success);
     color: #fff;
 }
+.bk-btn-whatsapp {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 14px 20px;
+    background: #25D366;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
 
+.bk-btn-whatsapp:hover {
+    background: #1ebe5d;
+}
 .bk-step__label {
     font-size: 11px;
     color: var(--text-muted);

@@ -514,4 +514,7 @@
     .hero__actions {
         gap: 10px;
     }
+    .hero__stat{
+        padding: 0px;
+    }
 }

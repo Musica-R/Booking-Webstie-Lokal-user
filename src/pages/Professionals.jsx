@@ -11,12 +11,7 @@ const PinIcon = () => (
     </svg>
 );
 
-const PhoneIcon = () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1.21h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.82a16 16 0 0 0 6.29 6.29l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
-    </svg>
-);
+
 
 const CalendarIcon = () => (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
@@ -33,6 +28,26 @@ const StarIcon = () => (
         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
     </svg>
 );
+
+// ── Category Images ───────────────────────────────────────────────────────────
+const getCategoryImage = (categoryName) => {
+    const imageMap = {
+        "Electrician": "/assets/electrician.jpg",
+        "Plumber": "/assets/plumber.jpg",
+        "AC Repair": "/assets/ac-repair.jpg",
+        "Painting": "/assets/painting.jpg",
+        "Housekeeping": "/assets/housekeeping.jpg",
+        "Car Wash": "/assets/car-wash.jpg",
+        "RO Service": "/assets/ro-service.jpg",
+        "CCTV Install": "/assets/cctv-install.jpg",
+        "Pest Control": "/assets/pest-control.jpg",
+        "Appliance Repair": "/assets/appliance-repair.jpg",
+        "Carpenter": "/assets/carpenter.jpg",
+        "Tank Cleaning": "/assets/tank-cleaning.jpg",
+    };
+
+    return imageMap[categoryName] || "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=700&q=80";
+};
 
 // ── Skeleton Card ─────────────────────────────────────────────────────────────
 const SkeletonCard = () => (
@@ -123,7 +138,7 @@ export default function Professionals() {
                                 <div className="professionals__img-wrap">
                                     <img
                                         className="professionals__img"
-                                        src={pro.profile_url}
+                                        src={getCategoryImage(pro.category_name)}
                                         alt={pro.category_name}
                                         onError={(e) => {
                                             e.target.src = "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=700&q=80";
@@ -182,12 +197,6 @@ export default function Professionals() {
 
                                     {/* Actions */}
                                     <div className="professionals__actions">
-                                        {/* <button
-                                            className="professionals__btn professionals__btn--call"
-                                            onClick={() => window.open(`tel:${pro.phone}`)}
-                                        >
-                                            <PhoneIcon /> Call
-                                        </button> */}
                                         <button
                                             className="professionals__btn professionals__btn--book"
                                             onClick={() => navigate(`/booking/${pro.id}`)}

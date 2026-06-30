@@ -18,18 +18,18 @@ const PinIcon = () => (
 );
 
 const ACTIVITIES = [
-    { id: 3, name: "Dance", emoji: "💃", color: "pink", rating: 4.9, trainers: "45+ Trainers", location: "Whitefield, BLR", image: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=400&q=80" },
-    { id: 7, name: "Drawing", emoji: "🎨", color: "cream", rating: 4.7, trainers: "22+ Trainers", location: "BTM Layout, BLR", image: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=400&q=80" },
-    { id: 1, name: "Gym", emoji: "🏋️", color: "yellow", rating: 4.8, trainers: "30+ Trainers", location: "Indiranagar, BLR", image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&q=80" },
-    { id: 5, name: "Karate", emoji: "🥋", color: "peach", rating: 4.8, trainers: "18+ Trainers", location: "Jayanagar, BLR", image: "https://images.unsplash.com/photo-1555597673-b21d5c935865?w=400&q=80" },
-    { id: 10, name: "Meditation", emoji: "🪷", color: "teal", rating: 4.9, trainers: "15+ Trainers", location: "JP Nagar, BLR", image: "https://images.unsplash.com/photo-1545389336-cf090694435e?w=400&q=80" },
-    { id: 4, name: "Music Class", emoji: "🎸", color: "rose", rating: 4.6, trainers: "32+ Trainers", location: "Malleswaram, BLR", image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&q=80" },
-    { id: 6, name: "Silambam", emoji: "🥢", color: "lavender", rating: 4.8, trainers: "8+ Trainers", location: "Koramangala, BLR", image: "https://images.unsplash.com/photo-1562771379-eafdca7a02f8?w=400&q=80" },
-    { id: 11, name: "Spoken English", emoji: "🗣️", color: "sky", rating: 4.5, trainers: "50+ Trainers", location: "Online / Offline", image: "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=400&q=80" },
-    { id: 8, name: "Swimming", emoji: "🏊", color: "mint", rating: 4.7, trainers: "20+ Trainers", location: "HSR Layout, BLR", image: "https://images.unsplash.com/photo-1530549387789-4c1017266635?w=400&q=80" },
-    { id: 12, name: "Tuition", emoji: "📚", color: "lilac", rating: 4.6, trainers: "60+ Trainers", location: "Online / Offline", image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&q=80" },
-    { id: 2, name: "Yoga", emoji: "🧘", color: "lavender", rating: 4.9, trainers: "24+ Trainers", location: "Indiranagar, BLR", image: "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=400&q=80" },
-    { id: 9, name: "Zumba", emoji: "🕺", color: "lilac", rating: 4.8, trainers: "28+ Trainers", location: "Marathahalli, BLR", image: "https://images.unsplash.com/photo-1504609813442-a8924e83f76e?w=400&q=80" },
+    { id: 3, name: "Dance", emoji: "💃", color: "pink", rating: 4.9, trainers: "45+ Trainers", location: "Whitefield, BLR", image: "/assets/dance.jpg" },
+    { id: 7, name: "Drawing", emoji: "🎨", color: "cream", rating: 4.7, trainers: "22+ Trainers", location: "BTM Layout, BLR", image: "/assets/draw.jpg" },
+    { id: 1, name: "Gym", emoji: "🏋️", color: "yellow", rating: 4.8, trainers: "30+ Trainers", location: "Indiranagar, BLR", image: "/assets/gym.jpg" },
+    { id: 5, name: "Karate", emoji: "🥋", color: "peach", rating: 4.8, trainers: "18+ Trainers", location: "Jayanagar, BLR", image: "/assets/draw.jpg" },
+    { id: 10, name: "Meditation", emoji: "🪷", color: "teal", rating: 4.9, trainers: "15+ Trainers", location: "JP Nagar, BLR", image: "/assets/karate.jpg" },
+    { id: 4, name: "Music Class", emoji: "🎸", color: "rose", rating: 4.6, trainers: "32+ Trainers", location: "Malleswaram, BLR", image: "/assets/music.jpg" },
+    { id: 6, name: "Silambam", emoji: "🥢", color: "lavender", rating: 4.8, trainers: "8+ Trainers", location: "Koramangala, BLR", image: "/assets/Silambam.jpg" },
+    { id: 11, name: "Spoken English", emoji: "🗣️", color: "sky", rating: 4.5, trainers: "50+ Trainers", location: "Online / Offline", image: "/assets/Spoken.jpg" },
+    { id: 8, name: "Swimming", emoji: "🏊", color: "mint", rating: 4.7, trainers: "20+ Trainers", location: "HSR Layout, BLR", image: "/assets/Swimming.jpg" },
+    { id: 12, name: "Tuition", emoji: "📚", color: "lilac", rating: 4.6, trainers: "60+ Trainers", location: "Online / Offline", image: "/assets/Tuition.jpg" },
+    { id: 2, name: "Yoga", emoji: "🧘", color: "lavender", rating: 4.9, trainers: "24+ Trainers", location: "Indiranagar, BLR", image: "/assets/Yoga.jpg" },
+    { id: 9, name: "Zumba", emoji: "🕺", color: "lilac", rating: 4.8, trainers: "28+ Trainers", location: "Marathahalli, BLR", image: "/assets/Zumba.jpg" },
 ];
 
 const CATEGORIES = [
@@ -129,9 +129,9 @@ export default function Activities() {
                                             loading="lazy"
                                         />
                                         <div className="activities__img-card-overlay" />
-                                        <div className="activities__img-card-badge">
+                                        {/* <div className="activities__img-card-badge">
                                             {act.emoji} {act.name}
-                                        </div>
+                                        </div> */}
                                         <div className="activities__img-card-body">
                                             <div className="activities__img-card-name">{act.name}</div>
                                             <div className="activities__img-card-rating">

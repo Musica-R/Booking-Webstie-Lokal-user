@@ -1626,7 +1626,7 @@ function MyActivities() {
 
                   {/* ── Action buttons ── */}
                   <div className="booking-actions">
-                    {(a.booking_status?.toLowerCase() === 'pending' ||
+                    {/* {(a.booking_status?.toLowerCase() === 'pending' ||
                       a.booking_status?.toLowerCase() === 'confirmed') && (
                         <button
                           className="btn btn-ghost action-sm"
@@ -1638,7 +1638,7 @@ function MyActivities() {
                         >
                           Cancel
                         </button>
-                      )}
+                      )} */}
                     {a.booking_status?.toLowerCase() === 'completed' && (
                       <button className="btn btn-ghost action-sm">☆ Rate Activity</button>
                     )}

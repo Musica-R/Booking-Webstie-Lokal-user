@@ -324,7 +324,7 @@
 
 @media (max-width: 480px) {
     .stalls {
-        padding: 48px 16px 56px;
+        padding: 0px 16px 0px;
     }
 
     .stalls__card {

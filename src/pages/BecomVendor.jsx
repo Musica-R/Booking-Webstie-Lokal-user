@@ -135,8 +135,12 @@ function NearStallVendorForm({ onClose }) {
 
     // ── File states ──
     const [profilePhoto, setProfilePhoto] = useState(null);
+    const [profilePhoto2, setProfilePhoto2] = useState(null);
+    const [profilePhoto3, setProfilePhoto3] = useState(null);
     const [governmentId, setGovernmentId] = useState(null);
     const profileRef = useRef(null);
+    const profileRef2 = useRef(null);
+    const profileRef3 = useRef(null);
     const govRef = useRef(null);
     const [dragOverId, setDragOverId] = useState(null);
 
@@ -144,19 +148,37 @@ function NearStallVendorForm({ onClose }) {
     const [showTerms, setShowTerms] = useState(false);
     const [paymentDone, setPaymentDone] = useState(false);
     const [locationLoading, setLocationLoading] = useState(false);
+    const [razorpayData, setRazorpayData] = useState(null); // { order_id, payment_id, signature }
 
     const LISTING_FEE = 100;
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+
+        if (name === "description") {
+            const words = value.trim().split(/\s+/).filter(Boolean);
+
+            if (words.length > 5) {
+                return;
+            }
+        }
+
         setForm((f) => ({ ...f, [name]: value }));
     };
 
     // ── File helpers ──
     const handleFile = (field, file) => {
         if (!file) return;
-        if (field === "profilePhoto") setProfilePhoto(file);
-        else setGovernmentId(file);
+
+        if (field === "profilePhoto") {
+            setProfilePhoto(file);
+        } else if (field === "profilePhoto2") {
+            setProfilePhoto2(file);
+        } else if (field === "profilePhoto3") {
+            setProfilePhoto3(file);
+        } else {
+            setGovernmentId(file);
+        }
     };
 
     const handleDrop = (e, field) => {
@@ -203,6 +225,55 @@ function NearStallVendorForm({ onClose }) {
         return true;
     };
 
+
+    // razorpay order creation 
+
+
+    const handlePayListingFee = async () => {
+        try {
+            const res = await fetch(`${API_URL}/payment/create-order`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ amount: LISTING_FEE })
+            });
+            const data = await res.json();
+            if (!data.success) {
+                alert("Could not start payment. Please try again.");
+                return;
+            }
+
+            const order = data.order;
+            const options = {
+                key: process.env.REACT_APP_RAZORPAY_KEY_ID,
+                amount: order.amount,
+                currency: "INR",
+                name: "Stall Listing Fee",
+                description: "One-time listing fee",
+                order_id: order.id,
+                handler: function (response) {
+                    setRazorpayData({
+                        order_id: response.razorpay_order_id,
+                        payment_id: response.razorpay_payment_id,
+                        signature: response.razorpay_signature
+                    });
+                    setPaymentDone(true);
+                },
+                prefill: {
+                    name: form.shop_name,
+                    email: form.email,
+                    contact: form.phone
+                },
+                theme: { color: "#2563eb" }
+            };
+
+            const rzp = new window.Razorpay(options);
+            rzp.open();
+        } catch (err) {
+            console.error(err);
+            alert("Payment initiation failed. Please try again.");
+        }
+    };
+
     // Step 1: Validate → check payment → show terms
     const handleSubmitClick = (e) => {
         e.preventDefault();
@@ -235,9 +306,13 @@ function NearStallVendorForm({ onClose }) {
         formData.append("opening_time", form.opening_time);
         formData.append("closing_time", form.closing_time);
         formData.append("listing_fee", LISTING_FEE);
-        formData.append("payment_status", "paid");
         formData.append("terms_accepted", String(termsAccepted));
+        formData.append("razorpay_order_id", razorpayData.order_id);
+        formData.append("razorpay_payment_id", razorpayData.payment_id);
+        formData.append("razorpay_signature", razorpayData.signature);
         if (profilePhoto) formData.append("profile_photo", profilePhoto);
+        if (profilePhoto2) formData.append("profile_photo2", profilePhoto2);
+        if (profilePhoto3) formData.append("profile_photo3", profilePhoto3);
         if (governmentId) formData.append("government_id", governmentId);
 
         setSubmitting(true);
@@ -340,12 +415,14 @@ function NearStallVendorForm({ onClose }) {
                                 value={form.password} onChange={handleChange} />
                         </div>
                     </div>
+
                     <div className="vnd-field">
-                        <label className="vnd-label">Description</label>
+                        <label className="vnd-label">Badge (Maximum 5 words)</label>
                         <textarea className="vnd-input vnd-textarea" name="description"
                             placeholder="e.g. Tea, Snacks, Juices…"
-                            value={form.description} onChange={handleChange} rows={3} />
+                            value={form.description} onChange={handleChange} rows={1} />
                     </div>
+
                 </div>
 
                 {/* SECTION 2: Location */}
@@ -452,6 +529,19 @@ function NearStallVendorForm({ onClose }) {
                             label="Shop Photo"
                         />
                         <UploadZone
+                            field="profilePhoto2"
+                            fileRef={profileRef2}
+                            currentFile={profilePhoto2}
+                            label="Shop Photo 2 (Optional)"
+                        />
+
+                        <UploadZone
+                            field="profilePhoto3"
+                            fileRef={profileRef3}
+                            currentFile={profilePhoto3}
+                            label="Shop Photo 3 (Optional)"
+                        />
+                        <UploadZone
                             field="governmentId"
                             fileRef={govRef}
                             currentFile={governmentId}
@@ -485,7 +575,7 @@ function NearStallVendorForm({ onClose }) {
                                 <span>Payment of ₹100 received</span>
                             </div>
                         ) : (
-                            <button type="button" className="vnd-pay-btn" onClick={() => setPaymentDone(true)}>
+                            <button type="button" className="vnd-pay-btn" onClick={handlePayListingFee}>
                                 <RupeeIcon />
                                 Pay ₹100 to Continue
                             </button>

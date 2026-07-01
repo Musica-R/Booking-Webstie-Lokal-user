@@ -23,6 +23,28 @@ const DistanceIcon = () => (
     </svg>
 );
 
+const ChevronLeftIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="15 18 9 12 15 6" />
+    </svg>
+);
+
+const ChevronRightIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="9 18 15 12 9 6" />
+    </svg>
+);
+
+const CloseIcon = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+);
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 /** Returns true if current time is between opening_time and closing_time (HH:MM:SS strings) */
@@ -51,9 +73,202 @@ function buildMapUrl(stall) {
     return `https://www.google.com/maps/search/?api=1&query=${stall.latitude},${stall.longitude}`;
 }
 
-/** Static Google Maps thumbnail (no API key needed) */
-function mapThumbnailUrl(lat, lng) {
-    return `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=15&size=400x160&markers=color:red%7C${lat},${lng}&key=YOUR_GOOGLE_MAPS_API_KEY`;
+/**
+ * Build the list of valid image URLs for a stall.
+ * profile_photo2 / profile_photo3 are only included if the underlying
+ * DB field (profile_photo2 / profile_photo3) is not null.
+ * The main profile_photo is always included if present.
+ */
+function getStallImages(stall) {
+    const images = [];
+
+    if (stall.profile_photo && stall.profile_url) {
+        images.push(stall.profile_url);
+    }
+    if (stall.profile_photo2 && stall.profile_url2) {
+        images.push(stall.profile_url2);
+    }
+    if (stall.profile_photo3 && stall.profile_url3) {
+        images.push(stall.profile_url3);
+    }
+
+    return images;
+}
+
+const FALLBACK_IMG =
+    "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=600&q=80";
+
+// ── Image Carousel (only rendered when a stall has 2+ images) ─────────────────
+// onImageClick(index) is called when the photo itself is tapped, to open the lightbox.
+function ImageCarousel({ images, alt, onImageClick }) {
+    const [index, setIndex] = useState(0);
+
+    if (images.length === 0) {
+        return (
+            <img
+                className="stalls__card-img"
+                src={FALLBACK_IMG}
+                alt={alt}
+            />
+        );
+    }
+
+    // Single image → no scroller, no arrows, no dots — but still tappable
+    if (images.length === 1) {
+        return (
+            <img
+                className="stalls__card-img"
+                src={images[0]}
+                alt={alt}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onImageClick?.(0);
+                }}
+                style={{ cursor: "zoom-in" }}
+                onError={(e) => { e.target.src = FALLBACK_IMG; }}
+            />
+        );
+    }
+
+    // Multiple images → show scroller with arrows + dots
+    const goPrev = (e) => {
+        e.stopPropagation();
+        setIndex((i) => (i === 0 ? images.length - 1 : i - 1));
+    };
+    const goNext = (e) => {
+        e.stopPropagation();
+        setIndex((i) => (i === images.length - 1 ? 0 : i + 1));
+    };
+
+    return (
+        <div className="stalls__carousel">
+            <img
+                className="stalls__card-img"
+                src={images[index]}
+                alt={`${alt} ${index + 1}`}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onImageClick?.(index);
+                }}
+                style={{ cursor: "zoom-in" }}
+                onError={(e) => { e.target.src = FALLBACK_IMG; }}
+            />
+
+            <button
+                type="button"
+                className="stalls__carousel-arrow stalls__carousel-arrow--left"
+                onClick={goPrev}
+                aria-label="Previous image"
+            >
+                <ChevronLeftIcon />
+            </button>
+            <button
+                type="button"
+                className="stalls__carousel-arrow stalls__carousel-arrow--right"
+                onClick={goNext}
+                aria-label="Next image"
+            >
+                <ChevronRightIcon />
+            </button>
+
+            <div className="stalls__carousel-dots">
+                {images.map((_, i) => (
+                    <span
+                        key={i}
+                        className={`stalls__carousel-dot ${i === index ? "stalls__carousel-dot--active" : ""}`}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setIndex(i);
+                        }}
+                    />
+                ))}
+            </div>
+        </div>
+    );
+}
+
+// ── Lightbox (fullscreen image popup) ──────────────────────────────────────────
+function Lightbox({ images, startIndex, title, onClose }) {
+    const [index, setIndex] = useState(startIndex);
+
+    useEffect(() => {
+        setIndex(startIndex);
+    }, [startIndex]);
+
+    useEffect(() => {
+        const handleKey = (e) => {
+            if (e.key === "Escape") onClose();
+            if (e.key === "ArrowLeft") goPrev();
+            if (e.key === "ArrowRight") goNext();
+        };
+        window.addEventListener("keydown", handleKey);
+        // Lock background scroll while lightbox is open
+        const prevOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        return () => {
+            window.removeEventListener("keydown", handleKey);
+            document.body.style.overflow = prevOverflow;
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [index]);
+
+    const goPrev = (e) => {
+        e?.stopPropagation();
+        setIndex((i) => (i === 0 ? images.length - 1 : i - 1));
+    };
+    const goNext = (e) => {
+        e?.stopPropagation();
+        setIndex((i) => (i === images.length - 1 ? 0 : i + 1));
+    };
+
+    if (!images || images.length === 0) return null;
+
+    return (
+        <div className="stalls__lightbox-overlay" onClick={onClose}>
+            <button
+                type="button"
+                className="stalls__lightbox-close"
+                onClick={onClose}
+                aria-label="Close"
+            >
+                <CloseIcon />
+            </button>
+
+            <div className="stalls__lightbox-content" onClick={(e) => e.stopPropagation()}>
+                <img
+                    className="stalls__lightbox-img"
+                    src={images[index]}
+                    alt={`${title} ${index + 1}`}
+                    onError={(e) => { e.target.src = FALLBACK_IMG; }}
+                />
+
+                {images.length > 1 && (
+                    <>
+                        <button
+                            type="button"
+                            className="stalls__lightbox-arrow stalls__lightbox-arrow--left"
+                            onClick={goPrev}
+                            aria-label="Previous image"
+                        >
+                            <ChevronLeftIcon />
+                        </button>
+                        <button
+                            type="button"
+                            className="stalls__lightbox-arrow stalls__lightbox-arrow--right"
+                            onClick={goNext}
+                            aria-label="Next image"
+                        >
+                            <ChevronRightIcon />
+                        </button>
+
+                        <div className="stalls__lightbox-counter">
+                            {index + 1} / {images.length}
+                        </div>
+                    </>
+                )}
+            </div>
+        </div>
+    );
 }
 
 // ── Mini Map ──────────────────────────────────────────────────────────────────
@@ -107,8 +322,9 @@ export default function Stalls() {
     const [stalls, setStalls] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [lightbox, setLightbox] = useState(null); // { images, startIndex, title } | null
 
-     const API_URL = process.env.REACT_APP_API_URL;
+    const API_URL = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
         async function fetchStalls() {
@@ -163,19 +379,20 @@ export default function Stalls() {
                     {!loading && !error && stalls.map((stall) => {
                         const open = isOpenNow(stall.opening_time, stall.closing_time);
                         const status = open ? "open" : "closed";
+                        const images = getStallImages(stall);
 
                         return (
                             <div className="stalls__card" key={stall.id}>
-                                {/* Image */}
+                                {/* Image / Carousel */}
                                 <div className="stalls__card-img-wrap">
-                                    <img
-                                        className="stalls__card-img"
-                                        src={stall.profile_url}
+                                    <ImageCarousel
+                                        images={images}
                                         alt={stall.shop_name}
-                                        onError={(e) => {
-                                            e.target.src = "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=600&q=80";
-                                        }}
+                                        onImageClick={(idx) =>
+                                            setLightbox({ images, startIndex: idx, title: stall.shop_name })
+                                        }
                                     />
+
                                     <span className="stalls__badge-category">
                                         {stall.description
                                             ? stall.description.split(" ").slice(0, 2).join(" ")
@@ -232,6 +449,16 @@ export default function Stalls() {
                     })}
                 </div>
             </div>
+
+            {/* Fullscreen image popup */}
+            {lightbox && (
+                <Lightbox
+                    images={lightbox.images}
+                    startIndex={lightbox.startIndex}
+                    title={lightbox.title}
+                    onClose={() => setLightbox(null)}
+                />
+            )}
         </section>
     );
 }

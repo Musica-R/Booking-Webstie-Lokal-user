@@ -321,7 +321,7 @@ export default function BookingService() {
     const [useWallet, setUseWallet] = useState(false);
     const [walletUsed, setWalletUsed] = useState(0);
     const [walletLoading, setWalletLoading] = useState(false);
-    // const [walletOnlySubmitting, setWalletOnlySubmitting] = useState(false);
+    const [walletOnlySubmitting, setWalletOnlySubmitting] = useState(false);
 
     /* warning modal */
     const [showWarning, setShowWarning] = useState(false);
@@ -493,18 +493,23 @@ export default function BookingService() {
         }
     }, [maxWalletUsable, walletUsed, useWallet]);
 
+    // const handleWalletToggle = (checked) => {
+
+    //     // Don't allow wallet if wallet can pay the full service amount
+    //     if (checked && walletBalance >= total) {
+    //         alert(
+    //             "Wallet cannot be used for this booking. Please pay using Razorpay."
+    //         );
+    //         setUseWallet(false);
+    //         setWalletUsed(0);
+    //         return;
+    //     }
+
+    //     setUseWallet(checked);
+    //     setWalletUsed(checked ? maxWalletUsable : 0);
+    // };
+
     const handleWalletToggle = (checked) => {
-
-        // Don't allow wallet if wallet can pay the full service amount
-        if (checked && walletBalance >= total) {
-            alert(
-                "Wallet cannot be used for this booking. Please pay using Razorpay."
-            );
-            setUseWallet(false);
-            setWalletUsed(0);
-            return;
-        }
-
         setUseWallet(checked);
         setWalletUsed(checked ? maxWalletUsable : 0);
     };
@@ -547,8 +552,16 @@ export default function BookingService() {
     //     }
     // };
 
+    // const handleConfirmClick = () => {
+    //     setShowWarning(true);
+    // };
+
     const handleConfirmClick = () => {
-        setShowWarning(true);
+        if (finalPayable === 0) {
+            handleWalletOnlyBooking();
+        } else {
+            setShowWarning(true);
+        }
     };
 
     // const handleWalletOnlyBooking = async () => {
@@ -572,6 +585,25 @@ export default function BookingService() {
     //         setWalletOnlySubmitting(false);
     //     }
     // };
+
+
+    const handleWalletOnlyBooking = async () => {
+        setWalletOnlySubmitting(true);
+        try {
+            const res = await fetch(`${API_URL}/payment/wallet-only`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(buildBookingPayload())
+            });
+            const data = await res.json();
+            if (data.success) setStep(5);
+            else alert(data.message || "Booking failed. Please try again.");
+        } catch (err) {
+            alert("Server error. Please try again.");
+        } finally {
+            setWalletOnlySubmitting(false);
+        }
+    };
 
     const handleWarningConfirm = () => {
         setShowWarning(false);
@@ -1016,7 +1048,7 @@ export default function BookingService() {
                                 </p>
                             ) : (
                                 <>
-                                    <label
+                                    {/* <label
                                         style={{
                                             display: "flex",
                                             alignItems: "center",
@@ -1031,20 +1063,36 @@ export default function BookingService() {
                                             onChange={(e) => handleWalletToggle(e.target.checked)}
                                         />
                                         Use Wallet Balance (₹{walletBalance.toFixed(2)})
+                                    </label> */}
+
+                                    <label
+                                        style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: 10,
+                                            cursor: "pointer"
+                                        }}
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={useWallet}
+                                            onChange={(e) => handleWalletToggle(e.target.checked)}
+                                        />
+                                        Use Wallet Balance (₹{walletBalance.toFixed(2)})
                                     </label>
 
-                                    {walletBalance >= total && (
+                                    {/* {walletBalance >= total && (
                                         <p
                                             style={{
                                                 color: "#dc2626",
                                                 fontSize: "13px",
                                                 marginTop: "8px",
-                                                textAlign:"start"
+                                                textAlign: "start"
                                             }}
                                         >
                                             Wallet cannot be used for this booking.
                                         </p>
-                                    )}
+                                    )} */}
 
                                     {useWallet && (
                                         <div style={{ marginTop: 10 }}>
@@ -1151,7 +1199,7 @@ export default function BookingService() {
                                 </div>
                             )}
 
-                            <button
+                            {/* <button
                                 className="bk-confirm-btn"
                                 onClick={handleConfirmClick}
                             // disabled={walletOnlySubmitting}
@@ -1159,7 +1207,18 @@ export default function BookingService() {
                             >
                                 <ShieldIcon />{" "}
                                 {`Confirm & Pay ₹${finalPayable.toFixed(0)}`}
+                            </button> */}
+
+                            <button
+                                className="bk-confirm-btn"
+                                onClick={handleConfirmClick}
+                                disabled={walletOnlySubmitting}
+                                style={{ opacity: walletOnlySubmitting ? 0.6 : 1 }}
+                            >
+                                <ShieldIcon />{" "}
+                                {finalPayable === 0 ? "Confirm Booking" : `Confirm & Pay ₹${finalPayable.toFixed(0)}`}
                             </button>
+
                             <p className="bk-terms-note">By proceeding, you agree to our Terms &amp; Conditions</p>
                         </div>
                     </div>

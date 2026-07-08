@@ -302,9 +302,9 @@ function MobileServices({ onServiceClick }) {
           <div className="mob-banner__title">Manage Your Bookings</div>
           <div className="mob-banner__sub">View, reschedule or cancel anytime</div>
         </div>
-        <a href="/account" className="mob-banner__btn">
+        {/* <a href="/account" className="mob-banner__btn">
           My Bookings <ArrowRight />
-        </a>
+        </a> */}
       </div>
 
     </div>
